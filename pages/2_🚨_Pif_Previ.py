@@ -58,7 +58,7 @@ if uploaded_file is not None:
     horizontal=True)
 
     def get_hyp_rep(pifs):
-        return pd.read_excel("hyp_rep.xlsx", sheet_name=pifs)
+        return pd.read_excel("hyp_rep - V2.xlsx", sheet_name=pifs)
 
     def COURBE_PRES(t):
         if saison_IATA == "**Winter** :snowflake:":
