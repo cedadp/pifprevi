@@ -141,5 +141,5 @@ if uploaded_file is not None:
  
        
 if __name__=="__main__":
-    main()
+
     
