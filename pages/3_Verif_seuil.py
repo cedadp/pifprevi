@@ -7,7 +7,7 @@ from itertools import product
 import locale
 
 
-def main(): 
+
     
     st.title("PIF - Charge horaire / seuil de saturation")
     
