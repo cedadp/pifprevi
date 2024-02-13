@@ -5,9 +5,18 @@ import altair as alt
 from itertools import product
 import locale
 
+st.set_page_config(page_title="Verif seuil", page_icon=" ", layout="centered", initial_sidebar_state="auto", menu_items=None)
+
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 
-st.title("PIF - Charge horaire / seuil de saturation")
+st.title('PIF - Charge horaire / seuil de saturation')
     
 uploaded_file = st.file_uploader("Selectionner un fichier", type=["xls", "xlsx"])
     
