@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Feb  7 13:52:23 2024
-
-@author: DEMANET
-"""
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
