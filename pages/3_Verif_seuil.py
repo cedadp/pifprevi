@@ -8,15 +8,13 @@ import locale
 
 
 
+st.title("PIF - Charge horaire / seuil de saturation")
     
-    st.title("PIF - Charge horaire / seuil de saturation")
+uploaded_file = st.file_uploader("Selectionner un fichier", type=["xls", "xlsx"])
     
-    uploaded_file = st.file_uploader("Selectionner un fichier", type=["xls", "xlsx"])
+
     
-    #uploaded_file = "C:/Users/demanet/Downloads/export_pif_du_2024-02-08_au_2024-02-18 - Copie.xlsx"
-    
-    
-    if uploaded_file is not None: 
+if uploaded_file is not None: 
         
         df = pd.read_excel(uploaded_file)
         
