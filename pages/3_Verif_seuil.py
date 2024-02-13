@@ -137,9 +137,5 @@ if uploaded_file is not None:
             
             
             st.plotly_chart(fig)
-       
- 
-       
-if __name__=="__main__":
 
-    
+if __name__=="__main__":    
