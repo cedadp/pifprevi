@@ -16,7 +16,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 
-st.title('PIF - Charge horaire / seuil de saturation')
+st.title('📏 PIF - Charge horaire / seuil de saturation')
     
 uploaded_file = st.file_uploader("Selectionner un fichier", type=["xls", "xlsx"])
     
