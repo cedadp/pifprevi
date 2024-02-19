@@ -110,7 +110,7 @@ if uploaded_file is not None:
         
         
         def seuil(site):
-            seuils = {'K CTRCNT' : 0,'K CTR' : 1600,'K CNT' : 300 , 'L CTR' : 1170, 'L CNT' :  1440, 'M CTR' : 1820, 'Galerie EF' : 1820, 'C2F' : 2180, 'C2G' : 300, 'Liaison AC' : 1960,'Liaison BD' : 2500,
+            seuils = {'K CTRCNT' : 0,'K CTR' : 1600,'K CNT' : 300 , 'L CTR' : 2100, 'L CNT' :  1440, 'M CTR' : 1820, 'Galerie EF' : 1820, 'C2F' : 2180, 'C2G' : 910, 'Liaison AC' : 1960,'Liaison BD' : 2500,
             'T3': 1260, 'Terminal 1' : 2280, 'Terminal 1_5' : 375, 'Terminal 1_6' : 500}
         
         
