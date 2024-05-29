@@ -67,7 +67,8 @@ if uploaded_file is not None:
     if uploaded_file2 is not None:
         @st.cache_data(ttl=90)
         def COURBE_PRES(t):
-            return pd.read_excel(uploaded_file2, t)
+            df= pd.read_excel(uploaded_file2, t)
+            return df
 
     
         
