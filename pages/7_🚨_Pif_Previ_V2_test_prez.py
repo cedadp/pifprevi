@@ -342,7 +342,12 @@ if uploaded_file is not None:
                     x = "Extrême Orient"
                 else:
                     x = new_row['Faisceau géographique']    
-                L = l_courbe_geo_t[new_row['Libellé terminal']][x][new_row['Plage']]               
+                try:
+                    L = l_courbe_geo_t[new_row['Libellé terminal']][x][new_row['Plage']]     
+                except KeyError:
+                    print("Terminal :", new_row['Libellé terminal'])
+                    print(f"{new_row['Local Date']}_{new_row['Libellé terminal']}_{new_row['Prov Dest']}")
+                    # break
                 # Subtract 10 minutes from the datetime column
                 new_row['new_datetime'] -= timedelta(minutes=10*i)
                 for pif in L_pif:
