@@ -62,16 +62,13 @@ if uploaded_file is not None:
     def get_hyp_rep(pifs):
         return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
     
-st.subheader("Courbe de présentation :")
-uploaded_file2 = st.file_uploader("Choisir un fichier :", key=1)
-if uploaded_file2 is not None:
-    @st.cache_data(ttl=90)
-    def COURBE_PRES(df):
-        with st.spinner('Chargemement courbe de présentation  ...'):
-            df = pd.read_excel(uploaded_file2, "courbe de présentation")
-        
-            st.success("courbe de présentation chargées !")
-        return df
+
+    st.subheader("courbes_presentation:")
+    uploaded_file2 = st.file_uploader("Choisir un fichier :", key=3)
+    if uploaded_file2 is not None:
+        @st.cache_data(ttl=90)
+        def COURBE_PRES(t):
+         return pd.read_excel(uploaded_file2, t)
 
 
     
