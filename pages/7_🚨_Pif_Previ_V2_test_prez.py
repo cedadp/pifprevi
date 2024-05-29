@@ -66,7 +66,7 @@ st.subheader("Courbe de présentation :")
 uploaded_file2 = st.file_uploader("Choisir un fichier :", key=1)
 if uploaded_file2 is not None:
     @st.cache_data(ttl=90)
-    def COURBE_PRES(t):
+    def COURBE_PRES(df):
         with st.spinner('Chargemement courbe de présentation  ...'):
             df = pd.read_excel(uploaded_file2, "courbe de présentation")
         
