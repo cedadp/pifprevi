@@ -340,7 +340,7 @@ if uploaded_file is not None:
                 new_row = row.copy()
                 if new_row['Faisceau géographique'] == 0:
                     x = "Extrême Orient"
-                 else:
+                else:
                     x = new_row['Faisceau géographique']    
                 L = l_courbe_geo_t[new_row['Libellé terminal']][x][new_row['Plage']]               
                 # Subtract 10 minutes from the datetime column
