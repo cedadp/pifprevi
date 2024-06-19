@@ -76,7 +76,7 @@ if uploaded_file is not None:
     
    
     def consolider_pif_k(df):
-        if st.checkbox("Fusionner K CTR et K CNT", value =True):
+        if st.checkbox("Fusionner K CTR et K CNT", value =False):
     
     
             df['site'] = df['site'].apply(lambda x: 'K CTRCNT' if x in ['K CNT', 'K CTR'] else x)
