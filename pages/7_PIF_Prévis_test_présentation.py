@@ -10,7 +10,7 @@ import openpyxl
 # uploaded_file = "C:/Users/demanet/Downloads/pgrm_complet_2024-04-03.xlsx"
 # df = pd.read_excel(uploaded_file) 
 
-st.set_page_config(page_title="Pif Previ", page_icon="🚨", layout="centered", initial_sidebar_state="auto", menu_items=None)
+st.set_page_config(page_title="PIF_Prévis", page_icon="🚨", layout="centered", initial_sidebar_state="auto", menu_items=None)
 
 hide_streamlit_style = """
             <style>
@@ -20,7 +20,7 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
-st.title('🚨 Pif Prévi')
+st.title('🚨 PIF_Prévis')
 st.subheader("Programme complet :")
 uploaded_file = st.file_uploader("Choisir un fichier :", key=2)
 if uploaded_file is not None:
