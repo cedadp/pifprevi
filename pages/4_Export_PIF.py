@@ -18,10 +18,10 @@ from pyxlsb import open_workbook as open_xlsb
 import re
 from itertools import product
 locale.setlocale(locale.LC_ALL, "fr_FR")
-
-st.title("✅ Macro final")
+########### Cette version corrige le problème des tranche dix minutes manquantes#######
+st.title("✅ Export_PIF")
 #add_logo("Logo_Groupe_ADP.png")
-st.write("Macro du fichier Export_pif final")
+st.write("Fichier Export_PIF final")
 
 def findDay(date):
     born = datetime.datetime.strptime(date, '%d %m %Y').weekday()
