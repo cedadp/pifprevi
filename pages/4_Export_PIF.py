@@ -19,9 +19,9 @@ import re
 from itertools import product
 locale.setlocale(locale.LC_ALL, "fr_FR")
 ########### Cette version corrige le problème des tranche dix minutes manquantes#######
-st.title("✅ Export_PIF")
+st.title("✅ Export PIF")
 #add_logo("Logo_Groupe_ADP.png")
-st.write("Fichier Export_PIF final")
+st.write("Fichier Export PIF final")
 
 def findDay(date):
     born = datetime.datetime.strptime(date, '%d %m %Y').weekday()
