@@ -5,6 +5,7 @@ from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
 import streamlit as st
 
+###V2 - Dans cette version le traitement des heures au format homogène entre AF et SARIA est réalisé dans Concat et non plus dans Prévis
 
 #uploaded_file = "C:/Users/demanet/Downloads/Prévisions d'activité Sem 14-22 du 02.04.2024 (1).xlsx" # utilisé pour débogage en local
 #uploaded_file2 = "C:/Users/demanet/Downloads/Prévis_PIF_J-7_2024-04-02.xlsx" # utilisé pour débogage en local
