@@ -163,7 +163,7 @@ def main():
             with col1:
                   debut = st.date_input("Date de début :",min_value=jours.min(),max_value= jours.max() - timedelta(days=1), key=10)
             with col2:    
-                  fin = st.date_input("Date de fin :",value=debut, min_value = jours.min(), max_value = min( pd.to_datetime(debut + timedelta(days=6)), jours.max()- timedelta(days=1) ) ,help=" 7 jours max.", key=2) #-1 car il y a toujours quelques heures du début de la dernière journée (méthode à revoir)
+                  fin = st.date_input("Date de fin :",value=min( pd.to_datetime(debut + timedelta(days=6)), jours.max()- timedelta(days=1) ), min_value = jours.min(), max_value = min( pd.to_datetime(debut + timedelta(days=6)), jours.max()- timedelta(days=1) ) ,help=" 7 jours max.", key=2) #-1 car il y a toujours quelques heures du début de la dernière journée (méthode à revoir)
 
             # start_date = pd.to_datetime(debut)
             # end_date = pd.to_datetime(fin)
