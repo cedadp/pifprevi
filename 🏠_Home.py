@@ -8,11 +8,12 @@ st.title('OutilsPIF V2')
 
 st.write("Cet outil sert à regrouper plusieurs actions effectués au sein de l'IngeX de CDGD.")
 st.write("Vous retrouverez ainsi :")
-st.markdown("Onglet **Concat** : Un outil de concaténation des programmes AF Skyteam et des programmes ADP.")
-st.markdown("Onglet **Pif Previ** : Un outil de prévisions des flux aux différents sites de PIF dans l'aéroport CDG.")
-st.markdown("Onglet **Export PIF** : Un outil de mise en forme des réalisés PIF.")
-st.markdown("Onglet **EquiPif** : Un outil de prévisions des flux PN aux différents sites de PIF dans l'aéroport CDG.")
-st.markdown("Onglet **Dashboard** : Un outil de visualisation des flux aux différents sites de PIF.")
+st.markdown("Onglet **📦 Concat** : Un outil de concaténation des programmes AF Skyteam et des programmes ADP.")
+st.markdown("Onglet **🛫 Pif Previ** : Un outil de prévisions des flux aux différents sites de PIF dans l'aéroport CDG.")
+st.markdown("Onglet **📊 Vérif Seuil PIF** : Un outil de visualisation des flux horaires aux différents sites de PIF dans l'aéroport CDG.")
+st.markdown("Onglet **✅ Export PIF** : Un outil de mise en forme des réalisés PIF.")
+st.markdown("Onglet **👩‍✈️ EquiPif** : Un outil de prévisions des flux PN aux différents sites de PIF dans l'aéroport CDG.")
+st.markdown("Onglet **📈 Dashboard** : Un outil de visualisation des flux aux différents sites de PIF.")
 
 
 with st.sidebar.expander("Version"):
