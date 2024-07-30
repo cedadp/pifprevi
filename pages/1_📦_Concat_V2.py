@@ -33,7 +33,7 @@ name_sheet_af = "Programme brut"
 st.subheader("Prévision activité AF 1 :")
 
 def get_dispatch_sat_T1(sat):
-    df = pd.read_excel(r"C:\Users\demanet\Documents\pifprevis-main\fichier_config_PIF.xlsx", sheet_name="dispatch_sat")
+    df = pd.read_excel(fichier_config_PIF.xlsx", sheet_name="dispatch_sat")
     df = df.fillna("XXXXX")
     return list(df[sat])
 
