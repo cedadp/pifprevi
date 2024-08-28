@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 ### Version du 24 - 07 - 2024 ##########################################
 
 ###V2 - Dans cette version le traitement des heures au format homogène entre AF et SARIA est réalisé dans Concat et non plus dans Prévis
-# uploaded_file = "C:/Users/demanet/Downloads/pgrm_complet_2024-04-03.xlsx"
+# uploaded_file = "C:/Users/demanet/Downloads/pgrm_complet_2024-08-28.xlsx"
 # df = pd.read_excel(uploaded_file) 
 
 st.set_page_config(page_title="PIF Prévis", page_icon="🛫", layout="centered", initial_sidebar_state="auto", menu_items=None)
@@ -38,7 +38,7 @@ if uploaded_file is not None:
             st.success("Programme complet chargée !")
         return df
 
-    df_pgrm = df()         
+    df_pgrm = df ()      
     #start_all = tm.time()
     l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
     l_date = sorted(l_date)
@@ -83,7 +83,7 @@ if uploaded_file is not None:
     
     col1, col2 = st.columns(2)
     with col1:
-        debut = st.date_input("Date de début :", value = datemini + timedelta(days=2) , min_value=datemini ,max_value=  datemaxi , key=10)
+        debut = st.date_input("Date de début :", value = min ( pd.to_datetime(datemini + timedelta(days=2)), datemini) , min_value=datemini ,max_value=  datemaxi , key=10)
     with col2:    
         fin = st.date_input("Date de fin :", value =  min ( pd.to_datetime(debut + timedelta(days=10)),datemaxi) ,   min_value = debut, max_value = datemaxi, key=2)
     
