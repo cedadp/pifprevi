@@ -89,7 +89,7 @@ if uploaded_file is not None:
     with col1:
         debut = st.date_input("Date de début :" , min_value=datemini ,max_value=  datemaxi , key=10)
     with col2:    
-        fin = st.date_input("Date de fin :",   min_value = debut, max_value = datemaxi, key=2)
+        fin = st.date_input("Date de fin :",  value =  min ( pd.to_datetime(debut + timedelta(days=10)),datemaxi) , min_value = debut, max_value = datemaxi, key=2)
     start_date = pd.to_datetime(debut)
     end_date = pd.to_datetime(fin) 
 
