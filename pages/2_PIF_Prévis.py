@@ -38,7 +38,7 @@ if uploaded_file is not None:
             st.success("Programme complet chargée !")
         return df
 
-    df_pgrm = df ()      
+    df_pgrm = df()      
     #start_all = tm.time()
     l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
     l_date = sorted(l_date)
@@ -82,11 +82,14 @@ if uploaded_file is not None:
     
     
     col1, col2 = st.columns(2)
+    # with col1:
+    #     debut = st.date_input("Date de début :", value = min ( pd.to_datetime(datemini + timedelta(days=2)), datemini) , min_value=datemini ,max_value=  datemaxi , key=10)
+    # with col2:    
+    #     fin = st.date_input("Date de fin :", value =  min ( pd.to_datetime(debut + timedelta(days=10)),datemaxi) ,   min_value = debut, max_value = datemaxi, key=2)
     with col1:
-        debut = st.date_input("Date de début :", value = min ( pd.to_datetime(datemini + timedelta(days=2)), datemini) , min_value=datemini ,max_value=  datemaxi , key=10)
+        debut = st.date_input("Date de début :" , min_value=datemini ,max_value=  datemaxi , key=10)
     with col2:    
-        fin = st.date_input("Date de fin :", value =  min ( pd.to_datetime(debut + timedelta(days=10)),datemaxi) ,   min_value = debut, max_value = datemaxi, key=2)
-    
+        fin = st.date_input("Date de fin :",   min_value = debut, max_value = datemaxi, key=2)
     start_date = pd.to_datetime(debut)
     end_date = pd.to_datetime(fin) 
 
