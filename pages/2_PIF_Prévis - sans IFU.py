@@ -229,10 +229,12 @@ if uploaded_file is not None:
             dispatch_df.loc[(dispatch_df['A/D'] == 'A') & (dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['Pax CNT TOT']
             dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (~dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['PAX TOT']
             dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['Pax LOC TOT']
-
+            # Sélection des lignes avec les conditions IFU
             hyp_ifu = dispatch_df[( dispatch_df['A/D'] == 'A') & ( dispatch_df['Libellé terminal'] == 'EL') & ( dispatch_df['IFU'] == 'IFU') & ( dispatch_df['Porteur'] == 'GP') ]
+            # Sauvegarder le sous-ensemble de vols IFU
             hyp_ifu.to_excel("vols_ifu.xlsx", sheet_name="ifu") #zenregistrer dans excel la liste des vols avec les conditions 
-            dispatch_df =  dispatch_df.drop( hyp_ifu.index)
+            # Applique un coefficient de 0,2 sur la colonne 'Pax CNT TOT' (contaté IFU sur éligible IFU)
+            dispatch_df.loc[hyp_ifu.index, 'Pax CNT TOT'] *= 0.2
 
 
             my_bar2.progress(20)
