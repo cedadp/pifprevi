@@ -236,7 +236,7 @@ if uploaded_file is not None:
             # Applique un coefficient de 0,2 sur la colonne 'Pax CNT TOT' (contaté IFU sur éligible IFU)
             dispatch_df.loc[hyp_ifu.index, 'Pax CNT TOT'] *= 0.2
             # Mise à jour la colonne 'TOT_Théorique' avec les nouvelles valeurs de 'Pax CNT TOT'
-            dispatch_df.loc[hyp_ifu.index, 'TOT_Théorique'] = dispatch_df.loc[hyp_ifu.index, 'Pax CNT TOT']
+            dispatch_df.loc[hyp_ifu.index, 'TOT_théorique'] = dispatch_df.loc[hyp_ifu.index, 'Pax CNT TOT']
 
             my_bar2.progress(20)
 
