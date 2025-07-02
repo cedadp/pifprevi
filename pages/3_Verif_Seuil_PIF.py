@@ -110,7 +110,7 @@ def main():
         def seuil(site):
             seuils = {'K CTRCNT' : 0,'K CTR' : 1600,'K CNT' : 300 , 'L CTR' : 2100, 'L CNT' :  1440, 'M CTR' : 1820, 'Galerie EF' : 1820, 'C2F' : 2180, 'C2G' : 910, 'Liaison AC' : 1960,'Liaison BD' : 2320,
             'T3': 1260, 'Terminal 1' : 2140, 'Terminal 1_5' : 390, 'Terminal 1_6' : 520, 
-                     'AC_Dep' : 2848, 'BD_Arr' : 1825, 'BD_Dep' : 1544, 'T1_Arr' : 2226, 'T1_Dep' : 2083,'T3_Arr' : 1056, 'T3_Dep' : 825,}
+                     'AC_Dep' : 2848, 'BD_Arr' : 1825, 'BD_Dep' : 1544, 'T1_Arr' : 2226, 'T1_Dep' : 2083,'T3_Arr' : 1056, 'T3_Dep' : 825}
         
             return seuils.get(site,0)
 
