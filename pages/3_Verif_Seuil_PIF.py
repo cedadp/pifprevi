@@ -112,7 +112,7 @@ def main():
             'T3': 1260, 'Terminal 1' : 2140, 'Terminal 1_5' : 390, 'Terminal 1_6' : 520, 
 
             '2E_Arr' :3948 , '2E_Dep' : 4314 ,'Galerie E > F' : 2976 , 'Galerie F > E' : 1356, 'F > S3' :  2482 , 'S3 > F': 1084 ,  '2G_Emport' : 1350, 
-                     'AC_Dep' : 2848, 'AC_Arr' :  4268, 'BD_Arr' : 1825, 'BD_Dep' : 1544, 'T1_Arr' : 3012, 'T1_Dep' : 2071,'T3_Arr' : 1056, 'T3_Dep' : 825}
+                     'AC_Dep' : 2848, 'AC_Arr' :  4268, 'C_Arr' :  1808, 'BD_Arr' : 1825, 'BD_Dep' : 1544, 'T1_Arr' : 3012, 'T1_Dep' : 2071,'T3_Arr' : 1056, 'T3_Dep' : 825}
         
             return seuils.get(site,0)
 
@@ -204,3 +204,4 @@ def main():
 if __name__=="__main__":
     main()
     
+
