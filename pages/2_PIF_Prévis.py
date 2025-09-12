@@ -40,7 +40,7 @@ if uploaded_file is not None:
 
     df_pgrm = df()      
     #start_all = tm.time()
-    l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
+    l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist(), format="%d/%m/%Y").date
     l_date = sorted(l_date)
 
     def get_pif_in_fichier_config(pif):
