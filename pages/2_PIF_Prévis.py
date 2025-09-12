@@ -29,7 +29,7 @@ if uploaded_file is not None:
     @st.cache_data(ttl=90)
     def df():
         with st.spinner('Chargemement Programme complet ...'):
-            df = pd.read_excel(uploaded_file, "pgrm_complet")
+            df = pd.read_excel(uploaded_file, "pgrm_complet", converters={'Local Date': lambda x: pd.to_datetime(x, dayfirst=True, errors = "coerce")})
         # ajouter filtre T1
         # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_Inter","Terminal 1")
         #df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_5","Terminal 1_5")
@@ -40,7 +40,7 @@ if uploaded_file is not None:
 
     df_pgrm = df()      
     #start_all = tm.time()
-    l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist(), format="%d/%m/%Y").date
+    l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
     l_date = sorted(l_date)
 
     def get_pif_in_fichier_config(pif):
