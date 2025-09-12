@@ -53,8 +53,8 @@ if uploaded_file is not None:
     df = pd.read_excel(uploaded_file)
     
     #####################################################################
-    datemini = pd.to_datetime(l_date).min()
-    datemaxi = pd.to_datetime(l_date).max()
+    datemini = pd.to_datetime(l_date, format="%Y-%m-%d").min()
+    datemaxi = pd.to_datetime(l_date, format="%Y-%m-%d").max()
     
     
     
