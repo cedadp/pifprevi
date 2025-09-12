@@ -51,7 +51,25 @@ st.divider()
 uploaded_file = st.file_uploader("Choose a file")
 if uploaded_file is not None:
     df = pd.read_excel(uploaded_file)
-  
+
+
+# Déterminer le nom du fichier de sortie en fonction du nom du fichier téléchargé
+    if "export_paf" in uploaded_file.name:
+        output_file_name = "Prévis Frontières_T2AC_T2BD_T3_T1_T2E_T2F__J-"
+    elif "export_pif" in uploaded_file.name:
+        output_file_name = "Prévis Départs 2E_2F_2G_T2AC_T2BD_T3_T1_J-"
+    else:
+        output_file_name = "export_pif.xlsx"  # Nom par défaut si aucune condition n'est remplie
+
+
+
+
+
+
+
+
+
+    
     ### patch
     # création d'un dataframe contenant toutes les combinaisons jour/heure/site
     jours= df['jour'].unique()
@@ -216,7 +234,7 @@ if uploaded_file is not None:
             st.download_button(
             label="Télécharger fichier Export pif",
             data=buffer,
-            file_name="export_pif.xlsx",
+            file_name=output_file_name,
             mime="application/vnd.ms-excel"
             )
 
