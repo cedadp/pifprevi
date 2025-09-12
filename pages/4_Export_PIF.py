@@ -52,24 +52,6 @@ uploaded_file = st.file_uploader("Choose a file")
 if uploaded_file is not None:
     df = pd.read_excel(uploaded_file)
 
-
-# Déterminer le nom du fichier de sortie en fonction du nom du fichier téléchargé
-    if "export_paf" in uploaded_file.name:
-        output_file_name = "Prévis Frontières_T2AC_T2BD_T3_T1_T2E_T2F__J-7.xlsx"
-    elif "export_pif" in uploaded_file.name:
-        output_file_name = "Prévis Départs 2E_2F_2G_T2AC_T2BD_T3_T1_J-7.xlsx"
-    else:
-        output_file_name = "export_pif.xlsx"  # Nom par défaut si aucune condition n'est remplie
-
-
-
-
-
-
-
-
-
-    
     ### patch
     # création d'un dataframe contenant toutes les combinaisons jour/heure/site
     jours= df['jour'].unique()
@@ -86,7 +68,60 @@ if uploaded_file is not None:
     df = df_complet
     
     ### fin patch
+
+
+    l_date = pd.to_datetime(df['jour'].unique().tolist()).date
+    l_date = sorted(l_date)
+    datemini = pd.to_datetime(l_date).min()
+    datemaxi = pd.to_datetime(l_date).max()
    
+    
+    col1, col2 = st.columns(2)
+    # with col1:
+    #     debut = st.date_input("Date de début :", value = min ( pd.to_datetime(datemini + timedelta(days=2)), datemini) , min_value=datemini ,max_value=  datemaxi , key=10)
+    # with col2:    
+    #     fin = st.date_input("Date de fin :", value =  min ( pd.to_datetime(debut + timedelta(days=10)),datemaxi) ,   min_value = debut, max_value = datemaxi, key=2)
+    with col1:
+        debut = st.date_input("Date de début :" ,value=datemini, min_value=datemini ,max_value=  datemaxi , key=10)
+    with col2:    
+        fin = st.date_input("Date de fin :",  value =  min ( pd.to_datetime(debut + timedelta(days=10)),datemaxi) , min_value = debut, max_value = datemaxi, key=2)
+    start_date = pd.to_datetime(debut)
+    end_date = pd.to_datetime(fin) 
+    
+   
+    df = df.loc[(df['jour'] >= start_date) & (df['jour'] <= end_date)]
+   
+    
+   #Fonction pour formater une date en français
+    def format_date(date):
+        mois = {
+            1: "janvier", 2: "février", 3: "mars", 4: "avril",
+            5: "mai", 6: "juin", 7: "juillet", 8: "août",
+            9: "septembre", 10: "octobre", 11: "novembre", 12: "décembre"
+        }
+        return f"{date.day}_{mois[date.month]}"
+    
+   
+    # Formater les dates
+    formatted_start_date = format_date(start_date)
+    formatted_end_date = format_date(end_date)
+
+    # Ajouter les dates au nom du fichier de sortie
+   # output_file_name += f"{formatted_start_date}_{formatted_end_date}.xlsx"
+   
+    
+    
+   # Déterminer le nom du fichier de sortie en fonction du nom du fichier téléchargé
+    if "export_paf" in uploaded_file.name:
+           output_file_name = "Prévis Frontières T2AC_T2BD_T3_T1_T2E_T2F_J-7_"
+    elif "export_pif" in uploaded_file.name:
+           output_file_name = "Prévis Départs 2E_2F_2G_T2AC_T2BD_T3_T1_J-7_" + formatted_start_date + " - " + formatted_end_date + ".xlsx"
+    else:
+           output_file_name = "export_pif.xlsx"  # Nom par défaut si aucune condition n'est remplie
+    
+   
+
+    
     
    ### regroupement des data PIF K CTR K CNT
     
