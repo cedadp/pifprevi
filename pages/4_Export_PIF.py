@@ -55,9 +55,9 @@ if uploaded_file is not None:
 
 # Déterminer le nom du fichier de sortie en fonction du nom du fichier téléchargé
     if "export_paf" in uploaded_file.name:
-        output_file_name = "Prévis Frontières_T2AC_T2BD_T3_T1_T2E_T2F__J-"
+        output_file_name = "Prévis Frontières_T2AC_T2BD_T3_T1_T2E_T2F__J-7.xlsx"
     elif "export_pif" in uploaded_file.name:
-        output_file_name = "Prévis Départs 2E_2F_2G_T2AC_T2BD_T3_T1_J-"
+        output_file_name = "Prévis Départs 2E_2F_2G_T2AC_T2BD_T3_T1_J-7.xlsx"
     else:
         output_file_name = "export_pif.xlsx"  # Nom par défaut si aucune condition n'est remplie
 
