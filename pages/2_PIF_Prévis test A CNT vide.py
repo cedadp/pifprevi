@@ -42,7 +42,7 @@ if uploaded_file is not None:
         
         return df
 
-        
+        df=df()
 
    # Vérifier si "REPLAY" est dans le nom du fichier
     if "REPLAY" in uploaded_file.name.upper():
@@ -67,7 +67,7 @@ if uploaded_file is not None:
 
 
 
-    df_pgrm = df()      
+    df_pgrm = df      
     #start_all = tm.time()
     l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
     l_date = sorted(l_date)
