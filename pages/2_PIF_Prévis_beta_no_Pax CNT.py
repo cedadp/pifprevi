@@ -92,8 +92,26 @@ if uploaded_file is not None:
                 )
                 
         st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
-    
-
+        if mask2.sum() > 0:
+        try:
+            # Calcul des coefficients moyens par vol
+            # D'abord, on calcule le ratio pour chaque ligne où Pax CNT TOT existe
+            df_temp = df[
+                (df['Pax CNT TOT'].notna()) &               # Pax CNT TOT non vide
+                (df['PAX TOT'].notna()) &                   # PAX TOT non vide
+                (df['PAX TOT'] > 0) &                       # PAX TOT > 0 pour éviter division par 0
+                (df['Cie Ope'].isin(['AF', 'DL'])) &        # Même compagnies
+                (df['Affectation'].isin(['E', 'F', 'G'])) & # Même critères
+                (df['A/D'] == 'A')
+            ].copy()
+             if len(df_temp) > 0:
+                # Calcul du ratio pour chaque ligne
+                df_temp['ratio'] = df_temp['Pax CNT TOT'] / df_temp['PAX TOT']
+                
+                # Calcul du coefficient moyen par numéro de vol
+                coeff_moyens_vol = df_temp.groupby('Num Vol')['ratio'].mean().to_dict()
+                
+                st.write(f"Coefficients moyens calculés pour {len(coeff_moyens_vol)} vols différents")
         
     
     
