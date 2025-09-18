@@ -71,7 +71,7 @@ if uploaded_file is not None:
         # Optionnel : afficher un aperçu des lignes modifiées
         if mask.sum() > 0:
             st.write("Aperçu des lignes modifiées :")
-            st.dataframe(df[mask][['Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']].head())
+            st.dataframe(df[mask][['Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
     
     else:
         st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
