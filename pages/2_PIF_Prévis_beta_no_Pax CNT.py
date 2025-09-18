@@ -96,7 +96,7 @@ if uploaded_file is not None:
     else:
         st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
 
-            if df is not None:
+    if df is not None:
                 excel_data = download_excel(df)
                 st.download_button(
                     label="📥 Télécharger le dataset modifié",
