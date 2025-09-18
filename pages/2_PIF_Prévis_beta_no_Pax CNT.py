@@ -80,7 +80,7 @@ if uploaded_file is not None:
         coeff_series = df['Cie Ope'].map(coefficients)
         df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
         
-        st.success(f"Calcul REPLAY appliqué sur {mask.sum()} lignes")
+        st.success(f"Calcul de  'Pax CNT TOT' théorique appliqué sur {mask.sum()} lignes")
 
             # Masque pour identifier les lignes à traiter (AF et DL)
         mask2 = (
