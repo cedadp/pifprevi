@@ -51,6 +51,17 @@ if uploaded_file is not None:
             'MU': 0.91  # Exemple de coefficient pour la compagnie MU
         }    
 
+            # Conditions pour le calcul
+        mask = (
+                    (df['Pax CNT TOT'].isna()) &
+                    (df['Affectation'].isin(['E', 'F', 'G'])) &
+                    (df['A/D'] == 'A') &
+                    (df['Cie Ope'].isin(list(coefficients.keys()))) &
+                    (df['PAX TOT'].notna())
+                )
+
+
+                
             # Créer une série de coefficients et appliquer le calcul
         coeff_series = df['Cie Ope'].map(coefficients)
         df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
