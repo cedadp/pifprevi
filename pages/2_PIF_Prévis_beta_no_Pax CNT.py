@@ -63,12 +63,12 @@ if uploaded_file is not None:
     if 'REPLAY' in uploaded_file.name:
         st.info("Fichier 'REPLAY' détecté. Application de la logique de calcul pour 'Pax CNT TOT'.")
         coefficients = {
-            'AM': 0.85, # Exemple de coefficient pour la compagnie AM
-            'KE': 0.90, # Exemple de coefficient pour la compagnie KE
-            'KL': 0.88, # Exemple de coefficient pour la compagnie KL
-            'LG': 0.92, # Exemple de coefficient pour la compagnie LG
-            'MF': 0.89, # Exemple de coefficient pour la compagnie MF
-            'MU': 0.91  # Exemple de coefficient pour la compagnie MU
+            'AM': 0.85, # coefficient pour la compagnie AM
+            'KE': 0.90, # coefficient pour la compagnie KE
+            'KL': 0.88, # coefficient pour la compagnie KL
+            'LG': 0.92, # coefficient pour la compagnie LG
+            'MF': 0.89, # coefficient pour la compagnie MF
+            'MU': 0.91  # coefficient pour la compagnie MU
         }    
 
             # Conditions pour le calcul
