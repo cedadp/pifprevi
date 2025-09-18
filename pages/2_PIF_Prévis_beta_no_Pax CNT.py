@@ -92,17 +92,18 @@ if uploaded_file is not None:
         if mask.sum() > 0:
             st.write("Aperçu des lignes modifiées :")
             st.dataframe(df[mask][['Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
+            name_output = "dataset_replay"   
+            excel_data = download_excel(df)
+            st.download_button(
+            label="📥 Télécharger le dataset modifié",
+            data=excel_data,
+            file_name=f'dataset_replay_{pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                )
     
     else:
         st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
-        name_output = "dataset_replay"   
-        excel_data = download_excel(df)
-        st.download_button(
-        label="📥 Télécharger le dataset modifié",
-        data=excel_data,
-        file_name=f'dataset_replay_{pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
-        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    )
+        
    
     
             
