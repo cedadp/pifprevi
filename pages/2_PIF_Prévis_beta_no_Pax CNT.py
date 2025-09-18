@@ -6,6 +6,8 @@ from functools import reduce
 import time as tm
 import openpyxl
 from datetime import datetime, timedelta 
+from io import BytesIO  
+from pyxlsb import open_workbook as open_xlsb
 ### Version du 24 - 07 - 2024 ##########################################
 
 ###V2 - Dans cette version le traitement des heures au format homogène entre AF et SARIA est réalisé dans Concat et non plus dans Prévis
@@ -22,10 +24,7 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
-from io import BytesIO  
-        from pyxlsb import open_workbook as open_xlsb
-
-        def download_excel(df):
+def download_excel(df):
             output = BytesIO()
             writer = pd.ExcelWriter(output, engine='xlsxwriter')
             df.to_excel(writer, sheet_name=name_output, index=False)
