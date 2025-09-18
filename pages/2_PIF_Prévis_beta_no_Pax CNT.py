@@ -38,7 +38,20 @@ if uploaded_file is not None:
             st.success("Programme complet chargée !")
         return df
 
-    df_pgrm = df()      
+    df_pgrm = df()
+     # Si le fichier est un "REPLAY", on applique la logique de calcul
+    if 'REPLAY' in uploaded_file.name:
+        st.info("Fichier 'REPLAY' détecté. Application de la logique de calcul pour 'Pax CNT TOT'.")
+            
+
+
+
+
+
+
+
+
+            
     #start_all = tm.time()
     l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
     l_date = sorted(l_date)
