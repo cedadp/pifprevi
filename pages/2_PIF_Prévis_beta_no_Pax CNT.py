@@ -42,9 +42,28 @@ if uploaded_file is not None:
      # Si le fichier est un "REPLAY", on applique la logique de calcul
     if 'REPLAY' in uploaded_file.name:
         st.info("Fichier 'REPLAY' détecté. Application de la logique de calcul pour 'Pax CNT TOT'.")
-            
+        coefficients = {
+            'AM': 0.85, # Exemple de coefficient pour la compagnie AM
+            'KE': 0.90, # Exemple de coefficient pour la compagnie KE
+            'KL': 0.88, # Exemple de coefficient pour la compagnie KL
+            'LG': 0.92, # Exemple de coefficient pour la compagnie LG
+            'MF': 0.89, # Exemple de coefficient pour la compagnie MF
+            'MU': 0.91  # Exemple de coefficient pour la compagnie MU
+        }    
 
-
+            # Créer une série de coefficients et appliquer le calcul
+        coeff_series = df['Cie Ope'].map(coefficients)
+        df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
+        
+        st.success(f"Calcul REPLAY appliqué sur {mask.sum()} lignes")
+        
+        # Optionnel : afficher un aperçu des lignes modifiées
+        if mask.sum() > 0:
+            st.write("Aperçu des lignes modifiées :")
+            st.dataframe(df[mask][['Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']].head())
+    
+    else:
+        st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
 
 
 
