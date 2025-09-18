@@ -92,7 +92,7 @@ if uploaded_file is not None:
                 )
                 
         st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
-        if mask2.sum() > 0:
+         if mask2.sum() > 0:
             try:
             # Calcul des coefficients moyens par vol
             # D'abord, on calcule le ratio pour chaque ligne où Pax CNT TOT existe
