@@ -123,62 +123,7 @@ if uploaded_file is not None:
                     for vol, coeff in sample_coeffs.items():
                         st.write(f"Vol {vol}: {coeff:.3f}")
                 
-                # Application des coefficients aux lignes manquantes
-                lignes_calculees = 0
-                
-                for idx in df[mask2].index:
-                    num_vol = df.loc[idx, 'Num Vol']
-                    
-                    if num_vol in coeff_moyens_vol:
-                        # Application du coefficient moyen du vol
-                        coeff = coeff_moyens_vol[num_vol]
-                        df.loc[idx, 'Pax CNT TOT'] = df.loc[idx, 'PAX TOT'] * coeff
-                        lignes_calculees += 1
-                
-                st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients moyens par vol")
-                
-                # Statistiques détaillées
-                if lignes_calculees > 0:
-                    lignes_af = df[(mask2) & (df['Cie Ope'] == 'AF')].shape[0]
-                    lignes_dl = df[(mask2) & (df['Cie Ope'] == 'DL')].shape[0]
-                    
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("Total calculé", lignes_calculees)
-                    with col2:
-                        st.metric("AF", lignes_af)
-                    with col3:
-                        st.metric("DL", lignes_dl)
-                
-                # Lignes non traitées (vols sans référence)
-                lignes_non_traitees = mask2.sum() - lignes_calculees
-                if lignes_non_traitees > 0:
-                    st.warning(f"⚠️ {lignes_non_traitees} lignes n'ont pas pu être calculées (pas de référence pour ces vols)")
-                    
-                    # Optionnel : afficher les vols sans référence
-                    if st.checkbox("Voir les vols sans référence"):
-                        vols_sans_ref = df[mask2]['Num Vol'].unique()
-                        vols_sans_coeff = [vol for vol in vols_sans_ref if vol not in coeff_moyens_vol]
-                        if vols_sans_coeff:
-                            st.write("Vols sans coefficient de référence :")
-                            st.write(vols_sans_coeff[:10])  # Afficher les 10 premiers
-            
-            else:
-                st.warning("⚠️ Aucune donnée de référence trouvée pour calculer les coefficients moyens")
-                st.info("Il faut des lignes avec Pax CNT TOT rempli pour les mêmes vols AF/DL")
-                
-        except Exception as e:
-            st.error(f"Erreur lors du calcul des coefficients moyens : {e}")
-            st.write("Vérifiez que les colonnes 'Num Vol', 'Pax CNT TOT' et 'PAX TOT' existent")
-    
-    else:
-        st.info("Aucune ligne AF/DL ne correspond aux critères pour le calcul par coefficient moyen")
-
-
-
-
-
-
+              
 
 
 
