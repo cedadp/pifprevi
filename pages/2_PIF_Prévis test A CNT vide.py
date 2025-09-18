@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 ### Version du 24 - 07 - 2024 ##########################################
 
 ###V2 - Dans cette version le traitement des heures au format homogène entre AF et SARIA est réalisé dans Concat et non plus dans Prévis
-# uploaded_file = "C:/Users/demanet/Downloads/pgrm_complet_2025-09-15_REPLAY_SeXX.xlsx"
+# uploaded_file = "C:/Users/demanet/Downloads/pgrm_complet_2024-08-28.xlsx"
 # df = pd.read_excel(uploaded_file) 
 
 st.set_page_config(page_title="PIF Prévis", page_icon="🛫", layout="centered", initial_sidebar_state="auto", menu_items=None)
@@ -36,25 +36,9 @@ if uploaded_file is not None:
         # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_6","Terminal 1_6")
         #partie déplacée dans Concat_V2
             st.success("Programme complet chargée !")
-        
-        
-        
-        
         return df
 
-        df=df()
-
-    # Si le fichier est un "REPLAY", on applique la logique de calcul
-    if 'REPLAY' in uploaded_file.name:
-        st.info("Fichier 'REPLAY' détecté. Application de la logique de calcul pour 'Pax CNT TOT'.")
-    
-
-
-
-
-
-
-    df_pgrm = df      
+    df_pgrm = df()      
     #start_all = tm.time()
     l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
     l_date = sorted(l_date)
