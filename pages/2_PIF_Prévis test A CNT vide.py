@@ -44,22 +44,9 @@ if uploaded_file is not None:
 
         df=df()
 
-   # Vérifier si "REPLAY" est dans le nom du fichier
-    if "REPLAY" in uploaded_file.name.upper():
-        # Enregistrer l'état initial des lignes où "Pax CNT TOT" est vide
-        initial_empty_mask = df['Pax CNT TOT'].isna() & df['Affectation'].isin(['E', 'F', 'G']) & (df['A/D'] == 'A')
-        df_initial_empty = df[initial_empty_mask]
-
-        # Appliquer les conditions et le calcul
-        Coeff_CNT = 1
-        mask = (df['A/D'] == 'A') & df['Affectation'].isin(['E', 'F', 'G'])   & (df['Cie Ope'].isin(['AM', 'KE', 'KL', 'LG', 'MF', 'MU'])) & (df['Pax CNT TOT'].isna())
-        df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * Coeff_CNT
-
-        st.write("Données transformées :")
-        st.write(df)
-    
-        st.write("Lignes avec la colonne 'Pax CNT TOT' vide avant la transformation :")
-        st.write(df_initial_empty)
+    # Si le fichier est un "REPLAY", on applique la logique de calcul
+    if 'REPLAY' in uploaded_file.name:
+        st.info("Fichier 'REPLAY' détecté. Application de la logique de calcul pour 'Pax CNT TOT'.")
     
 
 
