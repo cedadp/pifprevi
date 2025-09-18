@@ -77,7 +77,7 @@ if uploaded_file is not None:
         st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
 
 
-
+    df_pgrm = df
 
 
 
