@@ -96,7 +96,13 @@ if uploaded_file is not None:
     else:
         st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
 
-
+            if df is not None:
+                excel_data = download_excel(df)
+                st.download_button(
+                    label="📥 Télécharger le dataset modifié",
+                    data=excel_data,
+                    file_name=f'dataset_replay_{pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
+                    mim
     
             
 
