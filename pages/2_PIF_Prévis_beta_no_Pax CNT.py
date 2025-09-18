@@ -61,7 +61,7 @@ if uploaded_file is not None:
             
      # Si le fichier est un "REPLAY", on applique la logique de calcul
     if 'REPLAY' in uploaded_file.name:
-        st.info("Fichier 'REPLAY' détecté. Calcul de  'Pax CNT TOT' théorique pour AM,KE,KL,LG MF,MU'.")
+        st.info("Fichier 'REPLAY' détecté. Calcul de  'Pax CNT TOT' théorique pour AM, KE, KL, LG, MF, MU.")
         coefficients = {
             'AM': 0.85, # coefficient pour la compagnie AM
             'KE': 0.90, # coefficient pour la compagnie KE
