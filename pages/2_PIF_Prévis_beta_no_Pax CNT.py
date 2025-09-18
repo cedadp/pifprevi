@@ -104,14 +104,14 @@ if uploaded_file is not None:
                 (df['Affectation'].isin(['E', 'F', 'G'])) & # Même critères
                 (df['A/D'] == 'A')
                 ].copy()
-             if len(df_temp) > 0:
-                # Calcul du ratio pour chaque ligne
-                df_temp['ratio'] = df_temp['Pax CNT TOT'] / df_temp['PAX TOT']
-                
-                # Calcul du coefficient moyen par numéro de vol
-                coeff_moyens_vol = df_temp.groupby('Num Vol')['ratio'].mean().to_dict()
-                
-                st.write(f"Coefficients moyens calculés pour {len(coeff_moyens_vol)} vols différents")
+                if len(df_temp) > 0:
+                            # Calcul du ratio pour chaque ligne
+                            df_temp['ratio'] = df_temp['Pax CNT TOT'] / df_temp['PAX TOT']
+                            
+                            # Calcul du coefficient moyen par numéro de vol
+                            coeff_moyens_vol = df_temp.groupby('Num Vol')['ratio'].mean().to_dict()
+                            
+                            st.write(f"Coefficients moyens calculés pour {len(coeff_moyens_vol)} vols différents")
         
     
     
