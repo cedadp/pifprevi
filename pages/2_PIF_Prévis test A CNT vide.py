@@ -29,7 +29,7 @@ if uploaded_file is not None:
     @st.cache_data(ttl=90)
     def df():
         with st.spinner('Chargemement Programme complet ...'):
-            df = pd.read_excel("C:/Users/demanet/Downloads/pgrm_complet_2025-09-15_REPLAY_SeXX.xlsx", "pgrm_complet", converters={'Local Date': lambda x: pd.to_datetime(x, dayfirst=True, errors = "coerce")})
+            df = pd.read_excel(uploaded_file, "pgrm_complet", converters={'Local Date': lambda x: pd.to_datetime(x, dayfirst=True, errors = "coerce")})
         # ajouter filtre T1
         # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_Inter","Terminal 1")
         #df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_5","Terminal 1_5")
