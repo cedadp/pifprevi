@@ -50,12 +50,7 @@ if uploaded_file is not None:
             st.success("Programme complet chargée !")
         return df
 
-
-
-
-
-
-            
+           
     df = df()
 
             
@@ -109,10 +104,7 @@ if uploaded_file is not None:
             
 
     df_pgrm = df
-
-
-
-            
+    
     #start_all = tm.time()
     l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
     l_date = sorted(l_date)
