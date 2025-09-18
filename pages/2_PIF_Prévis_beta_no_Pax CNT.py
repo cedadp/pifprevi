@@ -97,13 +97,7 @@ if uploaded_file is not None:
         st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
 
 
-    processed_data = download_excel(df)
-    st.download_button(
-    label="Télécharger fichier Export pif",
-    data=processed_data,
-    file_name="directory_exp",
-    mime="application/vnd.ms-excel"
-        )
+    
             
 
     df_pgrm = df
