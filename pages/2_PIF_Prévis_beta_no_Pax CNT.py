@@ -82,7 +82,17 @@ if uploaded_file is not None:
         
         st.success(f"Calcul REPLAY appliqué sur {mask.sum()} lignes")
 
-
+            # Masque pour identifier les lignes à traiter (AF et DL)
+        mask2 = (
+                    (df['Pax CNT TOT'].isna()) &                            # Pax CNT TOT vide
+                    (df['Affectation'].isin(['E', 'F', 'G'])) &            # Affectation E, F ou G
+                    (df['A/D'] == 'A') &                                   # A/D = A
+                    (df['Cie Ope'].isin(['AF', 'DL'])) &                   # Compagnies AF ou DL
+                    (df['PAX TOT'].notna())                                # PAX TOT non vide
+                )
+                
+        st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
+    
 
         
     
