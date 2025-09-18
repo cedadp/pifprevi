@@ -22,6 +22,19 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
+from io import BytesIO  
+        from pyxlsb import open_workbook as open_xlsb
+
+        def download_excel(df):
+            output = BytesIO()
+            writer = pd.ExcelWriter(output, engine='xlsxwriter')
+            df.to_excel(writer, sheet_name=name_output, index=False)
+            writer.close()
+            processed_data = output.getvalue()
+            return processed_data
+
+
+
 st.title('🛫 PIF Prévis')
 st.subheader("Programme complet :")
 uploaded_file = st.file_uploader("Choisir un fichier :", key=1)
@@ -38,7 +51,15 @@ if uploaded_file is not None:
             st.success("Programme complet chargée !")
         return df
 
+
+
+
+
+
+            
     df = df()
+
+            
      # Si le fichier est un "REPLAY", on applique la logique de calcul
     if 'REPLAY' in uploaded_file.name:
         st.info("Fichier 'REPLAY' détecté. Application de la logique de calcul pour 'Pax CNT TOT'.")
@@ -68,7 +89,7 @@ if uploaded_file is not None:
         
         st.success(f"Calcul REPLAY appliqué sur {mask.sum()} lignes")
         
-        # Optionnel : afficher un aperçu des lignes modifiées
+        #  afficher un aperçu des lignes modifiées
         if mask.sum() > 0:
             st.write("Aperçu des lignes modifiées :")
             st.dataframe(df[mask][['Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
@@ -76,6 +97,15 @@ if uploaded_file is not None:
     else:
         st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
 
+
+        processed_data = download_excel(df)
+        st.download_button(
+        label="Télécharger fichier Export pif",
+        data=processed_data,
+        file_name=directory_exp,
+        mime="application/vnd.ms-excel"
+        )
+            
 
     df_pgrm = df
 
@@ -467,17 +497,7 @@ if uploaded_file is not None:
 
 
 
-                
-        from io import BytesIO  
-        from pyxlsb import open_workbook as open_xlsb
-
-        def download_excel(df):
-            output = BytesIO()
-            writer = pd.ExcelWriter(output, engine='xlsxwriter')
-            df.to_excel(writer, sheet_name=name_output, index=False)
-            writer.close()
-            processed_data = output.getvalue()
-            return processed_data
+     
         
         
         my_bar2.progress(100)
