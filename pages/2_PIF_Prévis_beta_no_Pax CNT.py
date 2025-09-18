@@ -97,6 +97,7 @@ if uploaded_file is not None:
         st.info("Fichier non-REPLAY chargé, aucun calcul spécifique appliqué")
 
     if df is not None:
+            name_output = "dataset_replay"   
             excel_data = download_excel(df)
             st.download_button(
             label="📥 Télécharger le dataset modifié",
