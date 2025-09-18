@@ -84,18 +84,18 @@ if uploaded_file is not None:
 
 
 # Masque pour identifier les lignes à traiter (AF et DL)
-    mask2 = (
+        mask2 = (
         (df['Pax CNT TOT'].isna()) &                            # Pax CNT TOT vide
         (df['Affectation'].isin(['E', 'F', 'G'])) &            # Affectation E, F ou G
         (df['A/D'] == 'A') &                                   # A/D = A
         (df['Cie Ope'].isin(['AF', 'DL'])) &                   # Compagnies AF ou DL
         (df['PAX TOT'].notna())                                # PAX TOT non vide
-    )
+         )
     
     st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
     
-    if mask2.sum() > 0:
-        try:
+        if mask2.sum() > 0:
+           try:
             # Calcul des coefficients moyens par vol
             # D'abord, on calcule le ratio pour chaque ligne où Pax CNT TOT existe
             df_temp = df[
