@@ -140,7 +140,7 @@ if uploaded_file is not None:
                     st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients moyens par vol")
 
                     # Affichage des lignes modifiées pour AF/DL
-                    if lignes_calculees > 0 and st.checkbox("📊 Voir les lignes modifiées (coefficients par vol)", key="modif_vol"):
+                   if lignes_calculees > 0 and st.checkbox("📊 Voir les lignes modifiées (coefficients par vol)", key="modif_vol"):
                             # Récupérer les lignes qui ont été modifiées
                             mask_modifiees = (
                                 (df['Cie Ope'].isin(['AF', 'DL'])) &
