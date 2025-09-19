@@ -138,6 +138,34 @@ if uploaded_file is not None:
                             lignes_calculees += 1
                     
                     st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients moyens par vol")
+
+                    # Affichage des lignes modifiées pour AF/DL
+                  if lignes_calculees > 0 and st.checkbox("📊 Voir les lignes modifiées (coefficients par vol)", key="modif_vol"):
+                            # Récupérer les lignes qui ont été modifiées
+                            mask_modifiees = (
+                                (df['Cie Ope'].isin(['AF', 'DL'])) &
+                                (df['Affectation'].isin(['E', 'F', 'G'])) &
+                                (df['A/D'] == 'A') &
+                                (df['PAX TOT'].notna()) &
+                                (df['Pax CNT TOT'].notna()) &
+                                (df['Num Vol'].isin(coeff_moyens_vol.keys()))
+                            )
+                            
+                            lignes_modifiees_vol = df[mask_modifiees][['Cie Ope', 'Num Vol', 'PAX TOT', 'Pax CNT TOT', 'Affectation', 'A/D', 'Local Date']].copy()
+                            
+                            # Ajouter le coefficient appliqué
+                            lignes_modifiees_vol['Coefficient_appliqué'] = lignes_modifiees_vol['Num Vol'].map(coeff_moyens_vol)
+                            lignes_modifiees_vol['Calcul'] = lignes_modifiees_vol['PAX TOT'].astype(str) + " × " + lignes_modifiees_vol['Coefficient_appliqué'].round(3).astype(str)
+                            
+                            st.write(f"**📈 Lignes modifiées avec coefficients par vol ({len(lignes_modifiees_vol)} lignes) :**")
+                            st.dataframe(
+                                lignes_modifiees_vol,
+                                column_config={
+                                    "Pax CNT TOT": st.column_config.NumberColumn("Pax CNT TOT", format="%.0f"),
+                                    "PAX TOT": st.column_config.NumberColumn("PAX TOT", format="%.0f"),
+                                    "Coefficient_appliqué": st.column_config.NumberColumn("Coeff.", format="%.3f")
+                                }
+                            )        
                     
                     # Statistiques détaillées
                     if lignes_calculees > 0:
