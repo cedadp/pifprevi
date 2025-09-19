@@ -189,7 +189,7 @@ if uploaded_file is not None:
         #  afficher un aperçu des lignes modifiées
         if mask.sum() > 0:
             st.write("Aperçu des lignes modifiées :")
-            st.dataframe(df[mask][['Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
+            st.dataframe(df[mask][['Num Vol','Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
             name_output = "dataset_replay"   
             excel_data = download_excel(df)
             st.download_button(
