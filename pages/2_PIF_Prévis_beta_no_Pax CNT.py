@@ -92,59 +92,9 @@ if uploaded_file is not None:
                 )
                 
         st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
-        uploaded_file = st.file_uploader("Choisir un fichier :", key=1)
-if uploaded_file is not None:
-    @st.cache_data(ttl=90)
-    def df():
-        with st.spinner('Chargement Programme complet ...'):
-            df = pd.read_excel(uploaded_file, "pgrm_complet", converters={'Local Date': lambda x: pd.to_datetime(x, dayfirst=True, errors = "coerce")})
-        # ajouter filtre T1
-        # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_Inter","Terminal 1")
-        # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_5","Terminal 1_5")
-        # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_6","Terminal 1_6")
-        # partie déplacée dans Concat_V2
-        st.success("Programme complet chargé !")
-        return df
+      
 
-    df = df()
-
-    # Si le fichier est un "REPLAY", on applique la logique de calcul
-    if 'REPLAY' in uploaded_file.name:
-        st.info("Fichier 'REPLAY' détecté. Calcul de 'Pax CNT TOT' théorique pour AM, KE, KL, LG, MF, MU.")
-        coefficients = {
-            'AM': 0.5, # coefficient pour la compagnie AM
-            'KE': 0.5, # coefficient pour la compagnie KE
-            'KL': 0.5, # coefficient pour la compagnie KL
-            'LG': 0.5, # coefficient pour la compagnie LG
-            'MF': 0.5, # coefficient pour la compagnie MF
-            'MU': 0.5  # coefficient pour la compagnie MU
-        }    
-
-        # Conditions pour le calcul
-        mask = (
-            (df['Pax CNT TOT'].isna()) &
-            (df['Affectation'].isin(['E', 'F', 'G'])) &
-            (df['A/D'] == 'A') &
-            (df['Cie Ope'].isin(list(coefficients.keys()))) &
-            (df['PAX TOT'].notna())
-        )
-
-        # Créer une série de coefficients et appliquer le calcul
-        coeff_series = df['Cie Ope'].map(coefficients)
-        df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
-        
-        st.success(f"Calcul de 'Pax CNT TOT' théorique appliqué sur {mask.sum()} lignes")
-
-        # Masque pour identifier les lignes à traiter (AF et DL)
-        mask2 = (
-            (df['Pax CNT TOT'].isna()) &                            # Pax CNT TOT vide
-            (df['Affectation'].isin(['E', 'F', 'G'])) &            # Affectation E, F ou G
-            (df['A/D'] == 'A') &                                   # A/D = A
-            (df['Cie Ope'].isin(['AF', 'DL'])) &                   # Compagnies AF ou DL
-            (df['PAX TOT'].notna())                                # PAX TOT non vide
-        )
-                
-        st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
+    
         
         if mask2.sum() > 0:
             try:
