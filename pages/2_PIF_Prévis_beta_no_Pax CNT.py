@@ -138,10 +138,9 @@ if uploaded_file is not None:
                             lignes_calculees += 1
                     
                     st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients moyens par vol")
-
-                   
+                    
                     # Statistiques détaillées
-                     if lignes_calculees > 0:
+                    if lignes_calculees > 0:
                         lignes_af = df[(mask2) & (df['Cie Ope'] == 'AF')].shape[0]
                         lignes_dl = df[(mask2) & (df['Cie Ope'] == 'DL')].shape[0]
                         
@@ -176,10 +175,6 @@ if uploaded_file is not None:
 
         else:
             st.info("Aucune ligne AF/DL ne correspond aux critères pour le calcul par coefficient moyen")
-    
-
-
-
 
 
 
