@@ -92,6 +92,140 @@ if uploaded_file is not None:
                 )
                 
         st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
+        uploaded_file = st.file_uploader("Choisir un fichier :", key=1)
+if uploaded_file is not None:
+    @st.cache_data(ttl=90)
+    def df():
+        with st.spinner('Chargement Programme complet ...'):
+            df = pd.read_excel(uploaded_file, "pgrm_complet", converters={'Local Date': lambda x: pd.to_datetime(x, dayfirst=True, errors = "coerce")})
+        # ajouter filtre T1
+        # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_Inter","Terminal 1")
+        # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_5","Terminal 1_5")
+        # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_6","Terminal 1_6")
+        # partie déplacée dans Concat_V2
+        st.success("Programme complet chargé !")
+        return df
+
+    df = df()
+
+    # Si le fichier est un "REPLAY", on applique la logique de calcul
+    if 'REPLAY' in uploaded_file.name:
+        st.info("Fichier 'REPLAY' détecté. Calcul de 'Pax CNT TOT' théorique pour AM, KE, KL, LG, MF, MU.")
+        coefficients = {
+            'AM': 0.5, # coefficient pour la compagnie AM
+            'KE': 0.5, # coefficient pour la compagnie KE
+            'KL': 0.5, # coefficient pour la compagnie KL
+            'LG': 0.5, # coefficient pour la compagnie LG
+            'MF': 0.5, # coefficient pour la compagnie MF
+            'MU': 0.5  # coefficient pour la compagnie MU
+        }    
+
+        # Conditions pour le calcul
+        mask = (
+            (df['Pax CNT TOT'].isna()) &
+            (df['Affectation'].isin(['E', 'F', 'G'])) &
+            (df['A/D'] == 'A') &
+            (df['Cie Ope'].isin(list(coefficients.keys()))) &
+            (df['PAX TOT'].notna())
+        )
+
+        # Créer une série de coefficients et appliquer le calcul
+        coeff_series = df['Cie Ope'].map(coefficients)
+        df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
+        
+        st.success(f"Calcul de 'Pax CNT TOT' théorique appliqué sur {mask.sum()} lignes")
+
+        # Masque pour identifier les lignes à traiter (AF et DL)
+        mask2 = (
+            (df['Pax CNT TOT'].isna()) &                            # Pax CNT TOT vide
+            (df['Affectation'].isin(['E', 'F', 'G'])) &            # Affectation E, F ou G
+            (df['A/D'] == 'A') &                                   # A/D = A
+            (df['Cie Ope'].isin(['AF', 'DL'])) &                   # Compagnies AF ou DL
+            (df['PAX TOT'].notna())                                # PAX TOT non vide
+        )
+                
+        st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
+        
+        if mask2.sum() > 0:
+            try:
+                # Calcul des coefficients moyens par vol
+                # D'abord, on calcule le ratio pour chaque ligne où Pax CNT TOT existe
+                df_temp = df[
+                    (df['Pax CNT TOT'].notna()) &               # Pax CNT TOT non vide
+                    (df['PAX TOT'].notna()) &                   # PAX TOT non vide
+                    (df['PAX TOT'] > 0) &                       # PAX TOT > 0 pour éviter division par 0
+                    (df['Cie Ope'].isin(['AF', 'DL'])) &        # Même compagnies
+                    (df['Affectation'].isin(['E', 'F', 'G'])) & # Même critères
+                    (df['A/D'] == 'A')
+                ].copy()
+                
+                if len(df_temp) > 0:
+                    # Calcul du ratio pour chaque ligne
+                    df_temp['ratio'] = df_temp['Pax CNT TOT'] / df_temp['PAX TOT']
+                    
+                    # Calcul du coefficient moyen par numéro de vol
+                    coeff_moyens_vol = df_temp.groupby('Num Vol')['ratio'].mean().to_dict()
+                    
+                    st.write(f"Coefficients moyens calculés pour {len(coeff_moyens_vol)} vols différents")
+                    
+                    # Affichage d'un échantillon des coefficients
+                    if st.checkbox("Afficher un échantillon des coefficients par vol"):
+                        sample_coeffs = dict(list(coeff_moyens_vol.items())[:10])
+                        st.write("Échantillon des coefficients moyens par vol :")
+                        for vol, coeff in sample_coeffs.items():
+                            st.write(f"Vol {vol}: {coeff:.3f}")
+                    
+                    # Application des coefficients aux lignes manquantes
+                    lignes_calculees = 0
+                    
+                    for idx in df[mask2].index:
+                        num_vol = df.loc[idx, 'Num Vol']
+                        
+                        if num_vol in coeff_moyens_vol:
+                            # Application du coefficient moyen du vol
+                            coeff = coeff_moyens_vol[num_vol]
+                            df.loc[idx, 'Pax CNT TOT'] = df.loc[idx, 'PAX TOT'] * coeff
+                            lignes_calculees += 1
+                    
+                    st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients moyens par vol")
+                    
+                    # Statistiques détaillées
+                    if lignes_calculees > 0:
+                        lignes_af = df[(mask2) & (df['Cie Ope'] == 'AF')].shape[0]
+                        lignes_dl = df[(mask2) & (df['Cie Ope'] == 'DL')].shape[0]
+                        
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Total calculé", lignes_calculees)
+                        with col2:
+                            st.metric("AF", lignes_af)
+                        with col3:
+                            st.metric("DL", lignes_dl)
+                    
+                    # Lignes non traitées (vols sans référence)
+                    lignes_non_traitees = mask2.sum() - lignes_calculees
+                    if lignes_non_traitees > 0:
+                        st.warning(f"⚠️ {lignes_non_traitees} lignes n'ont pas pu être calculées (pas de référence pour ces vols)")
+                        
+                        # Optionnel : afficher les vols sans référence
+                        if st.checkbox("Voir les vols sans référence"):
+                            vols_sans_ref = df[mask2]['Num Vol'].unique()
+                            vols_sans_coeff = [vol for vol in vols_sans_ref if vol not in coeff_moyens_vol]
+                            if vols_sans_coeff:
+                                st.write("Vols sans coefficient de référence :")
+                                st.write(vols_sans_coeff[:10])  # Afficher les 10 premiers
+                
+                else:
+                    st.warning("⚠️ Aucune donnée de référence trouvée pour calculer les coefficients moyens")
+                    st.info("Il faut des lignes avec Pax CNT TOT rempli pour les mêmes vols AF/DL")
+                    
+            except Exception as e:
+                st.error(f"Erreur lors du calcul des coefficients moyens : {e}")
+                st.write("Vérifiez que les colonnes 'Num Vol', 'Pax CNT TOT' et 'PAX TOT' existent")
+
+        else:
+            st.info("Aucune ligne AF/DL ne correspond aux critères pour le calcul par coefficient moyen")
+        
 
 
 
