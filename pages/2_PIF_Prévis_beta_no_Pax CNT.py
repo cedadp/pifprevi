@@ -226,7 +226,7 @@ if uploaded_file is not None:
                     st.error(f"Erreur lors du calcul des coefficients moyens : {e}")
                     st.write("Vérifiez que les colonnes 'Num Vol', 'Pax CNT TOT' et 'PAX TOT' existent")
             
-            else:
+         else:
                 st.info("Aucune ligne AF/DL ne correspond aux critères pour le calcul par coefficient moyen")
 
 
