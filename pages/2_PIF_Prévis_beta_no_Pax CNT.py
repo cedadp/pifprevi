@@ -270,7 +270,8 @@ if uploaded_file is not None:
             st.download_button(
             label="📥 Télécharger le dataset modifié",
             data=excel_data,
-            file_name=f'dataset_replay_{pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
+            #file_name=f'dataset_replay_{pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
+            file_name=uploaded_file + "CNT_complete.xlsx",
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 )
     
