@@ -193,7 +193,7 @@ if uploaded_file is not None:
                         
                         # Affichage des lignes modifiées avec détails
                         # Affichage des lignes modifiées avec détails
-                        if index_modifies and st.checkbox("📋 Voir les lignes modifiées en détail", key="lignes_detail_vol"):
+                        if index_modifies and st.checkbox("📋 Voir le détail des lignes modifiées", key="lignes_detail_vol"):
                             lignes_detail = df.loc[index_modifies][
                                 ['Cie Ope', 'Num Vol', 'PAX TOT', 'Pax CNT TOT', 'Affectation', 'Local Date']
                             ].copy()
