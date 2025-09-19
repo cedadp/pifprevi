@@ -190,23 +190,18 @@ if uploaded_file is not None:
                                 st.write("Tous les vols ont été traités")
                         
                         # Affichage des lignes modifiées avec détails
-                        if vols_modifies and st.checkbox("📋 Voir les lignes modifiées en détail", key="lignes_detail_vol"):
-                            mask_lignes_modifiees = (
-                                (df['Cie Ope'].isin(['AF', 'DL'])) &
-                                (df['Affectation'].isin(['E', 'F', 'G'])) &
-                                (df['A/D'] == 'A') &
-                                (df['Num Vol'].isin(vols_modifies)) &
-                                (df['Pax CNT TOT'].notna())
-                            )
-                            
-                            lignes_detail = df[mask_lignes_modifiees][
+                        # Affichage des lignes modifiées avec détails
+                        if index_modifies and st.checkbox("📋 Voir les lignes modifiées en détail", key="lignes_detail_vol"):
+                            lignes_detail = df.loc[index_modifies][
                                 ['Cie Ope', 'Num Vol', 'PAX TOT', 'Pax CNT TOT', 'Affectation', 'Local Date']
                             ].copy()
                             
                             # Ajouter le coefficient utilisé
                             lignes_detail['Coefficient'] = lignes_detail['Num Vol'].map(coeff_moyens_vol)
                             
-                            st.write(f"**📋 Détail des lignes modifiées ({len(lignes_detail)} lignes) :**")
+                            st.write(f"**📋 Lignes réellement modifiées ({len(lignes_detail)} lignes) :**")
+                            # ... reste du code d'affichage
+
                             st.dataframe(
                                 lignes_detail,
                                 column_config={
