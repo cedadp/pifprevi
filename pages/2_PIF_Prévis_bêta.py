@@ -93,7 +93,7 @@ if uploaded_file is not None:
                     (df['PAX TOT'].notna())                                # PAX TOT non vide
                 )
                 
-        st.info(f"Lignes à traiter avec coefficients CNT moyens par vol : {mask2.sum()}")
+        st.info(f"Calcul de 'Pax CNT TOT' avec coefficients CNT moyens par vol : {mask2.sum()} lignes")
       
 
     
