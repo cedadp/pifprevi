@@ -129,6 +129,8 @@ if uploaded_file is not None:
                     lignes_calculees = 0
                     vols_modifies = []
                     vols_non_modifies = []
+                    index_modifies = []  # ← AJOUT pour tracker les index
+        
                     
                     for idx in df[mask2].index:
                         num_vol = df.loc[idx, 'Num Vol']
@@ -138,6 +140,7 @@ if uploaded_file is not None:
                             coeff = coeff_moyens_vol[num_vol]
                             df.loc[idx, 'Pax CNT TOT'] = df.loc[idx, 'PAX TOT'] * coeff
                             lignes_calculees += 1
+                            index_modifies.append(idx)  # ← AJOUT
                             if num_vol not in vols_modifies:
                                 vols_modifies.append(num_vol)
                         else:
