@@ -201,7 +201,7 @@ if uploaded_file is not None:
                             # Ajouter le coefficient utilisé
                             lignes_detail['Coefficient'] = lignes_detail['Num Vol'].map(coeff_moyens_vol)
                             
-                            st.write(f"**📋 Lignes réellement modifiées ({len(lignes_detail)} lignes) :**")
+                            st.write(f"**📋 Lignes modifiées ({len(lignes_detail)} lignes) :**")
                             # ... reste du code d'affichage
 
                             st.dataframe(
@@ -234,12 +234,12 @@ if uploaded_file is not None:
                         st.warning(f"⚠️ {lignes_non_traitees} lignes n'ont pas pu être calculées (pas de référence pour ces vols)")
                         
                         # Optionnel : afficher les vols sans référence
-                        if st.checkbox("Voir les vols sans référence"):
-                            vols_sans_ref = df[mask2]['Num Vol'].unique()
-                            vols_sans_coeff = [vol for vol in vols_sans_ref if vol not in coeff_moyens_vol]
-                            if vols_sans_coeff:
-                                st.write("Vols sans coefficient de référence :")
-                                st.write(vols_sans_coeff[:10])  # Afficher les 10 premiers
+                        #if st.checkbox("Voir les vols sans référence"):
+                            #vols_sans_ref = df[mask2]['Num Vol'].unique()
+                            #vols_sans_coeff = [vol for vol in vols_sans_ref if vol not in coeff_moyens_vol]
+                            #if vols_sans_coeff:
+                                #st.write("Vols sans coefficient de référence :")
+                                #st.write(vols_sans_coeff[:10])  # Afficher les 10 premiers
                 
                 else:
                     st.warning("⚠️ Aucune donnée de référence trouvée pour calculer les coefficients moyens")
