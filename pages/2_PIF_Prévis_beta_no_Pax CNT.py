@@ -81,6 +81,8 @@ if uploaded_file is not None:
         df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
         
         st.success(f"Calcul de  'Pax CNT TOT' théorique pour AM, KE, KL, LG, MF, MU appliqué sur {mask.sum()} lignes")
+        st.write("Aperçu des lignes modifiées :")
+        st.dataframe(df[mask][['Num Vol','Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
 
             # Masque pour identifier les lignes à traiter (AF et DL)
         mask2 = (
@@ -262,8 +264,7 @@ if uploaded_file is not None:
                 
         #  afficher un aperçu des lignes modifiées
         if mask.sum() > 0:
-            st.write("Aperçu des lignes modifiées :")
-            st.dataframe(df[mask][['Num Vol','Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
+            
             name_output = "dataset_replay"   
             excel_data = download_excel(df)
             st.download_button(
