@@ -127,6 +127,8 @@ if uploaded_file is not None:
                     
                     # Application des coefficients aux lignes manquantes
                     lignes_calculees = 0
+                    vols_modifies = []
+                    vols_non_modifies = []
                     
                     for idx in df[mask2].index:
                         num_vol = df.loc[idx, 'Num Vol']
@@ -136,8 +138,82 @@ if uploaded_file is not None:
                             coeff = coeff_moyens_vol[num_vol]
                             df.loc[idx, 'Pax CNT TOT'] = df.loc[idx, 'PAX TOT'] * coeff
                             lignes_calculees += 1
+                            if num_vol not in vols_modifies:
+                                vols_modifies.append(num_vol)
+                        else:
+                            if num_vol not in vols_non_modifies:
+                                vols_non_modifies.append(num_vol)
                     
                     st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients moyens par vol")
+                    
+                    # AJOUT : Affichage des vols modifiés et non modifiés
+                    if st.checkbox("📊 Voir le détail des vols traités", key="detail_vols"):
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.write(f"**✅ Vols modifiés ({len(vols_modifies)}) :**")
+                            if vols_modifies:
+                                # Créer un DataFrame avec les détails des vols modifiés
+                                vols_modifies_df = pd.DataFrame({
+                                    'Num Vol': vols_modifies,
+                                    'Coefficient': [coeff_moyens_vol[vol] for vol in vols_modifies]
+                                })
+                                vols_modifies_df = vols_modifies_df.sort_values('Num Vol')
+                                st.dataframe(
+                                    vols_modifies_df,
+                                    column_config={
+                                        "Coefficient": st.column_config.NumberColumn("Coeff.", format="%.3f")
+                                    },
+                                    use_container_width=True,
+                                    hide_index=True
+                                )
+                            else:
+                                st.write("Aucun vol modifié")
+                        
+                        with col2:
+                            st.write(f"**❌ Vols non modifiés ({len(vols_non_modifies)}) :**")
+                            if vols_non_modifies:
+                                # Créer un DataFrame pour les vols non modifiés
+                                vols_non_modifies_df = pd.DataFrame({
+                                    'Num Vol': sorted(vols_non_modifies),
+                                    'Raison': ['Pas de référence'] * len(vols_non_modifies)
+                                })
+                                st.dataframe(
+                                    vols_non_modifies_df,
+                                    use_container_width=True,
+                                    hide_index=True
+                                )
+                            else:
+                                st.write("Tous les vols ont été traités")
+                        
+                        # Affichage des lignes modifiées avec détails
+                        if vols_modifies and st.checkbox("📋 Voir les lignes modifiées en détail", key="lignes_detail_vol"):
+                            mask_lignes_modifiees = (
+                                (df['Cie Ope'].isin(['AF', 'DL'])) &
+                                (df['Affectation'].isin(['E', 'F', 'G'])) &
+                                (df['A/D'] == 'A') &
+                                (df['Num Vol'].isin(vols_modifies)) &
+                                (df['Pax CNT TOT'].notna())
+                            )
+                            
+                            lignes_detail = df[mask_lignes_modifiees][
+                                ['Cie Ope', 'Num Vol', 'PAX TOT', 'Pax CNT TOT', 'Affectation', 'Local Date']
+                            ].copy()
+                            
+                            # Ajouter le coefficient utilisé
+                            lignes_detail['Coefficient'] = lignes_detail['Num Vol'].map(coeff_moyens_vol)
+                            
+                            st.write(f"**📋 Détail des lignes modifiées ({len(lignes_detail)} lignes) :**")
+                            st.dataframe(
+                                lignes_detail,
+                                column_config={
+                                    "PAX TOT": st.column_config.NumberColumn("PAX TOT", format="%.0f"),
+                                    "Pax CNT TOT": st.column_config.NumberColumn("Pax CNT TOT", format="%.1f"),
+                                    "Coefficient": st.column_config.NumberColumn("Coeff.", format="%.3f"),
+                                    "Local Date": st.column_config.DateColumn("Date")
+                                },
+                                use_container_width=True
+                            )
                     
                     # Statistiques détaillées
                     if lignes_calculees > 0:
@@ -175,7 +251,7 @@ if uploaded_file is not None:
 
         else:
             st.info("Aucune ligne AF/DL ne correspond aux critères pour le calcul par coefficient moyen")
-        
+
 
 
 
