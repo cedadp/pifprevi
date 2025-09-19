@@ -140,7 +140,7 @@ if uploaded_file is not None:
                     st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients moyens par vol")
 
                     # Affichage des lignes modifiées pour AF/DL
-                   if lignes_calculees > 0 and st.checkbox("📊 Voir les lignes modifiées (coefficients par vol)", key="modif_vol"):
+                    if lignes_calculees > 0 and st.checkbox("📊 Voir les lignes modifiées (coefficients par vol)", key="modif_vol"):
                             # Récupérer les lignes qui ont été modifiées
                             mask_modifiees = (
                                 (df['Cie Ope'].isin(['AF', 'DL'])) &
@@ -168,7 +168,7 @@ if uploaded_file is not None:
                             )        
                     
                     # Statistiques détaillées
-                    if lignes_calculees > 0:
+                     if lignes_calculees > 0:
                         lignes_af = df[(mask2) & (df['Cie Ope'] == 'AF')].shape[0]
                         lignes_dl = df[(mask2) & (df['Cie Ope'] == 'DL')].shape[0]
                         
