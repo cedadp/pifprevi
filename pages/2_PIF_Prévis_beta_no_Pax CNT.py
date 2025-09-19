@@ -47,7 +47,7 @@ if uploaded_file is not None:
         #df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_5","Terminal 1_5")
         # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_6","Terminal 1_6")
         #partie déplacée dans Concat_V2
-            st.success("Programme complet chargée !")
+            
         return df
 
            
@@ -56,7 +56,7 @@ if uploaded_file is not None:
             
      # Si le fichier est un "REPLAY", on applique la logique de calcul
     if 'REPLAY' in uploaded_file.name:
-        st.info("Fichier 'REPLAY' détecté. Calcul de  'Pax CNT TOT' théorique pour AM, KE, KL, LG, MF, MU.")
+        st.info("Fichier 'REPLAY' détecté. Calcul de  'Pax CNT TOT' théorique.")
         coefficients = {
             'AM': 0.5, # coefficient pour la compagnie AM
             'KE': 0.5, # coefficient pour la compagnie KE
@@ -80,7 +80,7 @@ if uploaded_file is not None:
         coeff_series = df['Cie Ope'].map(coefficients)
         df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
         
-        st.success(f"Calcul de  'Pax CNT TOT' théorique appliqué sur {mask.sum()} lignes")
+        st.success(f"Calcul de  'Pax CNT TOT' théorique pour AM, KE, KL, LG, MF, MU appliqué sur {mask.sum()} lignes")
 
             # Masque pour identifier les lignes à traiter (AF et DL)
         mask2 = (
@@ -91,7 +91,7 @@ if uploaded_file is not None:
                     (df['PAX TOT'].notna())                                # PAX TOT non vide
                 )
                 
-        st.info(f"Lignes à traiter avec coefficients moyens par vol : {mask2.sum()}")
+        st.info(f"Lignes à traiter avec coefficients CNT moyens par vol : {mask2.sum()}")
       
 
     
@@ -119,11 +119,11 @@ if uploaded_file is not None:
                     st.write(f"Coefficients moyens calculés pour {len(coeff_moyens_vol)} vols différents")
                     
                     # Affichage d'un échantillon des coefficients
-                    if st.checkbox("Afficher un échantillon des coefficients par vol"):
-                        sample_coeffs = dict(list(coeff_moyens_vol.items())[:10])
-                        st.write("Échantillon des coefficients moyens par vol :")
-                        for vol, coeff in sample_coeffs.items():
-                            st.write(f"Vol {vol}: {coeff:.3f}")
+                    #if st.checkbox("Afficher un échantillon des coefficients par vol"):
+                        #sample_coeffs = dict(list(coeff_moyens_vol.items())[:10])
+                        #st.write("Échantillon des coefficients moyens par vol :")
+                        #for vol, coeff in sample_coeffs.items():
+                            #st.write(f"Vol {vol}: {coeff:.3f}")
                     
                     # Application des coefficients aux lignes manquantes
                     lignes_calculees = 0
@@ -147,7 +147,7 @@ if uploaded_file is not None:
                             if num_vol not in vols_non_modifies:
                                 vols_non_modifies.append(num_vol)
                     
-                    st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients moyens par vol")
+                    st.success(f"✅ {lignes_calculees} lignes calculées avec coefficients CNT moyens par vol pour AF, DL")
                     
                     # AJOUT : Affichage des vols modifiés et non modifiés
                     if st.checkbox("📊 Voir le détail des vols traités", key="detail_vols"):
