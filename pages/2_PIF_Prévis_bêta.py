@@ -80,7 +80,7 @@ if uploaded_file is not None:
         coeff_series = df['Cie Ope'].map(coefficients)
         df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
         
-        st.success(f"Calcul de  'Pax CNT TOT' théorique pour AM, KE, KL, LG, MF, MU appliqué sur {mask.sum()} lignes")
+        st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour AM, KE, KL, LG, MF, MU appliqué sur {mask.sum()} lignes")
         st.write("Aperçu des lignes modifiées :")
         st.dataframe(df[mask][['Num Vol','Cie Ope', 'Affectation', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
 
