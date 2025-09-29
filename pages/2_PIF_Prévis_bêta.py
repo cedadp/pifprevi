@@ -265,7 +265,7 @@ if uploaded_file is not None:
         #  afficher un aperçu des lignes modifiées
         if mask.sum() > 0:
             
-            name_output = "dataset_replay"   
+            name_output = "pgrm_complet"   
             excel_data = download_excel(df)
             st.download_button(
             label="📥 Télécharger le dataset modifié",
