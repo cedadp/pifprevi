@@ -127,18 +127,18 @@ if uploaded_file is not None:
     
     
    
-    def consolider_pif_k(df):
-        if st.checkbox("Fusionner K CTR et K CNT", value =False):
+    def consolider_paf_ac(df):
+        if st.checkbox("Fusionner A_Arr et C_Arr CNT", value =True):
     
     
-            df['site'] = df['site'].apply(lambda x: 'K CTRCNT' if x in ['K CNT', 'K CTR'] else x)
+            df['site'] = df['site'].apply(lambda x: 'A+C_Arr' if x in ['A_Arr', 'C_Arr'] else x)
 
             df = df.groupby(['jour','heure','site'], as_index=False)['charge'].sum()
         return df
     
        
        
-    df = consolider_pif_k(df)
+    df = consolider_paf_ac(df)
     
     #df_config['site']= df['site'].unique()
     
@@ -157,8 +157,8 @@ if uploaded_file is not None:
     df_config['Abattement (%)'] = 0
     
     #par défaut la valeur d'abattement pour L CNT =20%
-    condition = df_config['site'].str.contains('L CNT', case=False) 
-    df_config.loc[condition, 'Abattement (%)'] = 20
+    #condition = df_config['site'].str.contains('L CNT', case=False) #replacé depuis dec25 par le mode IFU
+    #df_config.loc[condition, 'Abattement (%)'] = 20 #replacé depuis dec25 par le mode IFU
     ### fin 
     
     
