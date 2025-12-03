@@ -128,7 +128,7 @@ if uploaded_file is not None:
     
    
     def consolider_paf_ac(df):
-        if st.checkbox("Fusionner A_Arr et C_Arr", value =True) and "export_paf" in uploaded_file.name :
+        if st.checkbox("Fusionner A_Arr et C_Arr", value =True) :
     
     
             df['site'] = df['site'].apply(lambda x: 'A+C_Arr' if x in ['A_Arr', 'C_Arr'] else x)
@@ -137,8 +137,8 @@ if uploaded_file is not None:
         return df
     
        
-       
-    df = consolider_paf_ac(df)
+    if "export_paf" in uploaded_file.name:    
+        df = consolider_paf_ac(df)
     
     #df_config['site']= df['site'].unique()
     
