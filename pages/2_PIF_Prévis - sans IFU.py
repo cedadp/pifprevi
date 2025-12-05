@@ -423,7 +423,7 @@ if uploaded_file is not None:
         
         my_bar2.progress(98)
 
-        directory_exp = "export_pif_du_" + str(start_date.date()) + "_au_" + str(end_date.date()) + ".xlsx"
+        directory_exp = "export_pif_du_" + str(start_date.date()) + "_au_" + str(end_date.date()) + "_IFU.xlsx"
         from io import BytesIO  
         from pyxlsb import open_workbook as open_xlsb
 
