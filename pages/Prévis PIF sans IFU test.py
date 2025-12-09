@@ -7,6 +7,7 @@ import time as tm
 import openpyxl
 from datetime import datetime, timedelta 
 from io import BytesIO
+from pyxlsb import open_workbook as open_xlsb   
 
 ### Version du 24 - 07 - 2024 ##########################################
 
@@ -434,37 +435,33 @@ if uploaded_file is not None:
         from pyxlsb import open_workbook as open_xlsb
 
         def df_to_excel_bytes(df, sheet_name):
-    output = BytesIO()
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name=sheet_name, index=False)
-    writer.close()
-    processed_data = output.getvalue()
-    return processed_data
+            output = BytesIO()
+            writer = pd.ExcelWriter(output, engine='xlsxwriter')
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
+            writer.close()
+            processed_data = output.getvalue()
+            return processed_data
 
-
-# ... tout ton traitement avant ...
-# hyp_ifu et df_final sont déjà calculés
-# name_output et directory_exp existent déjà chez toi
 
 my_bar2.progress(100)
 
 # 1) Fichier IFU
-excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
-st.download_button(
-    label="Télécharger fichier IFU",
-    data=excel_ifu,
-    file_name="vols_ifu.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
+            st.download_button(
+                label="Télécharger fichier IFU",
+                data=excel_ifu,
+                file_name="vols_ifu.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
 
 # 2) Fichier PIF 
-excel_pif = df_to_excel_bytes(df_final, sheet_name=name_output)
-st.download_button(
-    label="Télécharger fichier Export pif",
-    data=excel_pif,
-    file_name=directory_exp,  # par ex. "export_pif.xlsx"
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
+            excel_pif = df_to_excel_bytes(df_final, sheet_name=name_output)
+            st.download_button(
+                label="Télécharger fichier Export pif",
+                data=excel_pif,
+                file_name=directory_exp,  # par ex. "export_pif.xlsx"
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
                         
 
