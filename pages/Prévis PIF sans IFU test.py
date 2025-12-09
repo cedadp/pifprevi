@@ -238,6 +238,20 @@ if uploaded_file is not None:
             # Mise à jour la colonne 'TOT_Théorique' avec les nouvelles valeurs de 'Pax CNT TOT'
             dispatch_df.loc[hyp_ifu.index, 'TOT_théorique'] = dispatch_df.loc[hyp_ifu.index, 'Pax CNT TOT']
 
+            buffer = BytesIO()
+            hyp_ifu.to_excel(buffer, index=False, sheet_name="ifu")
+            buffer.seek(0)  # remettre le curseur au début
+
+            st.download_button(
+                label="📥 Télécharger le fichier Excel",
+                data=buffer,
+                file_name="vols_ifu.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+
+
+                    
             my_bar2.progress(20)
 
             def dispatch_term(terminal, salle_apport, salle_emport, AD):
