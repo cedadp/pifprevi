@@ -245,7 +245,7 @@ if uploaded_file is not None:
             buffer.seek(0)  # remettre le curseur au début
 
             st.download_button(
-                label="📥 Télécharger le fichier Excel",
+                label="📥 Télécharger la liste des vols IFU",
                 data=buffer,
                 file_name="vols_ifu.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
