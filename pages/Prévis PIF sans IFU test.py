@@ -240,17 +240,7 @@ if uploaded_file is not None:
             # Mise à jour la colonne 'TOT_Théorique' avec les nouvelles valeurs de 'Pax CNT TOT'
             dispatch_df.loc[hyp_ifu.index, 'TOT_théorique'] = dispatch_df.loc[hyp_ifu.index, 'Pax CNT TOT']
 
-            buffer = BytesIO()
-            hyp_ifu.to_excel(buffer, index=False, sheet_name="ifu")
-            buffer.seek(0)  # remettre le curseur au début
-
-            st.download_button(
-                label="📥 Télécharger la liste des vols IFU",
-                data=buffer,
-                file_name="vols_ifu.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            )
-
+       
 
 
                     
@@ -443,24 +433,39 @@ if uploaded_file is not None:
         from io import BytesIO  
         from pyxlsb import open_workbook as open_xlsb
 
-        def download_excel(df):
-            output = BytesIO()
-            writer = pd.ExcelWriter(output, engine='xlsxwriter')
-            df.to_excel(writer, sheet_name=name_output, index=False)
-            writer.close()
-            processed_data = output.getvalue()
-            return processed_data
-        
-        
-        my_bar2.progress(100)
+        def df_to_excel_bytes(df, sheet_name):
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name=sheet_name, index=False)
+    writer.close()
+    processed_data = output.getvalue()
+    return processed_data
 
-        processed_data = download_excel(df_final)
-        st.download_button(
-        label="Télécharger fichier Export pif",
-        data=processed_data,
-        file_name=directory_exp,
-        mime="application/vnd.ms-excel"
-        )
+
+# ... tout ton traitement avant ...
+# hyp_ifu et df_final sont déjà calculés
+# name_output et directory_exp existent déjà chez toi
+
+my_bar2.progress(100)
+
+# 1) Fichier IFU
+excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
+st.download_button(
+    label="Télécharger fichier IFU",
+    data=excel_ifu,
+    file_name="vols_ifu.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
+
+# 2) Fichier PIF 
+excel_pif = df_to_excel_bytes(df_final, sheet_name=name_output)
+st.download_button(
+    label="Télécharger fichier Export pif",
+    data=excel_pif,
+    file_name=directory_exp,  # par ex. "export_pif.xlsx"
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
+
                         
 
         st.info("Export PIF créé avec succès !" + "\n\nPour lancer une nouvelle étude, lancer uniquement 'CHOISIR LES DATES'")
