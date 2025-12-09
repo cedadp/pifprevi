@@ -6,6 +6,8 @@ from functools import reduce
 import time as tm
 import openpyxl
 from datetime import datetime, timedelta 
+from io import BytesIO
+
 ### Version du 24 - 07 - 2024 ##########################################
 
 ###V2 - Dans cette version le traitement des heures au format homogène entre AF et SARIA est réalisé dans Concat et non plus dans Prévis
