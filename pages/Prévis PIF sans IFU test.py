@@ -443,18 +443,18 @@ if uploaded_file is not None:
             return processed_data
 
 
-my_bar2.progress(100)
+            my_bar2.progress(100)
 
-# 1) Fichier IFU
+            # 1) Fichier IFU
             excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
             st.download_button(
                 label="Télécharger fichier IFU",
                 data=excel_ifu,
                 file_name="vols_ifu.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
+            )
 
-# 2) Fichier PIF 
+            # 2) Fichier PIF 
             excel_pif = df_to_excel_bytes(df_final, sheet_name=name_output)
             st.download_button(
                 label="Télécharger fichier Export pif",
