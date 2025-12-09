@@ -442,12 +442,11 @@ if uploaded_file is not None:
             processed_data = output.getvalue()
             return processed_data
 
-
-            my_bar2.progress(100)
+        my_bar2.progress(100)
 
             # 1) Fichier IFU
-            excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
-            st.download_button(
+        excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
+        st.download_button(
                 label="Télécharger fichier IFU",
                 data=excel_ifu,
                 file_name="vols_ifu.xlsx",
@@ -455,8 +454,8 @@ if uploaded_file is not None:
             )
 
             # 2) Fichier PIF 
-            excel_pif = df_to_excel_bytes(df_final, sheet_name=name_output)
-            st.download_button(
+        excel_pif = df_to_excel_bytes(df_final, sheet_name=name_output)
+        st.download_button(
                 label="Télécharger fichier Export pif",
                 data=excel_pif,
                 file_name=directory_exp,  # par ex. "export_pif.xlsx"
