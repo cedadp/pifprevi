@@ -234,6 +234,15 @@ if uploaded_file is not None:
             dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['Pax LOC TOT']
             # Sélection des lignes avec les conditions IFU
             hyp_ifu = dispatch_df[( dispatch_df['A/D'] == 'A') & ( dispatch_df['Libellé terminal'] == 'EL') & ( dispatch_df['IFU'] == 'IFU') & ( dispatch_df['Porteur'] == 'GP') ]
+            
+                    
+                    
+                    
+            
+            
+                    
+                    
+                    
             # Sauvegarder le sous-ensemble de vols IFU
             hyp_ifu.to_excel("vols_ifu.xlsx", sheet_name="ifu") #zenregistrer dans excel la liste des vols avec les conditions 
             # Applique un coefficient de 0,2 sur la colonne 'Pax CNT TOT' (contaté IFU sur éligible IFU)
@@ -244,6 +253,15 @@ if uploaded_file is not None:
        
 
 
+
+
+
+
+
+
+
+
+                    
                     
             my_bar2.progress(20)
 
@@ -445,13 +463,13 @@ if uploaded_file is not None:
         my_bar2.progress(100)
 
             # 1) Fichier IFU
-        excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
-        st.download_button(
-                label="Télécharger fichier IFU",
-                data=excel_ifu,
-                file_name="vols_ifu.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        #excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
+        #st.download_button(
+               # label="Télécharger fichier IFU",
+               # data=excel_ifu,
+                #file_name="vols_ifu.xlsx",
+               # mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          #  )
 
             # 2) Fichier PIF 
         excel_pif = df_to_excel_bytes(df_final, sheet_name=name_output)
