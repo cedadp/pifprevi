@@ -251,7 +251,7 @@ if uploaded_file is not None:
             dispatch_df.loc[hyp_ifu.index, 'TOT_théorique'] = dispatch_df.loc[hyp_ifu.index, 'Pax CNT TOT']
 
        
-
+            st.session_state["hyp_ifu"] = hyp_ifu
 
 
 
@@ -463,13 +463,15 @@ if uploaded_file is not None:
         my_bar2.progress(100)
 
             # 1) Fichier IFU
-        #excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
-        #st.download_button(
-               # label="Télécharger fichier IFU",
-               # data=excel_ifu,
-                #file_name="vols_ifu.xlsx",
-               # mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          #  )
+        if "hyp_ifu" in st.session_state:
+            hyp_ifu = st.session_state["hyp_ifu"]
+            excel_ifu = df_to_excel_bytes(hyp_ifu, sheet_name="ifu")
+            st.download_button(
+               label="Télécharger fichier IFU",
+               data=excel_ifu,
+               file_name="vols_ifu.xlsx",
+               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+           )
 
             # 2) Fichier PIF 
         excel_pif = df_to_excel_bytes(df_final, sheet_name=name_output)
