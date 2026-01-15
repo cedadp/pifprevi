@@ -31,7 +31,7 @@ st.title("📦 Concat")
 name_sheet_cies = "pgrm_cies"
 name_sheet_af = "Programme brut"
 
-st.subheader("Prévision activité AF 1 :")
+st.subheader("Prévision activité AF :")
 
 def get_dispatch_sat_T1(sat):
     df = pd.read_excel("fichier_config_PIF.xlsx", sheet_name="dispatch_sat")
