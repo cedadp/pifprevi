@@ -19,7 +19,7 @@ import locale
 from datetime import datetime, timedelta
 
 def main(): 
-    st.set_page_config(page_title="Vérif Seuil PIF", page_icon="📊", layout="centered", initial_sidebar_state="auto", menu_items=None)
+    st.set_page_config(page_title="Vérif Seuil", page_icon="📊", layout="centered", initial_sidebar_state="auto", menu_items=None)
     
     hide_streamlit_style = """
             <style>
@@ -204,4 +204,5 @@ def main():
 if __name__=="__main__":
     main()
     
+
 
