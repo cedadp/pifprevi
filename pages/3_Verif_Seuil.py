@@ -29,7 +29,7 @@ def main():
             """
     st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.title("📊 Vérif Seuil - Charge horaire")
-    
+    st.divider()
     uploaded_file = st.file_uploader("Choisir un fichier :", type=["xls", "xlsx"])
     
     #uploaded_file = "C:/Users/demanet/Downloads/export_pif_du_2024-07-04_au_2024-07-14.xlsx"
@@ -204,6 +204,7 @@ def main():
 if __name__=="__main__":
     main()
     
+
 
 
 
