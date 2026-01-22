@@ -4,7 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="PIF Prévis", page_icon="🛫", layout="centered", initial_sidebar_state="auto")
 
 
-st.title('PIF Prévis') 
+st.title('🛫 PIF Prévis') 
 
 
 with st.sidebar.expander("Version"):
