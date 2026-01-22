@@ -34,7 +34,7 @@ def download_excel(df):
 
 
 
-st.title('🛫 PIF Prévis')
+st.title(':test_tube: PIF Prévis')
 st.subheader("Programme complet :")
 uploaded_file = st.file_uploader("Choisir un fichier :", key=1)
 if uploaded_file is not None:
