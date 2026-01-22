@@ -5,7 +5,7 @@ st.set_page_config(page_title="PIF Prévis", page_icon="🛫", layout="centered"
 
 
 st.title('🛫 PIF Prévis') 
-
+st.divider()
 
 with st.sidebar.expander("Version"):
     st.sidebar.info("")
