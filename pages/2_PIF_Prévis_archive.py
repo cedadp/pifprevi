@@ -22,7 +22,7 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
-st.title('🛫 PIF Prévis')
+st.title(':x: PIF Prévis')
 st.subheader("Programme complet :")
 uploaded_file = st.file_uploader("Choisir un fichier :", key=1)
 if uploaded_file is not None:
