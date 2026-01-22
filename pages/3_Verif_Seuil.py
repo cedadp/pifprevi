@@ -28,7 +28,7 @@ def main():
             </style>
             """
     st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
-    st.title("📊 Vérif Seuil PIF - Charge horaire")
+    st.title("📊 Vérif Seuil - Charge horaire")
     
     uploaded_file = st.file_uploader("Selectionner un fichier", type=["xls", "xlsx"])
     
@@ -204,5 +204,6 @@ def main():
 if __name__=="__main__":
     main()
     
+
 
 
