@@ -8,7 +8,7 @@ st.title('PIF Prévis')
 
 
 with st.sidebar.expander("Version"):
-    st.sidebar.info("Version : 2.0")
+    st.sidebar.info("")
     
 
 
