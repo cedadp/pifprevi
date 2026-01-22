@@ -30,7 +30,7 @@ download = False # stop le rerun de l'app
 st.title("📦 Concat")
 name_sheet_cies = "pgrm_cies"
 name_sheet_af = "Programme brut"
-
+st.divider()
 st.subheader("Prévision activité AF :")
 
 def get_dispatch_sat_T1(sat):
