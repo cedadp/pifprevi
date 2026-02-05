@@ -5,12 +5,18 @@ import datetime
 from functools import reduce
 import time as tm
 import openpyxl
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta
+from io import BytesIO  
+from pyxlsb import open_workbook as open_xlsb
 ### Version du 24 - 07 - 2024 ##########################################
 
 ###V2 - Dans cette version le traitement des heures au format homogène entre AF et SARIA est réalisé dans Concat et non plus dans Prévis
 # uploaded_file = "C:/Users/demanet/Downloads/pgrm_complet_2024-08-28.xlsx"
 # df = pd.read_excel(uploaded_file) 
+
+### Version du 06 - 02 - 2026 ##########################################
+##Prise en compte du circuit de correspondance au T2AC
+
 
 st.set_page_config(page_title="PIF Prévis", page_icon="🛫", layout="centered", initial_sidebar_state="auto", menu_items=None)
 
@@ -21,6 +27,15 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
+
+def download_excel(df):
+            output = BytesIO()
+            writer = pd.ExcelWriter(output, engine='xlsxwriter')
+            df.to_excel(writer, sheet_name=name_output, index=False)
+            writer.close()
+            processed_data = output.getvalue()
+            return processed_data
 
 st.title('🛫 PIF Prévis')
 st.divider()
@@ -39,6 +54,59 @@ if uploaded_file is not None:
             st.success("Programme complet chargée !")
         return df
 
+
+
+
+    df = df()
+
+
+
+
+    st.info("Correspondance du T2AC: Calcul de  'Pax CNT TOT' théorique.")
+    coefficients = {
+            'KQ': 0.24, # coefficient pour la compagnie KQ
+            'CX': 0.04, # coefficient pour la compagnie CX
+            'ME': 0.31, # coefficient pour la compagnie ME
+            'WS': 0.12, # coefficient pour la compagnie WS
+            'MF': 0.018, # coefficient pour la compagnie MF
+            'MH': 0.005,  # coefficient pour la compagnie MH
+            'UU': 0.018,  # coefficient pour la compagnie UU
+            'WY': 0.007  # coefficient pour la compagnie WY
+            #'AM': 0.229,  # coefficient pour la compagnie AM
+            #'VN': 0.234  # coefficient pour la compagnie VN
+    }    
+
+    # Conditions pour le calcul
+    mask = (
+                    (df['Pax CNT TOT'] == 0) &
+                    (df['Libellé terminal'].isin(['Terminal 2A', 'Terminal 2C'])) &
+                    (df['A/D'] == 'A') &
+                    (df['Cie Ope'].isin(list(coefficients.keys()))) &
+                    (df['PAX TOT'].notna())
+    )
+
+               
+    # Créer une série de coefficients et appliquer le calcul
+    coeff_series = df['Cie Ope'].map(coefficients)
+    df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
+        
+    st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour CX,KQ,ME,MF,MH,UU,WS,WY appliqué sur {mask.sum()} lignes")
+    st.write("Aperçu des lignes modifiées :")
+    st.dataframe(df[mask][['Num Vol','Cie Ope', 'Libellé terminal', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
+
+    if mask.sum() > 0:
+            
+            name_output = "pgrm_complet"   
+            excel_data = download_excel(df)
+            st.download_button(
+            label="📥 Télécharger le dataset modifié",
+            data=excel_data,
+            #file_name=f'dataset_replay_{pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
+            file_name=uploaded_file.name.removesuffix('.xlsx') + "_CNT_completed.xlsx",
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                )  
+
+            
     df_pgrm = df()      
     #start_all = tm.time()
     l_date = pd.to_datetime(df_pgrm['Local Date'].unique().tolist()).date
@@ -230,6 +298,11 @@ if uploaded_file is not None:
             dispatch_df.loc[(dispatch_df['A/D'] == 'A') & (dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['Pax CNT TOT']
             dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (~dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['PAX TOT']
             dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['Pax LOC TOT']
+            # Pour tenir compte de la correspondance du T2AC ->
+            dispatch_df.loc[(dispatch_df['A/D'] == 'A') & (dispatch_df['Libellé terminal'].isin(['Terminal 2A', 'Terminal 2C'])), 'TOT_théorique'] = dispatch_df['Pax CNT TOT']
+
+
+                    
             # Sélection des lignes avec les conditions IFU
             hyp_ifu = dispatch_df[( dispatch_df['A/D'] == 'A') & ( dispatch_df['Libellé terminal'] == 'EL') & ( dispatch_df['IFU'] == 'IFU') & ( dispatch_df['Porteur'] == 'GP') ]
             # Sauvegarder le sous-ensemble de vols IFU
