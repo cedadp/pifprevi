@@ -71,9 +71,19 @@ if uploaded_file is not None:
             'MF': 0.018, # coefficient pour la compagnie MF
             'MH': 0.005,  # coefficient pour la compagnie MH
             'UU': 0.018,  # coefficient pour la compagnie UU
-            'WY': 0.007  # coefficient pour la compagnie WY
+            'WY': 0.007,  # coefficient pour la compagnie WY
             #'AM': 0.229,  # coefficient pour la compagnie AM
-            #'VN': 0.234  # coefficient pour la compagnie VN
+            #'VN': 0.234,  # coefficient pour la compagnie VN
+            'EK': 0.01,  # coefficient pour la compagnie EMIRATES
+            'AC': 0.08,  # coefficient pour la compagnie AIR CANADA
+            'AA': 0.01,  # coefficient pour la compagnie AIR AMERICAN AIRLINES
+            'BA': 0.01,  # coefficient pour la compagnie BRITISH AIRWAYS
+            'AI': 0.09,  # coefficient pour la compagnie AIR INDIA
+            'ET': 0.02,  # coefficient pour la compagnie ETHIOPIAN AIRLINES
+            'JJ': 0.16,  # coefficient pour la compagnie LATAM
+            'GF': 0.04,  # coefficient pour la compagnie GULF AIR
+            'QF': 0.05,  # coefficient pour la compagnie QANTAS
+            'SB': 0.05  # coefficient pour la compagnie AIR CALIN
     }    
 
     # Conditions pour le calcul
@@ -90,7 +100,8 @@ if uploaded_file is not None:
     coeff_series = df['Cie Ope'].map(coefficients)
     df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
         
-    st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour CX,KQ,ME,MF,MH,UU,WS,WY appliqué sur {mask.sum()} lignes")
+    #st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour CX,KQ,ME,MF,MH,UU,WS,WY appliqué sur {mask.sum()} lignes")
+    st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour ', '.join(coefficients.keys() appliqué sur {mask.sum()} lignes")   
     st.write("Aperçu des lignes modifiées :")
     st.dataframe(df[mask][['Num Vol','Cie Ope', 'Libellé terminal', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
 
