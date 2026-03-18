@@ -61,25 +61,25 @@ if uploaded_file is not None:
 
             st.info("Correspondance du T2AC: Calcul de  'Pax LOC TOT' théorique.")
             coefficients_emport = {
-            'KQ':0,22, # coefficient pour la compagnie KQ
-            'CX':0,01, # coefficient pour la compagnie CX
-            'ME':0,21, # coefficient pour la compagnie ME
-            'WS':0,17, # coefficient pour la compagnie WS
-            'MF':0,02, # coefficient pour la compagnie MF
-            #'MH':0,   # coefficient pour la compagnie MH
-            'UU':0,01, # coefficient pour la compagnie UU
-            'WY':0,03, # coefficient pour la compagnie WY
-            'AM':0,22, # coefficient pour la compagnie AM
-            'VN':0,22, # coefficient pour la compagnie VN
+            'KQ':0.22, # coefficient pour la compagnie KQ
+            'CX':0.01, # coefficient pour la compagnie CX
+            'ME':0.21, # coefficient pour la compagnie ME
+            'WS':0.17, # coefficient pour la compagnie WS
+            'MF':0.02, # coefficient pour la compagnie MF
+            #'MH':0  , # coefficient pour la compagnie MH
+            'UU':0.01, # coefficient pour la compagnie UU
+            'WY':0.03, # coefficient pour la compagnie WY
+            'AM':0.22, # coefficient pour la compagnie AM
+            'VN':0.22, # coefficient pour la compagnie VN
             #'EK':0  , # coefficient pour la compagnie EMIRATES
-            'AC':0,08, # coefficient pour la compagnie AIR CANADA
-            'AA':0,01, # coefficient pour la compagnie AIR AMERICAN AIRLINES
-            'BA':0,01, # coefficient pour la compagnie BRITISH AIRWAYS
-            'AI':0,08, # coefficient pour la compagnie AIR INDIA
-            'ET':0,01, # coefficient pour la compagnie ETHIOPIAN AIRLINES
-            'JJ':0,15, # coefficient pour la compagnie LATAM
-            'GF':0,03, # coefficient pour la compagnie GULF AIR
-            'QF':0,05  # coefficient pour la compagnie QANTAS
+            'AC':0.08, # coefficient pour la compagnie AIR CANADA
+            'AA':0.01, # coefficient pour la compagnie AIR AMERICAN AIRLINES
+            'BA':0.01, # coefficient pour la compagnie BRITISH AIRWAYS
+            'AI':0.08, # coefficient pour la compagnie AIR INDIA
+            'ET':0.01, # coefficient pour la compagnie ETHIOPIAN AIRLINES
+            'JJ':0.15, # coefficient pour la compagnie LATAM
+            'GF':0.03, # coefficient pour la compagnie GULF AIR
+            'QF':0.05  # coefficient pour la compagnie QANTAS
             #'SB':0     # coefficient pour la compagnie AIR CALIN
 
     }    
