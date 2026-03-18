@@ -64,26 +64,27 @@ if uploaded_file is not None:
 
     st.info("Correspondance du T2AC: Calcul de  'Pax CNT TOT' théorique.")
     coefficients_apport = {
-            'KQ': 0.24, # coefficient pour la compagnie KQ
-            'CX': 0.04, # coefficient pour la compagnie CX
-            'ME': 0.31, # coefficient pour la compagnie ME
-            'WS': 0.12, # coefficient pour la compagnie WS
-            'MF': 0.018, # coefficient pour la compagnie MF
-            'MH': 0.005,  # coefficient pour la compagnie MH
-            'UU': 0.018,  # coefficient pour la compagnie UU
-            'WY': 0.007,  # coefficient pour la compagnie WY
-            #'AM': 0.229,  # coefficient pour la compagnie AM
-            #'VN': 0.234,  # coefficient pour la compagnie VN
-            'EK': 0.01,  # coefficient pour la compagnie EMIRATES
-            'AC': 0.08,  # coefficient pour la compagnie AIR CANADA
-            'AA': 0.01,  # coefficient pour la compagnie AIR AMERICAN AIRLINES
-            'BA': 0.01,  # coefficient pour la compagnie BRITISH AIRWAYS
-            'AI': 0.09,  # coefficient pour la compagnie AIR INDIA
-            'ET': 0.02,  # coefficient pour la compagnie ETHIOPIAN AIRLINES
-            'JJ': 0.16,  # coefficient pour la compagnie LATAM
-            'GF': 0.04,  # coefficient pour la compagnie GULF AIR
-            'QF': 0.05,  # coefficient pour la compagnie QANTAS
-            'SB': 0.05  # coefficient pour la compagnie AIR CALIN
+            'KQ':0.26, # coefficient pour la compagnie KQ
+            'CX':0.03, # coefficient pour la compagnie CX
+            'ME':0.24, # coefficient pour la compagnie ME
+            'WS':0.19, # coefficient pour la compagnie WS
+            'MF':0.04, # coefficient pour la compagnie MF
+            'MH':0.02, # coefficient pour la compagnie MH
+            'UU':0.02, # coefficient pour la compagnie UU
+            'WY':0.01, # coefficient pour la compagnie WY
+            'AM':0.23, # coefficient pour la compagnie AM
+            'VN':0.21, # coefficient pour la compagnie VN
+            'EK':0.01, # coefficient pour la compagnie EMIRATES
+            'AC':0.09, # coefficient pour la compagnie AIR CANADA
+            'AA':0.01, # coefficient pour la compagnie AIR AMERICAN AIRLINES
+            'BA':0.02, # coefficient pour la compagnie BRITISH AIRWAYS
+            'AI':0.09, # coefficient pour la compagnie AIR INDIA
+            'ET':0.02, # coefficient pour la compagnie ETHIOPIAN AIRLINES
+            'JJ':0.17, # coefficient pour la compagnie LATAM
+            'GF':0.03, # coefficient pour la compagnie GULF AIR
+            'QF':0.05, # coefficient pour la compagnie QANTAS
+            'SB':0.04  # coefficient pour la compagnie AIR CALIN
+
     }    
 
     # Conditions pour le calcul
