@@ -63,7 +63,7 @@ if uploaded_file is not None:
 
 
     st.info("Correspondance du T2AC: Calcul de  'Pax CNT TOT' théorique.")
-    coefficients = {
+    coefficients_apport = {
             'KQ': 0.24, # coefficient pour la compagnie KQ
             'CX': 0.04, # coefficient pour la compagnie CX
             'ME': 0.31, # coefficient pour la compagnie ME
@@ -87,26 +87,26 @@ if uploaded_file is not None:
     }    
 
     # Conditions pour le calcul
-    mask = (
+    mask_apport = (
                     (df['Pax CNT TOT'] == 0) &
                     (df['Libellé terminal'].isin(['Terminal 2A', 'Terminal 2C'])) &
                     (df['A/D'] == 'A') &
-                    (df['Cie Ope'].isin(list(coefficients.keys()))) &
+                    (df['Cie Ope'].isin(list(coefficients_apport.keys()))) &
                     (df['PAX TOT'].notna())
     )
 
                
     # Créer une série de coefficients et appliquer le calcul
-    coeff_series = df['Cie Ope'].map(coefficients)
-    df.loc[mask, 'Pax CNT TOT'] = df.loc[mask, 'PAX TOT'] * coeff_series[mask]
+    coeff_series_apport = df['Cie Ope'].map(coefficients_apport)
+    df.loc[mask_apport, 'Pax CNT TOT'] = df.loc[mask_apport, 'PAX TOT'] * coeff_series_apport[mask_apport]
         
-    #st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour CX,KQ,ME,MF,MH,UU,WS,WY appliqué sur {mask.sum()} lignes")
-    liste = ", ".join(coefficients.keys())
-    st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour {liste} appliqué sur {mask.sum()} lignes")   
+    #st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour CX,KQ,ME,MF,MH,UU,WS,WY appliqué sur {mask_apport.sum()} lignes")
+    liste = ", ".join(coefficients_apport.keys())
+    st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour {liste} appliqué sur {mask_apport.sum()} lignes")   
     st.write("Aperçu des lignes modifiées :")
-    st.dataframe(df[mask][['Num Vol','Cie Ope', 'Libellé terminal', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
+    st.dataframe(df[mask_apport][['Num Vol','Cie Ope', 'Libellé terminal', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
 
-    if mask.sum() > 0:
+    if mask_apport.sum() > 0:
             
             name_output = "pgrm_complet"   
             excel_data = download_excel(df)
