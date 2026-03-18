@@ -72,8 +72,8 @@ if uploaded_file is not None:
             'MH': 0.005,  # coefficient pour la compagnie MH
             'UU': 0.018,  # coefficient pour la compagnie UU
             'WY': 0.007,  # coefficient pour la compagnie WY
-            'AM': 0.229,  # coefficient pour la compagnie AM
-            'VN': 0.234,  # coefficient pour la compagnie VN
+            #'AM': 0.229,  # coefficient pour la compagnie AM
+            #'VN': 0.234,  # coefficient pour la compagnie VN
             'EK': 0.01,  # coefficient pour la compagnie EMIRATES
             'AC': 0.08,  # coefficient pour la compagnie AIR CANADA
             'AA': 0.01,  # coefficient pour la compagnie AIR AMERICAN AIRLINES
