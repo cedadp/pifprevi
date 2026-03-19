@@ -59,7 +59,7 @@ if uploaded_file is not None:
 
     df = df()
 
-    st.info("Correspondance du T2AC: Calcul de  'Pax LOC TOT' théorique.")
+    #st.info("Correspondance du T2AC: Calcul de  'Pax LOC TOT' théorique.")
     coefficients_emport = {
             'KQ':0.22, # coefficient pour la compagnie KQ
             'CX':0.01, # coefficient pour la compagnie CX
@@ -101,7 +101,7 @@ if uploaded_file is not None:
 
 
 
-    st.info("Correspondance du T2AC: Calcul de  'Pax CNT TOT' théorique.")
+    #st.info("Correspondance du T2AC: Calcul de  'Pax CNT TOT' théorique.")
     coefficients_apport = {
             'KQ':0.26, # coefficient pour la compagnie KQ
             'CX':0.03, # coefficient pour la compagnie CX
