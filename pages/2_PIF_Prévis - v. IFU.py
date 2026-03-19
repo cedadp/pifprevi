@@ -146,7 +146,8 @@ if uploaded_file is not None:
     #st.success(f"Calcul de  'Pax CNT TOT' théorique FGS pour {liste} appliqué sur {mask_apport.sum()} lignes")   
     st.success(f"Calcul de 'Pax LOC' et 'Pax CNT' théorique FGS pour {liste} appliqué sur {mask_apport.sum() + mask_emport.sum()} lignes")
     st.write("Aperçu des lignes modifiées :")
-    st.dataframe(df[mask_apport][['Num Vol','Cie Ope', 'Libellé terminal', 'A/D', 'PAX TOT', 'Pax CNT TOT']])
+    st.dataframe(pd.concat([df[mask_apport][['Num Vol', 'Cie Ope', 'Libellé terminal', 'A/D', 'PAX TOT', 'Pax CNT TOT']], df[mask_emport][['Num Vol', 'Cie Ope', 'Libellé terminal', 'A/D', 'PAX TOT', 'Pax LOC TOT']]], ignore_index=True))
+
 
     if mask_apport.sum() > 0:
             
