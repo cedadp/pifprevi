@@ -77,9 +77,10 @@ if uploaded_file is not None:
             'BA':0.01, # coefficient pour la compagnie BRITISH AIRWAYS
             'AI':0.08, # coefficient pour la compagnie AIR INDIA
             'ET':0.01, # coefficient pour la compagnie ETHIOPIAN AIRLINES
-            'JJ':0.15, # coefficient pour la compagnie LATAM
+            'LA':0.15, # coefficient pour la compagnie LATAM
             'GF':0.03, # coefficient pour la compagnie GULF AIR
-            'QF':0.05  # coefficient pour la compagnie QANTAS
+            'QF':0.05,  # coefficient pour la compagnie QANTAS
+            'RJ':0.06  # coefficient pour la compagnie ROYAL JORDANIA    
             #'SB':0     # coefficient pour la compagnie AIR CALIN
 
     }    
@@ -118,9 +119,10 @@ if uploaded_file is not None:
             'BA':0.02, # coefficient pour la compagnie BRITISH AIRWAYS
             'AI':0.09, # coefficient pour la compagnie AIR INDIA
             'ET':0.02, # coefficient pour la compagnie ETHIOPIAN AIRLINES
-            'JJ':0.17, # coefficient pour la compagnie LATAM
+            'LA':0.17, # coefficient pour la compagnie LATAM
             'GF':0.03, # coefficient pour la compagnie GULF AIR
             'QF':0.05, # coefficient pour la compagnie QANTAS
+            'RJ':0.04,  # coefficient pour la compagnie ROYAL JORDANIA 
             'SB':0.04  # coefficient pour la compagnie AIR CALIN
 
     }    
@@ -351,7 +353,7 @@ if uploaded_file is not None:
             dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['Pax LOC TOT']
             # Pour tenir compte de la correspondance du T2AC ->
             dispatch_df.loc[(dispatch_df['A/D'] == 'A') & (dispatch_df['Libellé terminal'].isin(['Terminal 2A', 'Terminal 2C'])), 'TOT_théorique'] = dispatch_df['Pax CNT TOT']
-
+            dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (dispatch_df['Libellé terminal'].isin(['Terminal 2A', 'Terminal 2C'])), 'TOT_théorique'] = dispatch_df['Pax LOC TOT'].where(dispatch_df['Pax LOC TOT'] != 0, dispatch_df['PAX TOT'])
 
                     
             # Sélection des lignes avec les conditions IFU
