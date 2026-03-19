@@ -51,7 +51,7 @@ if uploaded_file is not None:
         #df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_5","Terminal 1_5")
         # df['Libellé terminal'] = df['Libellé terminal'].str.replace("T1_6","Terminal 1_6")
         #partie déplacée dans Concat_V2
-            st.success("Programme complet chargée !")
+            st.success("Programme complet chargé !")
         return df
 
 
