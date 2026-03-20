@@ -1,4 +1,4 @@
-import streamlit as st 
+import streamlit as st
 import pandas as pd
 from io import BytesIO
 
@@ -74,6 +74,69 @@ def transform_data(df):
 
     # --- Transformation Vol emport - Salle d'embarquement ---
     def transform_salle_emb(val):
+        if pd.isna(val):
+            return val
+        val = str(val).strip()
+        mapping = {
+            "C2E-JETE": "salle_K",
+            "C2E-S3": "salle_L",
+            "C2E-S4": "Salle_M"   # S majuscule pour emport
+        }
+        return mapping.get(val, val)
+
+    df["Vol_emport_Salle_emb"] = df["Vol_emport_Salle_emb"].apply(transform_salle_emb)
+
+    # --- Filtre : conserver uniquement les lignes où AIBT et AOBT sont le même jour ---
+    df = df[df["AIBT"].dt.date == df["AOBT"].dt.date].copy()
+
+    # --- Remise en forme des colonnes de dates pour affichage ---
+    df["AIBT"] = df["AIBT"].dt.strftime("%Y-%m-%d %H:%M:%S")
+    df["AOBT"] = df["AOBT"].dt.strftime("%Y-%m-%d %H:%M:%S")
+
+    return df
+
+def to_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Transformé")
+    return output.getvalue()
+
+if uploaded_file is not None:
+    try:
+        df_raw = pd.read_excel(uploaded_file, header=0)
+        st.subheader("📋 Aperçu du fichier original")
+        st.dataframe(df_raw.head(20), use_container_width=True)
+        st.write(f"**Nombre de lignes originales :** {len(df_raw)}")
+
+        df_transformed = transform_data(df_raw.copy())
+
+        st.subheader("✅ Résultat après transformation et filtrage")
+        st.dataframe(df_transformed, use_container_width=True)
+        st.write(f"**Nombre de lignes après filtrage (même jour AIBT/AOBT) :** {len(df_transformed)}")
+
+        # --- Statistiques rapides ---
+        st.subheader("📊 Statistiques rapides")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Lignes supprimées", len(df_raw) - len(df_transformed))
+        with col2:
+            st.metric("Total passagers (filtrés)", int(df_transformed["Nb_pax_correspondance"].sum()))
+        with col3:
+            st.metric("Lignes conservées", len(df_transformed))
+
+        # --- Téléchargement ---
+        excel_data = to_excel(df_transformed)
+        st.download_button(
+            label="⬇️ Télécharger le fichier Excel transformé",
+            data=excel_data,
+            file_name="hyp_rep_1_transformed.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    except Exception as e:
+        st.error(f"❌ Erreur lors du traitement : {e}")
+else:
+    st.info("👆 Veuillez déposer un fichier Excel pour commencer.")
         if pd.isna(val):
             return val
         val = str(val).strip()
