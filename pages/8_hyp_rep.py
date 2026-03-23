@@ -308,7 +308,7 @@ if uploaded_file is not None:
                     pax_od_p = int(df_od[df_od["plage"] == p][pax_col].sum()) if pax_col else len(df_od[df_od["plage"] == p])
                     total_p  = int(total_orig_par_plage.get(p, 0))
                     #taux_p   = round(pax_od_p / total_p * 100, 1) if total_p > 0 else 0.0
-                    taux_p   = round(pax_od_p / total_p ,4) if total_p > 0 else 0.0
+                    taux_p   = round(pax_od_p / total_p ,3) if total_p > 0 else 0.0
                     
                     # Colonne A : label plage
                     ws.cell(row=row_idx, column=1, value=str(p))
