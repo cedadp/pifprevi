@@ -112,16 +112,40 @@ if uploaded_file is not None:
     if "AIBT" in df.columns and "AOBT" in df.columns:
         df["AIBT"] = pd.to_datetime(df["AIBT"], errors="coerce")
         df["AOBT"] = pd.to_datetime(df["AOBT"], errors="coerce")
+        # Filtre 1 : même jour calendaire
         df = df[df["AIBT"].dt.date == df["AOBT"].dt.date]
     nb_apres = len(df)
 
+    # Filtre 2 : exclure les lignes où salle embarquement = Salle_M ET AOBT > 17:00
+    # Identifier la colonne salle d'embarquement (adaptez le nom si nécessaire)
+    col_salle_emport = "Vol emport - Ressources - Salle d'embarquement"  # ← à adapter si nom différent
+
+    if col_salle_emport in df.columns and "AOBT" in df.columns:
+    mask_salle_M = df[col_salle_emport] == "Salle_M"
+    mask_apres_17h = df["AOBT"].dt.hour >= 17  # 17:00 exclu, donc >= 17 pour exclure 17:00 et au-delà
+    df = df[~(mask_salle_M & mask_apres_17h)]
+
+    nb_apres_filtre2 = len(df)
+
+    # Affichage des stats de filtrage
     st.subheader("2️⃣ Données transformées et filtrées")
+
+    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    col_s1.metric("Lignes initiales", nb_avant)
+    col_s2.metric("Après filtre même jour", nb_apres_filtre1, delta=f"-{nb_avant - nb_apres_filtre1}")
+    col_s3.metric("Après filtre Salle_M / 17h", nb_apres_filtre2, delta=f"-{nb_apres_filtre1 - nb_apres_filtre2}")
+    col_s4.metric("Lignes conservées", nb_apres_filtre2)
+
     st.dataframe(df, use_container_width=True)
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Lignes originales", nb_avant)
-    col2.metric("Lignes conservées", nb_apres)
-    col3.metric("Lignes supprimées", nb_avant - nb_apres)
+    
+    #st.subheader("2️⃣ Données transformées et filtrées")
+    #st.dataframe(df, use_container_width=True)
+
+    #col1, col2, col3 = st.columns(3)
+    #col1.metric("Lignes originales", nb_avant)
+    #col2.metric("Lignes conservées", nb_apres)
+    #col3.metric("Lignes supprimées", nb_avant - nb_apres)
 
     if "nb_passagers" in df.columns:
         st.metric("Total passagers en correspondance", int(df["nb_passagers"].sum()))
