@@ -117,12 +117,12 @@ if uploaded_file is not None:
     nb_apres_filtre1 = len(df)
 
     # Filtre 2 : exclure les lignes où salle embarquement = Salle_M ET AOBT > 17:00
-    # Identifier la colonne salle d'embarquement (adaptez le nom si nécessaire)
-    col_salle_emport = "Vol emport - Ressources - Salle d'embarquement"  # ← à adapter si nom différent
+    
+    col_salle_emport = "salle_embarquement"  
 
     if col_salle_emport in df.columns and "AOBT" in df.columns:
         mask_salle_M = df[col_salle_emport] == "Salle_M"
-        mask_apres_17h = df["AOBT"].dt.hour >= 17  # 17:00 exclu, donc >= 17 pour exclure 17:00 et au-delà
+        mask_apres_17h = df["AOBT"].dt.hour > 17  
         df = df[~(mask_salle_M & mask_apres_17h)]
 
     nb_apres_filtre2 = len(df)
