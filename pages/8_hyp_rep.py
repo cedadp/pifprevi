@@ -114,7 +114,7 @@ if uploaded_file is not None:
         df["AOBT"] = pd.to_datetime(df["AOBT"], errors="coerce")
         # Filtre 1 : même jour calendaire
         df = df[df["AIBT"].dt.date == df["AOBT"].dt.date]
-    nb_apres = len(df)
+    nb_apres_filtre1 = len(df)
 
     # Filtre 2 : exclure les lignes où salle embarquement = Salle_M ET AOBT > 17:00
     # Identifier la colonne salle d'embarquement (adaptez le nom si nécessaire)
