@@ -188,8 +188,21 @@ if uploaded_file is not None:
     ["**Winter** :snowflake:", "**Summer** :sun_with_face:"],
     horizontal=True)
 
+    hyp_rep = st.radio(
+    "Choix matrice de répartition",
+    ["**actuelle**", "**nouvelle** :new:"],
+    horizontal=True)
+
+
+            
     def get_hyp_rep(pifs):
-        return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
+        if saison_IATA == "**actuelle**":
+            return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
+        if saison_IATA == "**nouvelle** :new:":
+            return pd.read_excel("hyp_rep_27022026.xlsx", sheet_name=pifs) 
+
+                
+        #return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
 
     def COURBE_PRES(t):
         if saison_IATA == "**Winter** :snowflake:":
