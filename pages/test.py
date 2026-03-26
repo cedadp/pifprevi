@@ -38,7 +38,7 @@ def load_data(uploaded_file):
     df = df.sort_values(['site', 'datetime']).reset_index(drop=True)
     return df
 
-uploaded_file = st.sidebar.file_uploader("📂 Charger le fichier Excel", type=['xlsx', 'xls'])
+uploaded_file = st.file_uploader("📂 Charger le fichier Excel", type=['xlsx', 'xls'])
 
 if uploaded_file is None:
     st.info("⬅️ Veuillez charger le fichier Excel dans la barre latérale.")
