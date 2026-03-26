@@ -8,7 +8,7 @@ import io
 
 st.set_page_config(page_title="Simulateur File d'Attente PIF", layout="wide")
 
-st.title("🛫 Simulateur de File d'Attente - Points d'Inspection Filtrage")
+st.title("🛫 Simulateur de File d'Attente")
 st.markdown("---")
 
 # --- CHARGEMENT DES DONNÉES ---
@@ -50,7 +50,7 @@ sites = sorted(df['site'].unique())
 jours = sorted(df['jour'].unique())
 
 st.sidebar.markdown("---")
-st.sidebar.header("🎯 Paramètres de simulation")
+st.sidebar.header("⚙️ Paramètres de simulation")
 
 # --- SÉLECTION SITE ET JOUR ---
 selected_site = st.sidebar.selectbox("Site", sites)
