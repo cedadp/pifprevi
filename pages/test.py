@@ -288,12 +288,12 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 # --- EXPORT ---
-st.markdown("---")
-if st.button("💾 Exporter les résultats en CSV"):
-    csv = df_sim.to_csv(index=False)
-    st.download_button(
-        label="Télécharger CSV",
-        data=csv,
-        file_name=f"simulation_{selected_site}_{pd.Timestamp(selected_jour).strftime('%Y%m%d')}.csv",
-        mime="text/csv"
-    )
+#st.markdown("---")
+#if st.button("💾 Exporter les résultats en CSV"):
+#    csv = df_sim.to_csv(index=False)
+#    st.download_button(
+#        label="Télécharger CSV",
+ #       data=csv,
+ #       file_name=f"simulation_{selected_site}_{pd.Timestamp(selected_jour).strftime('%Y%m%d')}.csv",
+  #      mime="text/csv"
+  #  )
