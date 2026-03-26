@@ -52,6 +52,29 @@ jours = sorted(df['jour'].unique())
 st.sidebar.markdown("---")
 st.sidebar.header("⚙️ Paramètres de simulation")
 
+#--# Débits par défaut par site (en pax/h)
+DEFAULT_DEBITS = {
+    "C2F": 800,
+    "C2G": 400,
+    "Galerie EF": 900,
+    "K CNT": 200,
+    "K CTR": 700,
+    "L CNT": 500,
+    "L CTR": 600,
+    "Liaison AC": 800,
+    "Liaison BD": 1200,
+    "M CTR": 700,
+    "T3": 400,
+    "Terminal 1": 900,
+    "Terminal 1_5": 200,
+    "Terminal 1_6": 400,
+}
+
+# Valeur par défaut si un site n'est pas dans le dictionnaire
+DEFAULT_DEBIT_FALLBACK = 500
+
+
+
 # --- SÉLECTION SITE ET JOUR ---
 selected_site = st.sidebar.selectbox("Site", sites)
 jour_labels = [pd.Timestamp(j).strftime('%A %d/%m/%Y') for j in jours]
@@ -83,10 +106,17 @@ h_start = heure_min.hour
 h_end = min(heure_max.hour + 1, 24)
 
 if mode_debit == "Débit constant sur la journée":
+    # Récupérer le débit par défaut pour le site sélectionné
+    debit_default = DEFAULT_DEBITS.get(selected_site, DEFAULT_DEBIT_FALLBACK)
+
     debit_nominal = st.sidebar.number_input(
-        "Débit nominal (pax/h)", 
-        min_value=0, max_value=5000, value=500, step=10
-    )
+    f"Débit de sortie (pax/h) — défaut {selected_site}: {debit_default}",
+    min_value=0,
+    max_value=5000,
+    value=debit_default,
+    step=50
+    )    
+
     taux_utilisation = st.sidebar.slider(
         "Taux d'utilisation (%)", 
         min_value=0, max_value=100, value=100, step=5
