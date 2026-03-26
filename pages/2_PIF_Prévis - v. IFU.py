@@ -196,9 +196,9 @@ if uploaded_file is not None:
 
             
     def get_hyp_rep(pifs):
-        if saison_IATA == "**actuelle**":
+        if hyp_rep == "**actuelle**":
             return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
-        if saison_IATA == "**nouvelle** :new:":
+        if hyp_rep == "**nouvelle** :new:":
             return pd.read_excel("hyp_rep_27022026.xlsx", sheet_name=pifs) 
 
                 
