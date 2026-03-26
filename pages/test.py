@@ -41,7 +41,7 @@ def load_data(uploaded_file):
 uploaded_file = st.file_uploader("📂 Charger le fichier Excel", type=['xlsx', 'xls'])
 
 if uploaded_file is None:
-    st.info("⬅️ Veuillez charger le fichier Excel dans la barre latérale.")
+    st.info("Veuillez charger le fichier Excel.")
     st.stop()
 
 df = load_data(uploaded_file)
