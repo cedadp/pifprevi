@@ -278,57 +278,14 @@ fig.update_yaxes(title_text="minutes", row=3, col=1)
 st.plotly_chart(fig, use_container_width=True)
 
 # --- TABLEAU DÉTAILLÉ ---
-with st.expander("📋 Voir le tableau détaillé"):
-    df_display = df_sim[['heure_str', 'arrivees', 'debit_paxh', 'capacite_10min', 
-                          'traites', 'file_attente', 'temps_attente_min']].copy()
-    df_display.columns = ['Heure', 'Arrivées', 'Débit (pax/h)', 'Capacité/10min', 
-                           'Traités', 'File attente', 'Attente (min)']
-    df_display = df_display.round(1)
-    st.dataframe(df_display, use_container_width=True, height=400)
+#with st.expander("📋 Voir le tableau détaillé"):
+ #   df_display = df_sim[['heure_str', 'arrivees', 'debit_paxh', 'capacite_10min', 
+  #                        'traites', 'file_attente', 'temps_attente_min']].copy()
+   # df_display.columns = ['Heure', 'Arrivées', 'Débit (pax/h)', 'Capacité/10min', 
+    #                       'Traités', 'File attente', 'Attente (min)']
+    #df_display = df_display.round(1)
+    #st.dataframe(df_display, use_container_width=True, height=400)
 
-# --- COMPARAISON MULTI-SITES ---
-st.markdown("---")
-st.header("🔄 Comparaison multi-sites")
-
-selected_sites_multi = st.multiselect("Sélectionner les sites à comparer", sites, default=[selected_site])
-
-if selected_sites_multi:
-    fig_multi = make_subplots(
-        rows=2, cols=1, shared_xaxes=True,
-        subplot_titles=("File d'attente par site", "Temps d'attente par site"),
-        vertical_spacing=0.1
-    )
-    
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
-              '#aec7e8', '#ffbb78', '#98df8a', '#ff9896']
-    
-    for i, site in enumerate(selected_sites_multi):
-        df_s = df[(df['site'] == site) & (df['jour'] == selected_jour)].copy()
-        df_s = df_s.sort_values('datetime').reset_index(drop=True)
-        if df_s.empty:
-            continue
-        sim = simulate_queue(df_s, debit_par_heure)
-        color = colors[i % len(colors)]
-        
-        fig_multi.add_trace(
-            go.Scatter(x=sim['datetime'], y=sim['file_attente'],
-                      name=site, line=dict(color=color, width=2),
-                      legendgroup=site),
-            row=1, col=1
-        )
-        temps_d = sim['temps_attente_min'].replace(float('inf'), np.nan)
-        fig_multi.add_trace(
-            go.Scatter(x=sim['datetime'], y=temps_d,
-                      name=site, line=dict(color=color, width=2, dash='dot'),
-                      legendgroup=site, showlegend=False),
-            row=2, col=1
-        )
-    
-    fig_multi.update_layout(height=600, hovermode='x unified')
-    fig_multi.update_yaxes(title_text="pax", row=1, col=1)
-    fig_multi.update_yaxes(title_text="minutes", row=2, col=1)
-    st.plotly_chart(fig_multi, use_container_width=True)
 
 # --- EXPORT ---
 st.markdown("---")
