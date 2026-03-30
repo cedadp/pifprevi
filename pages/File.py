@@ -294,15 +294,15 @@ fig.add_trace(
 #    ), row=3, col=1
 #)
 
-#fig.update_layout(
- #   height=900,
- #   showlegend=True,
- #  legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-   # hovermode='x unified'
-#)
-#fig.update_xaxes(title_text="Heure", row=3, col=1)
-#fig.update_yaxes(title_text="pax/10min", row=1, col=1)
-#fig.update_yaxes(title_text="pax", row=2, col=1)
+fig.update_layout(
+    height=900,
+    showlegend=True,
+   legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    hovermode='x unified'
+)
+fig.update_xaxes(title_text="Heure", row=3, col=1)
+fig.update_yaxes(title_text="pax/10min", row=1, col=1)
+fig.update_yaxes(title_text="pax", row=2, col=1)
 #fig.update_yaxes(title_text="minutes", row=3, col=1)
 
 st.plotly_chart(fig, use_container_width=True)
