@@ -242,7 +242,7 @@ fig = make_subplots(
     subplot_titles=(
         "Arrivées file vs Capacité de traitement (pax / 10 min)",
         "File d'attente (pax)",
-        "Temps d'attente estimé (min)"
+        #"Temps d'attente estimé (min)"
     ),
     row_heights=[0.35, 0.35, 0.3]
 )
