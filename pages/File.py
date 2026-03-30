@@ -53,22 +53,11 @@ st.sidebar.markdown("---")
 st.sidebar.header("⚙️ Paramètres de simulation")
 
 #--# Débits par défaut par site (en pax/h)
-DEFAULT_DEBITS = {
-    "C2F": 800,
-    "C2G": 400,
-    "Galerie EF": 900,
-    "K CNT": 200,
-    "K CTR": 700,
-    "L CNT": 500,
-    "L CTR": 600,
-    "Liaison AC": 800,
-    "Liaison BD": 1200,
-    "M CTR": 700,
-    "T3": 400,
-    "Terminal 1": 900,
-    "Terminal 1_5": 200,
-    "Terminal 1_6": 400,
-}
+DEFAULT_DEBITS = {'K CTRCNT' : 0,'K CTR' : 1660,'K CNT' : 300 , 'L CTR' : 2080, 'L CNT' :  1520, 'M CTR' : 1960, 'Galerie EF' : 1820, 'C2F' : 1960, 'C2G' : 910, 'Liaison AC' : 1960,'Liaison BD' : 2320,
+            'T3': 1260, 'Terminal 1' : 2140, 'Terminal 1_5' : 390, 'Terminal 1_6' : 520, 
+
+            '2E_Arr' :3948 , '2E_Dep' : 4314 ,'Galerie E > F' : 2976 , 'Galerie F > E' : 1356, 'F > S3' :  2482 , 'S3 > F': 1084 ,  '2G_Emport' : 1350, 
+                     'AC_Dep' : 2848, 'AC_Arr' :  4268, 'C_Arr' :  1808, 'BD_Arr' : 1825, 'BD_Dep' : 1544, 'T1_Arr' : 3012, 'T1_Dep' : 2071,'T3_Arr' : 1056, 'T3_Dep' : 825}
 
 # Valeur par défaut si un site n'est pas dans le dictionnaire
 DEFAULT_DEBIT_FALLBACK = 500
