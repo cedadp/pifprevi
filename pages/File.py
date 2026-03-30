@@ -225,7 +225,7 @@ st.header(f"📊 {selected_site} — {pd.Timestamp(selected_jour).strftime('%A %
 # KPIs
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.metric("Total arrivées", f"{df_sim['arrivees'].sum():.0f} pax")
+    st.metric("Total arrivées file", f"{df_sim['arrivees'].sum():.0f} pax")
 with col2:
     st.metric("File max", f"{df_sim['file_attente'].max():.0f} pax")
 with col3:
@@ -240,7 +240,7 @@ fig = make_subplots(
     shared_xaxes=True,
     vertical_spacing=0.06,
     subplot_titles=(
-        "Arrivées vs Capacité de traitement (pax / 10 min)",
+        "Arrivées file vs Capacité de traitement (pax / 10 min)",
         "File d'attente (pax)",
         "Temps d'attente estimé (min)"
     ),
@@ -251,7 +251,7 @@ fig = make_subplots(
 fig.add_trace(
     go.Bar(
         x=df_sim['datetime'], y=df_sim['arrivees'],
-        name='Arrivées (pax/10min)',
+        name='Arrivées file (pax/10min)',
         marker_color='steelblue', opacity=0.7
     ), row=1, col=1
 )
@@ -283,27 +283,27 @@ fig.add_trace(
 )
 
 # Graph 3 : Temps d'attente
-temps_display = df_sim['temps_attente_min'].replace(float('inf'), np.nan)
-fig.add_trace(
-    go.Scatter(
-        x=df_sim['datetime'], y=temps_display,
-        name='Temps attente (min)',
-        fill='tozeroy',
-        line=dict(color='crimson', width=2),
-        fillcolor='rgba(220,20,60,0.2)'
-    ), row=3, col=1
-)
+#temps_display = df_sim['temps_attente_min'].replace(float('inf'), np.nan)
+#fig.add_trace(
+#    go.Scatter(
+#        x=df_sim['datetime'], y=temps_display,
+#        name='Temps attente (min)',
+#        fill='tozeroy',
+#        line=dict(color='crimson', width=2),
+#        fillcolor='rgba(220,20,60,0.2)'
+#    ), row=3, col=1
+#)
 
-fig.update_layout(
-    height=900,
-    showlegend=True,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-    hovermode='x unified'
-)
-fig.update_xaxes(title_text="Heure", row=3, col=1)
-fig.update_yaxes(title_text="pax/10min", row=1, col=1)
-fig.update_yaxes(title_text="pax", row=2, col=1)
-fig.update_yaxes(title_text="minutes", row=3, col=1)
+#fig.update_layout(
+ #   height=900,
+ #   showlegend=True,
+ #  legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+   # hovermode='x unified'
+#)
+#fig.update_xaxes(title_text="Heure", row=3, col=1)
+#fig.update_yaxes(title_text="pax/10min", row=1, col=1)
+#fig.update_yaxes(title_text="pax", row=2, col=1)
+#fig.update_yaxes(title_text="minutes", row=3, col=1)
 
 st.plotly_chart(fig, use_container_width=True)
 
