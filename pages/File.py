@@ -6,9 +6,9 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import io
 
-st.set_page_config(page_title="Simulateur File d'Attente PIF", layout="wide")
+st.set_page_config(page_title="File d'Attente", layout="wide")
 
-st.title("🛫 Simulateur de File d'Attente")
+st.title("🛫 File d'Attente")
 st.markdown("---")
 
 # --- CHARGEMENT DES DONNÉES ---
