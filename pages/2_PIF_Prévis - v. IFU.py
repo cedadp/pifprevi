@@ -96,11 +96,12 @@ if uploaded_file is not None:
 
                
     # Créer une série de coefficients et appliquer le calcul
-    coeff_series_emport = df['Cie Ope'].map(coefficients_emport)
+    #coeff_series_emport = df['Cie Ope'].map(coefficients_emport)
+    #df.loc[mask_emport, 'Pax LOC TOT'] = df.loc[mask_emport, 'PAX TOT'] * (1 - coeff_series_emport[mask_emport] )
+    df['Pax LOC TOT'] = df['Pax LOC TOT'].astype(float)
     df.loc[mask_emport, 'Pax LOC TOT'] = df.loc[mask_emport, 'PAX TOT'] * (1 - coeff_series_emport[mask_emport] )
 
-
-
+            
     #st.info("Correspondance du T2AC: Calcul de  'Pax CNT TOT' théorique.")
     coefficients_apport = {
             'KQ':0.26, # coefficient pour la compagnie KQ
