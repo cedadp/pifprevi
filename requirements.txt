@@ -3,6 +3,7 @@ scipy
 pyxlsb
 xlsxwriter
 numpy==2.4.3
+pandas==3.0.1
 xlwt
 xlrd
 plotly
