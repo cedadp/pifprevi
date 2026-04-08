@@ -59,6 +59,13 @@ if uploaded_file is not None:
 
     df = df()
 
+    df['Pax CNT TOT'] = pd.to_numeric(df['Pax CNT TOT'], errors='coerce').astype(float)
+    df['Pax LOC TOT'] = pd.to_numeric(df['Pax LOC TOT'], errors='coerce').astype(float)       
+    df['PAX TOT'] = pd.to_numeric(df['PAX TOT'], errors='coerce').astype(float)
+
+
+
+            
     #st.info("Correspondance du T2AC: Calcul de  'Pax LOC TOT' théorique.")
     coefficients_emport = {
             'KQ':0.22, # coefficient pour la compagnie KQ
@@ -96,8 +103,7 @@ if uploaded_file is not None:
 
 
 
-    df['Pax CNT TOT'] = pd.to_numeric(df['Pax CNT TOT'], errors='coerce').astype(float) 
-    df['PAX TOT'] = pd.to_numeric(df['PAX TOT'], errors='coerce')
+    
                
     # Créer une série de coefficients et appliquer le calcul
     coeff_series_emport = df['Cie Ope'].map(coefficients_emport)
