@@ -8,3 +8,4 @@ xlwt
 xlrd
 plotly
 matplotlib
+streamlit==1.55.0
