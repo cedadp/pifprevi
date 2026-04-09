@@ -435,11 +435,9 @@ if uploaded_file is not None:
                 dispatch_df[pif] = reduce(lambda a, b: a.add(b, fill_value = 0),
                                         dispatch)  
 
-            ########dispatch_df.fillna(0, inplace=True)
+            dispatch_df.fillna(0, inplace=True)
 
-            num_cols = dispatch_df.select_dtypes(include='number').columns str_cols = dispatch_df.select_dtypes(exclude='number').columns
-            dispatch_df[num_cols] = dispatch_df[num_cols].fillna(0) dispatch_df[str_cols] = dispatch_df[str_cols].fillna('')
-            ########
+         
                     
             dispatch_df['TOT_calcul'] = dispatch_df[L_pif].sum(axis=1)
 
@@ -448,10 +446,8 @@ if uploaded_file is not None:
             for i in L_pif:
                 dispatch_df[i] = dispatch_df[i] / dispatch_df['TOT_calcul']*dispatch_df['TOT_théorique']
 
-            ########dispatch_df.fillna(0, inplace=True)
-            num_cols = dispatch_df.select_dtypes(include='number').columns str_cols = dispatch_df.select_dtypes(exclude='number').columns
-            dispatch_df[num_cols] = dispatch_df[num_cols].fillna(0) dispatch_df[str_cols] = dispatch_df[str_cols].fillna('')
-            ########
+            dispatch_df.fillna(0, inplace=True)
+            
 
 
 
