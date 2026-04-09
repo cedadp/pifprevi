@@ -2,8 +2,8 @@ openpyxl
 scipy
 pyxlsb
 xlsxwriter
-numpy==2.4.3
-pandas==2.3.3
+numpy
+pandas
 xlwt
 xlrd
 plotly
