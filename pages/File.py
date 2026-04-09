@@ -296,14 +296,14 @@ fig.update_yaxes(title_text="pax", row=2, col=1)
 
 st.plotly_chart(fig, use_container_width=True)
 
-# --- TABLEAU DÉTAILLÉ ---
-#with st.expander("📋 Voir le tableau détaillé"):
- #   df_display = df_sim[['heure_str', 'arrivees', 'debit_paxh', 'capacite_10min', 
-  #                        'traites', 'file_attente', 'temps_attente_min']].copy()
-   # df_display.columns = ['Heure', 'Arrivées', 'Débit (pax/h)', 'Capacité/10min', 
-    #                       'Traités', 'File attente', 'Attente (min)']
-    #df_display = df_display.round(1)
-    #st.dataframe(df_display, use_container_width=True, height=400)
+ --- TABLEAU DÉTAILLÉ ---
+with st.expander("📋 Voir le tableau détaillé"):
+    df_display = df_sim[['heure_str', 'arrivees', 'debit_paxh', 'capacite_10min', 
+                          'traites', 'file_attente', 'temps_attente_min']].copy()
+    df_display.columns = ['Heure', 'Arrivées', 'Débit (pax/h)', 'Capacité/10min', 
+                           'Traités', 'File attente', 'Attente (min)']
+    df_display = df_display.round(1)
+    st.dataframe(df_display, use_container_width=True, height=400)
 
 
  --- EXPORT ---
