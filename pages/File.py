@@ -110,7 +110,7 @@ if mode_debit == "Débit constant sur la journée":
 
     taux_utilisation = st.sidebar.slider(
         "Taux d'utilisation (%)", 
-        min_value=0, max_value=100, value=70, step=5
+        min_value=0, max_value=100, value=100, step=5
     )
     debit_effectif_paxh = debit_nominal * taux_utilisation / 100.0
     
@@ -145,7 +145,7 @@ else:
             debit_t = st.number_input(f"Débit (pax/h) tranche {i+1}", min_value=0, max_value=5000, value=debit_default, step=50, key=f"debit_{i}")
             
         with col4:
-            taux_t = st.slider(f"Taux %", 0, 100, 70, 5, key=f"taux_{i}")
+            taux_t = st.slider(f"Taux %", 0, 100, 100, 5, key=f"taux_{i}")
         
         eff = debit_t * taux_t / 100.0
         tranches.append((h_deb, h_fin, eff))
