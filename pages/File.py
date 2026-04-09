@@ -271,17 +271,17 @@ fig.add_trace(
     ), row=2, col=1
 )
 
-# Graph 3 : Temps d'attente
-#temps_display = df_sim['temps_attente_min'].replace(float('inf'), np.nan)
-#fig.add_trace(
-#    go.Scatter(
-#        x=df_sim['datetime'], y=temps_display,
-#        name='Temps attente (min)',
-#        fill='tozeroy',
-#        line=dict(color='crimson', width=2),
-#        fillcolor='rgba(220,20,60,0.2)'
-#    ), row=3, col=1
-#)
+ Graph 3 : Temps d'attente
+temps_display = df_sim['temps_attente_min'].replace(float('inf'), np.nan)
+fig.add_trace(
+    go.Scatter(
+        x=df_sim['datetime'], y=temps_display,
+        name='Temps attente (min)',
+        fill='tozeroy',
+        line=dict(color='crimson', width=2),
+        fillcolor='rgba(220,20,60,0.2)'
+    ), row=3, col=1
+)
 
 fig.update_layout(
     height=900,
@@ -306,13 +306,13 @@ st.plotly_chart(fig, use_container_width=True)
     #st.dataframe(df_display, use_container_width=True, height=400)
 
 
-# --- EXPORT ---
-#st.markdown("---")
-#if st.button("💾 Exporter les résultats en CSV"):
-#    csv = df_sim.to_csv(index=False)
-#    st.download_button(
-#        label="Télécharger CSV",
- #       data=csv,
- #       file_name=f"simulation_{selected_site}_{pd.Timestamp(selected_jour).strftime('%Y%m%d')}.csv",
-  #      mime="text/csv"
-  #  )
+ --- EXPORT ---
+st.markdown("---")
+if st.button("💾 Exporter les résultats en CSV"):
+    csv = df_sim.to_csv(index=False)
+    st.download_button(
+        label="Télécharger CSV",
+        data=csv,
+        file_name=f"simulation_{selected_site}_{pd.Timestamp(selected_jour).strftime('%Y%m%d')}.csv",
+        mime="text/csv"
+    )
