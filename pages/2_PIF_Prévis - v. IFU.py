@@ -373,6 +373,8 @@ if uploaded_file is not None:
             dispatch_df['Affectation'] = df['Affectation']
             dispatch_df['TOT_théorique'] = 0
 
+            dispatch_df['TOT_théorique'] = pd.to_numeric(dispatch_df['TOT_théorique'], errors='coerce').astype(float)
+                    
             dispatch_df.loc[(dispatch_df['A/D'] == 'A') & (dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['Pax CNT TOT']
             dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (~dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['PAX TOT']
             dispatch_df.loc[(dispatch_df['A/D'] == 'D') & (dispatch_df['Affectation'].isin(['E', 'F', 'G'])), 'TOT_théorique'] = dispatch_df['Pax LOC TOT']
