@@ -83,6 +83,9 @@ if df_site_jour.empty:
 st.sidebar.markdown("---")
 st.sidebar.header("⚙️ Débit de sortie (pax/h)")
 
+# Récupérer le débit par défaut pour le site sélectionné
+debit_default = DEFAULT_DEBITS.get(selected_site, DEFAULT_DEBIT_FALLBACK)
+
 mode_debit = st.sidebar.radio(
     "Mode de configuration du débit",
     ["Débit constant sur la journée", "Débit par tranche horaire"]
@@ -95,8 +98,7 @@ h_start = heure_min.hour
 h_end = min(heure_max.hour + 1, 24)
 
 if mode_debit == "Débit constant sur la journée":
-    # Récupérer le débit par défaut pour le site sélectionné
-    debit_default = DEFAULT_DEBITS.get(selected_site, DEFAULT_DEBIT_FALLBACK)
+    
 
     debit_nominal = st.sidebar.number_input(
     f"Débit de sortie (pax/h) — défaut {selected_site}: {debit_default}",
