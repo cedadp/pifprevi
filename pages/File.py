@@ -271,7 +271,7 @@ fig.add_trace(
     ), row=2, col=1
 )
 
- Graph 3 : Temps d'attente
+#Graph 3 : Temps d'attente
 temps_display = df_sim['temps_attente_min'].replace(float('inf'), np.nan)
 fig.add_trace(
     go.Scatter(
@@ -296,7 +296,7 @@ fig.update_yaxes(title_text="pax", row=2, col=1)
 
 st.plotly_chart(fig, use_container_width=True)
 
- --- TABLEAU DÉTAILLÉ ---
+#--- TABLEAU DÉTAILLÉ ---
 with st.expander("📋 Voir le tableau détaillé"):
     df_display = df_sim[['heure_str', 'arrivees', 'debit_paxh', 'capacite_10min', 
                           'traites', 'file_attente', 'temps_attente_min']].copy()
@@ -306,7 +306,7 @@ with st.expander("📋 Voir le tableau détaillé"):
     st.dataframe(df_display, use_container_width=True, height=400)
 
 
- --- EXPORT ---
+#--- EXPORT ---
 st.markdown("---")
 if st.button("💾 Exporter les résultats en CSV"):
     csv = df_sim.to_csv(index=False)
