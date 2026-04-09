@@ -140,7 +140,7 @@ else:
         
         col3, col4 = st.sidebar.columns(2)
         with col3:
-            debit_t = st.number_input(f"Débit (pax/h)", 0, 5000, 500, 10, key=f"debit_{i}")
+            debit_t = st.number_input(f"Débit (pax/h)", 0, 5000, debit_default, 10, key=f"debit_{i}")
         with col4:
             taux_t = st.slider(f"Taux %", 0, 100, 100, 5, key=f"taux_{i}")
         
