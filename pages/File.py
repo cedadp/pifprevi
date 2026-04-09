@@ -142,11 +142,11 @@ else:
         with col3:
             #debit_t = st.number_input(f"Débit (pax/h)", 0, 5000, 500, 10, key=f"debit_{i}")
             debit_t = st.number_input(f"Débit de sortie (pax/h) — défaut {selected_site}: {debit_default}",
-    min_value=0,
-    max_value=5000,
-    value=debit_default,
-    step=50,
-    key=f"debit_{i}")    
+            min_value=0,
+            max_value=5000,
+            value=debit_default,
+            step=50,
+            key=f"debit_{i}")    
         with col4:
             taux_t = st.slider(f"Taux %", 0, 100, 100, 5, key=f"taux_{i}")
         
