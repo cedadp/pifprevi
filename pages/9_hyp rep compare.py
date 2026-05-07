@@ -10,7 +10,7 @@ st.set_page_config(page_title="Comparaison des fichiers de correspondance", layo
 st.title("🔄 Comparaison de deux fichiers de correspondances")
 
 st.markdown("""
-Déposez deux versions du fichier de correspondances (format généré par le module précédent).  
+Déposez deux versions du fichier de correspondances .  
 L'outil compare les taux par OD et par plage, et met en évidence les évolutions.
 """)
 
@@ -268,4 +268,4 @@ if file1 and file2:
     )
 
 else:
-    st.info("👆 Veuillez déposer les deux fichiers Excel pour démarrer la comparaison.")
+    st.info("👆 Déposer les deux fichiers Excel pour démarrer la comparaison.")
