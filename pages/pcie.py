@@ -104,6 +104,88 @@ def read_paste_source(text):
     return pd.read_csv(io.StringIO(text), sep=sep)
 
 
+
+
+# ===============================================================
+#  AJOUTS POUR LH (inbound + outbound)
+# ===============================================================
+
+def parse_lh_date(serie):
+    """Dates au format D.M.YY (ex '6.7.26') -> JJ/MM/AAAA."""
+    d = pd.to_datetime(serie, format="%d.%m.%y", errors="coerce")
+    # secours si certaines cellules sont déjà des datetime Excel
+    d = d.fillna(pd.to_datetime(serie, errors="coerce", dayfirst=True))
+    return d.dt.strftime("%d/%m/%Y")
+
+
+def split_flight(serie):
+    """'SN3631' -> ('SN', '3631'). Compagnie = 2 premières lettres."""
+    s = serie.astype(str).str.replace(r"\s+", "", regex=True).str.upper()
+    cie = s.str.extract(r"^([A-Z0-9]{2})")[0]
+    num = s.str.extract(r"^[A-Z0-9]{2}(\d+)")[0]
+    return cie, num
+
+
+def transform_lh_inbound(file):
+    """Arrivées LHG : Arr Date fusionnée (ffill), EscArr = CDG."""
+    df = pd.read_excel(file, sheet_name="Sheet 1", header=0)
+    df = normalize_columns(df)
+
+    # ffill sur la date fusionnée
+    df["Arr Date"] = df["Arr Date"].ffill()
+
+    # ne garder que les lignes réelles (Flt Nbr renseigné)
+    df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
+
+    cie, num = split_flight(df["Flt Nbr"])
+    out = pd.DataFrame({
+        "ArrDep": "A",
+        "CieOpe": cie.values,
+        "NumVol": num.values,
+        "EscDep": df["Origin"].astype(str).str.strip().values,
+        "EscArr": "CDG",
+        "DateLocaleMvt": parse_lh_date(df["Arr Date"]).values,
+        "NbPaxCNT": 0,
+        "NbPaxTOT": pd.to_numeric(df["Estimated PAX"], errors="coerce").fillna(0).astype(int).values,
+    })
+    return out
+
+
+def transform_lh_outbound(file):
+    """Départs LHG : onglet 'Input', EscDep = CDG."""
+    df = pd.read_excel(file, sheet_name="Input", header=0)
+    df = normalize_columns(df)
+
+    # lignes réelles uniquement
+    df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
+
+    cie, num = split_flight(df["Flt Nbr"])
+    out = pd.DataFrame({
+        "ArrDep": "D",
+        "CieOpe": cie.values,
+        "NumVol": num.values,
+        "EscDep": "CDG",
+        "EscArr": df["Dest"].astype(str).str.strip().values,
+        "DateLocaleMvt": parse_lh_date(df["Dep Date"]).values,
+        "NbPaxCNT": 0,
+        "NbPaxTOT": pd.to_numeric(df["Estimated PAX"], errors="coerce").fillna(0).astype(int).values,
+    })
+    return out
+
+
+def finalize_output(out):
+    """Nettoyage commun + exclusion 0 pax (même critère que AF)."""
+    out["NumVol"] = pd.to_numeric(out["NumVol"], errors="coerce").fillna(0).astype(int)
+    for c in ["ArrDep", "CieOpe", "EscDep", "EscArr"]:
+        out[c] = out[c].astype(str).str.strip()
+    out = out[out["NbPaxTOT"] != 0]          # exclusion 0 pax
+    out = out[out["CieOpe"].notna() & (out["CieOpe"] != "")]
+    return out[OUTPUT_COLS]
+
+
+
+
+
 # ---------------------------------------------------------------
 # INTERFACE
 # ---------------------------------------------------------------
