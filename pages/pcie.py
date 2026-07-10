@@ -29,7 +29,20 @@ SOURCES = {
         "filter_cie": "AF",
         "exclude_zero_pax": True,
     },
-    # Exemple de future source à coller (à adapter quand tu auras le format) :
+    
+  SOURCES["LH_IN"] = {
+    "input_type": "excel",
+    "label": "LH — Arrivées (inbound)",
+    "custom": transform_lh_inbound,
+}
+SOURCES["LH_OUT"] = {
+    "input_type": "excel",
+    "label": "LH — Départs (outbound)",
+    "custom": transform_lh_outbound,
+}
+  
+  
+  # Exemple de future source à coller (à adapter quand tu auras le format) :
     # "XX": {
     #     "input_type": "paste",
     #     "sheet": None,
