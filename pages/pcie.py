@@ -10,8 +10,10 @@ st.set_page_config(page_title="Concaténateur Prévisions Cies", layout="wide")
 OUTPUT_COLS = ["ArrDep", "CieOpe", "NumVol", "EscDep", "EscArr",
                "DateLocaleMvt", "NbPaxCNT", "NbPaxTOT"]
 
+# input_type : "excel" ou "paste"
 SOURCES = {
     "AF": {
+        "input_type": "excel",
         "sheet": "Programme brut",
         "mapping": {
             "A/D": "ArrDep",
@@ -24,10 +26,18 @@ SOURCES = {
             "PAX TOT": "NbPaxTOT",
         },
         "date_col": "DateLocaleMvt",
-        "filter_cie": "AF",       # ne garder que cette compagnie
-        "exclude_zero_pax": True,  # exclure NbPaxTOT == 0
+        "filter_cie": "AF",
+        "exclude_zero_pax": True,
     },
-    # Les futures sources (formats/libellés différents) s'ajouteront ici
+    # Exemple de future source à coller (à adapter quand tu auras le format) :
+    # "XX": {
+    #     "input_type": "paste",
+    #     "sheet": None,
+    #     "mapping": { ... },
+    #     "date_col": "DateLocaleMvt",
+    #     "filter_cie": "XX",
+    #     "exclude_zero_pax": True,
+    # },
 }
 
 
@@ -40,21 +50,21 @@ def normalize_columns(df):
     return df
 
 
-def transform(df, conf):
+def transform(df, conf, label=""):
     df = normalize_columns(df)
     mapping = conf["mapping"]
 
     missing = [c for c in mapping if c not in df.columns]
     if missing:
-        st.error(f"Colonnes manquantes : {missing}")
-        st.write("Colonnes trouvées :", list(df.columns))
+        st.error(f"[{label}] Colonnes manquantes : {missing}")
+        st.write(f"[{label}] Colonnes trouvées :", list(df.columns))
         return None
 
     out = df[list(mapping.keys())].rename(columns=mapping)
 
     # Date -> JJ/MM/AAAA
     dcol = conf["date_col"]
-    out[dcol] = pd.to_datetime(out[dcol], errors="coerce").dt.strftime("%d/%m/%Y")
+    out[dcol] = pd.to_datetime(out[dcol], errors="coerce", dayfirst=True).dt.strftime("%d/%m/%Y")
 
     # Pax en entiers
     for c in ["NbPaxCNT", "NbPaxTOT"]:
@@ -76,12 +86,22 @@ def transform(df, conf):
     if conf.get("exclude_zero_pax"):
         out = out[out["NbPaxTOT"] != 0]
 
-    # Retirer lignes sans date valide
     out = out[out["DateLocaleMvt"].notna()]
 
-    st.caption(f"{n0} lignes lues → {len(out)} lignes conservées après filtrage.")
+    st.caption(f"[{label}] {n0} lignes lues → {len(out)} lignes conservées.")
 
     return out[OUTPUT_COLS].reset_index(drop=True)
+
+
+def read_excel_source(uploaded_file, conf):
+    xls = pd.ExcelFile(uploaded_file)
+    sheet = conf["sheet"] if conf["sheet"] in xls.sheet_names else xls.sheet_names[0]
+    return pd.read_excel(xls, sheet_name=sheet)
+
+
+def read_paste_source(text):
+    sep = "\t" if "\t" in text else ";"
+    return pd.read_csv(io.StringIO(text), sep=sep)
 
 
 # ---------------------------------------------------------------
@@ -89,70 +109,76 @@ def transform(df, conf):
 # ---------------------------------------------------------------
 st.title("🛫 Concaténateur de prévisions Compagnies")
 
-if "accumulated" not in st.session_state:
-    st.session_state.accumulated = []
+excel_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "excel"}
+paste_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "paste"}
 
-source_name = st.selectbox("Source des données", list(SOURCES.keys()))
-conf = SOURCES[source_name]
+uploaded = {}
+pasted = {}
 
-mode = st.radio("Mode d'import", ["Fichier Excel", "Coller les données"], horizontal=True)
+# --- Bloc fichiers (glisser / déposer) ---
+if excel_sources:
+    st.header("📁 Compagnies avec fichier Excel")
+    for name in excel_sources:
+        uploaded[name] = st.file_uploader(
+            f"Fichier {name}", type=["xlsx", "xls"], key=f"file_{name}"
+        )
 
-df_input = None
+# --- Bloc coller les données ---
+if paste_sources:
+    st.header("📋 Compagnies à coller")
+    for name in paste_sources:
+        pasted[name] = st.text_area(
+            f"Données {name} (en-tête inclus, séparateur Tab ou ;)",
+            height=180, key=f"paste_{name}"
+        )
 
-if mode == "Fichier Excel":
-    up = st.file_uploader("Déposer le fichier Excel", type=["xlsx", "xls"])
-    if up:
-        xls = pd.ExcelFile(up)
-        if conf["sheet"] in xls.sheet_names:
-            sheet = conf["sheet"]
-        else:
-            st.warning(f"Onglet « {conf['sheet']} » introuvable. Sélectionnez-en un :")
-            sheet = st.selectbox("Onglet", xls.sheet_names)
-        df_input = pd.read_excel(xls, sheet_name=sheet)
-
-else:
-    txt = st.text_area("Collez les données (en-tête inclus, séparateur Tab ou ;)",
-                        height=250)
-    if txt.strip():
-        sep = "\t" if "\t" in txt else ";"
-        df_input = pd.read_csv(io.StringIO(txt), sep=sep)
-
-if df_input is not None:
-    with st.expander("Aperçu des données source"):
-        st.dataframe(df_input.head(20))
-
-    result = transform(df_input, conf)
-    if result is not None and not result.empty:
-        st.subheader("Résultat formaté")
-        st.dataframe(result.head(30))
-
-        if st.button("➕ Ajouter au fichier de sortie"):
-            st.session_state.accumulated.append(result)
-            st.success(f"{len(result)} lignes ajoutées.")
+st.divider()
 
 # ---------------------------------------------------------------
-# FICHIER FINAL
+# GO
 # ---------------------------------------------------------------
-if st.session_state.accumulated:
-    final = pd.concat(st.session_state.accumulated, ignore_index=True)
+if st.button("🚀 GO — Générer le fichier", type="primary"):
+    frames = []
 
-    st.divider()
-    st.subheader(f"📦 Fichier final ({len(final)} lignes)")
-    st.dataframe(final.head(50))
+    # Sources Excel
+    for name, conf in excel_sources.items():
+        up = uploaded.get(name)
+        if up is not None:
+            try:
+                df_in = read_excel_source(up, conf)
+                res = transform(df_in, conf, label=name)
+                if res is not None and not res.empty:
+                    frames.append(res)
+            except Exception as e:
+                st.error(f"[{name}] Erreur de lecture : {e}")
 
-    header = ";".join(OUTPUT_COLS)
-    body = final.to_csv(sep=";", index=False, header=False, lineterminator="\n")
-    csv_out = header + "\n" + body
+    # Sources à coller
+    for name, conf in paste_sources.items():
+        txt = pasted.get(name, "")
+        if txt and txt.strip():
+            try:
+                df_in = read_paste_source(txt)
+                res = transform(df_in, conf, label=name)
+                if res is not None and not res.empty:
+                    frames.append(res)
+            except Exception as e:
+                st.error(f"[{name}] Erreur de lecture : {e}")
 
-    col1, col2 = st.columns(2)
-    with col1:
+    if not frames:
+        st.warning("Aucune donnée valide fournie.")
+    else:
+        final = pd.concat(frames, ignore_index=True)
+
+        st.subheader(f"📦 Fichier final ({len(final)} lignes)")
+        st.dataframe(final.head(100))
+
+        header = ";".join(OUTPUT_COLS)
+        body = final.to_csv(sep=";", index=False, header=False, lineterminator="\n")
+        csv_out = header + "\n" + body
+
         st.download_button(
             "💾 Télécharger le CSV",
             data=csv_out.encode("utf-8"),
             file_name="Previs_cies.csv",
             mime="text/csv",
         )
-    with col2:
-        if st.button("🗑️ Réinitialiser le fichier final"):
-            st.session_state.accumulated = []
-            st.rerun()
