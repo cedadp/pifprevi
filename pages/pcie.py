@@ -74,38 +74,36 @@ def transform_af(file, conf, label="AF"):
 # EZ  (easyJet : .xls, ArrDep déduit via CDG, EJU/EZY)
 # ---------------------------------------------------------------
 def transform_ez(file):
-    df = pd.read_excel(file, header=0)
-    df = normalize_columns(df)
+    """easyJet : fichier .xls unique contenant arrivées ET départs.
+    En-têtes en ligne 5, données à partir de la ligne 7, footer à exclure.
+    ArrDep déduit par la position de CDG.
+    Vol 'EJU####' -> CieOpe=EJU ; vol '####' sans préfixe -> CieOpe=EZY."""
+    raw = pd.read_excel(file, sheet_name="Sheet", header=5, engine="xlrd")
+    raw = normalize_columns(raw)
 
-    # --- DIAGNOSTIC TEMPORAIRE ---
-    st.write("[EZ] Colonnes trouvées :", list(df.columns))
-    st.dataframe(df.head(5))
-    # -----------------------------
-  
+    # ne garder que les vraies lignes de vol
+    raw = raw[raw["FLT"].notna()]
+    raw["DEP"] = raw["DEP"].astype(str).str.strip().str.upper()
+    raw["ARR"] = raw["ARR"].astype(str).str.strip().str.upper()
+    raw = raw[(raw["DEP"] != "") & (raw["ARR"] != "")]           # exclut footer + lignes vides
+    raw = raw[raw["DEP"].isin(["CDG"]) | raw["ARR"].isin(["CDG"])]
 
-    # ArrDep déduit : si EscDep == CDG -> Départ, sinon Arrivée
-    dep_col = "EscDep" if "EscDep" in df.columns else df.columns[3]
-    arr_col = "EscArr" if "EscArr" in df.columns else df.columns[4]
-
-    escdep = df[dep_col].astype(str).str.strip().str.upper()
-    escarr = df[arr_col].astype(str).str.strip().str.upper()
-    arrdep = escdep.eq("CDG").map({True: "D", False: "A"})
-
-    # séparation EJU / EZY à partir du numéro de vol
-    vol = df["NumVol"].astype(str).str.replace(r"\s+", "", regex=True).str.upper()
-    cie = vol.str.startswith("EJU").map({True: "EJU", False: "EZY"})
-    num = vol.str.extract(r"(\d+)")[0]
+    # --- Décomposition du numéro de vol ---
+    flt = raw["FLT"].astype(str).str.replace(r"\s+", "", regex=True).str.upper()
+    has_eju = flt.str.match(r"^EJU\d+")
+    cie = has_eju.map({True: "EJU", False: "EZY"})
+    num = flt.str.extract(r"(\d+)$")[0]      # le nombre final dans tous les cas
 
     out = pd.DataFrame({
-        "ArrDep": arrdep.values,
+        "ArrDep": ["A" if a == "CDG" else "D" for a in raw["ARR"]],
         "CieOpe": cie.values,
-        "NumVol": num.values,
-        "EscDep": escdep.values,
-        "EscArr": escarr.values,
-        "DateLocaleMvt": pd.to_datetime(df["DateLocaleMvt"], errors="coerce", dayfirst=True)
-                           .dt.strftime("%d/%m/%Y").values,
+        "NumVol": pd.to_numeric(num, errors="coerce").fillna(0).astype(int).values,
+        "EscDep": raw["DEP"].values,
+        "EscArr": raw["ARR"].values,
+        "DateLocaleMvt": pd.to_datetime(raw["DATE"], format="%d/%m/%y",
+                                        errors="coerce").dt.strftime("%d/%m/%Y").values,
         "NbPaxCNT": 0,
-        "NbPaxTOT": pd.to_numeric(df["NbPaxTOT"], errors="coerce").fillna(0).astype(int).values,
+        "NbPaxTOT": pd.to_numeric(raw["EXP"], errors="coerce").fillna(0).astype(int).values,
     })
     return out
 # ---------------------------------------------------------------
