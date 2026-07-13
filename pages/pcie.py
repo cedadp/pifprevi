@@ -106,6 +106,112 @@ def transform_ez(file):
         "NbPaxTOT": pd.to_numeric(raw["EXP"], errors="coerce").fillna(0).astype(int).values,
     })
     return out
+
+
+# ---------------------------------------------------------------
+# NH
+# ---------------------------------------------------------------
+
+def transform_nh(file, direction):
+    """
+    Parse NH PDF (All Nippon Airways)
+    direction: 'inbound' (NH215: HND→CDG) ou 'outbound' (NH216: CDG→HND)
+    """
+    import pdfplumber
+    
+    if direction == 'inbound':
+        flight_num = 'NH215'
+        cie_ope = 'NH'
+        esc_dep = 'HND'
+        esc_arr = 'CDG'
+        arr_dep = 'A'
+    else:  # outbound
+        flight_num = 'NH216'
+        cie_ope = 'NH'
+        esc_dep = 'CDG'
+        esc_arr = 'HND'
+        arr_dep = 'D'
+    
+    rows = []
+    
+    with pdfplumber.open(file) as pdf:
+        for page in pdf.pages:
+            tables = page.extract_tables()
+            if not tables:
+                continue
+                
+            for table in tables:
+                # Chercher la ligne avec "DATE" dans les en-têtes
+                header_idx = None
+                for i, row in enumerate(table):
+                    if row and 'DATE' in str(row[0]).upper():
+                        header_idx = i
+                        break
+                
+                if header_idx is None:
+                    continue
+                
+                # Parser les données à partir de la ligne après l'en-tête
+                for row in table[header_idx + 1:]:
+                    if not row or not row[0]:
+                        continue
+                    
+                    date_str = str(row[0]).strip()
+                    
+                    # Format: "(Day)-DD-Mon-YY" → extraire DD-Mon-YY
+                    # Ex: "(Sun)-21-Jun-26" → "21-Jun-26"
+                    if '-' in date_str:
+                        parts = date_str.split('-')
+                        if len(parts) >= 3:
+                            day = parts[1]
+                            month = parts[2]
+                            year = parts[3] if len(parts) > 3 else '26'
+                            date_formatted = f"{day}/{MONTH_MAP.get(month.upper(), month)}/{year}"
+                        else:
+                            continue
+                    else:
+                        continue
+                    
+                    # TOTAL est généralement en dernière position de chaque groupe C/E/Y
+                    # Structure: EQP, CFG, (TTL), C, E, Y, TOTAL, C, E, Y, TOTAL...
+                    # On prend le DERNIER TOTAL (colonne -1 ou -2)
+                    try:
+                        # Chercher les colonnes avec des nombres
+                        pax_values = [col for col in row[1:] if col and str(col).replace('%', '').strip().isdigit()]
+                        if pax_values:
+                            nb_pax_tot = int(pax_values[-1])  # Dernier TOTAL
+                        else:
+                            continue
+                    except (ValueError, IndexError):
+                        continue
+                    
+                    # Exclure 0 pax
+                    if nb_pax_tot == 0:
+                        continue
+                    
+                    rows.append({
+                        'ArrDep': arr_dep,
+                        'CieOpe': cie_ope,
+                        'NumVol': flight_num,
+                        'EscDep': esc_dep,
+                        'EscArr': esc_arr,
+                        'Date': date_formatted,
+                        'NbPaxCNT': 0,
+                        'NbPaxTOT': nb_pax_tot
+                    })
+    
+    df = pd.DataFrame(rows)
+    return df if not df.empty else None
+
+# Mapping mois
+MONTH_MAP = {
+    'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
+    'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
+    'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
+}
+
+
+
 # ---------------------------------------------------------------
 # LH
 # ---------------------------------------------------------------
