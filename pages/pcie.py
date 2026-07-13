@@ -68,6 +68,40 @@ def transform_af(file, conf, label="AF"):
 
     return out
 
+
+
+# ---------------------------------------------------------------
+# EZ  (easyJet : .xls, ArrDep déduit via CDG, EJU/EZY)
+# ---------------------------------------------------------------
+def transform_ez(file):
+    df = pd.read_excel(file, header=0)   # xlrd pour .xls
+    df = normalize_columns(df)
+
+    # ArrDep déduit : si EscDep == CDG -> Départ, sinon Arrivée
+    dep_col = "EscDep" if "EscDep" in df.columns else df.columns[3]
+    arr_col = "EscArr" if "EscArr" in df.columns else df.columns[4]
+
+    escdep = df[dep_col].astype(str).str.strip().str.upper()
+    escarr = df[arr_col].astype(str).str.strip().str.upper()
+    arrdep = escdep.eq("CDG").map({True: "D", False: "A"})
+
+    # séparation EJU / EZY à partir du numéro de vol
+    vol = df["NumVol"].astype(str).str.replace(r"\s+", "", regex=True).str.upper()
+    cie = vol.str.startswith("EJU").map({True: "EJU", False: "EZY"})
+    num = vol.str.extract(r"(\d+)")[0]
+
+    out = pd.DataFrame({
+        "ArrDep": arrdep.values,
+        "CieOpe": cie.values,
+        "NumVol": num.values,
+        "EscDep": escdep.values,
+        "EscArr": escarr.values,
+        "DateLocaleMvt": pd.to_datetime(df["DateLocaleMvt"], errors="coerce", dayfirst=True)
+                           .dt.strftime("%d/%m/%Y").values,
+        "NbPaxCNT": 0,
+        "NbPaxTOT": pd.to_numeric(df["NbPaxTOT"], errors="coerce").fillna(0).astype(int).values,
+    })
+    return out
 # ---------------------------------------------------------------
 # LH
 # ---------------------------------------------------------------
@@ -161,7 +195,8 @@ SOURCES = {
     "LH_OUT": {"input_type": "excel", "label": "LH — Départs (outbound)", "custom": transform_lh_outbound},
     "AI":     {"input_type": "excel", "label": "AI — Air India (Masque Prévisions CDG)", "custom": transform_ai},
     "EI":     {"input_type": "excel", "label": "EI — Aer Lingus (Masque Prévisions CDG)", "custom": transform_ei},
-}
+}, 
+    "EZ": {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez},
 
 # ---------------------------------------------------------------
 # INTERFACE
