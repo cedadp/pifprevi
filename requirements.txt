@@ -8,3 +8,5 @@ xlwt
 xlrd
 plotly
 matplotlib
+pdfplumber
+
