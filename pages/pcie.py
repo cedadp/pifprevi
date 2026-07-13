@@ -336,9 +336,10 @@ SOURCES = {
 # INTERFACE
 # ---------------------------------------------------------------
 st.title("✈️ Concaténateur de prévisions compagnies")
-st.markdown("Déposez les fichiers Excel puis cliquez sur **GO**.")
+st.markdown("Déposez les fichiers puis cliquez sur **GO**.")
 
 excel_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "excel"}
+pdf_sources   = {k: v for k, v in SOURCES.items() if v["input_type"] == "pdf"}
 uploaded = {}
 
 st.header("📁 Fichiers Excel")
@@ -346,11 +347,17 @@ for name, conf in excel_sources.items():
     uploaded[name] = st.file_uploader(conf.get("label", name),
                                       type=["xlsx", "xls"], key=f"file_{name}")
 
+st.header("📄 Fichiers PDF")
+for name, conf in pdf_sources.items():
+    uploaded[name] = st.file_uploader(conf.get("label", name),
+                                      type=["pdf"], key=f"file_{name}")
+
 st.divider()
 
 if st.button("🚀 GO", type="primary", use_container_width=True):
     frames = []
-    for name, conf in excel_sources.items():
+    # On parcourt TOUTES les sources (excel + pdf)
+    for name, conf in SOURCES.items():
         up = uploaded.get(name)
         if up is None:
             continue
