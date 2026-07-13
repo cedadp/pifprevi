@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import io
-from datetime import datetime
 
 st.set_page_config(page_title="Concaténateur Prévisions Cies", layout="wide")
 
@@ -11,44 +10,11 @@ st.set_page_config(page_title="Concaténateur Prévisions Cies", layout="wide")
 OUTPUT_COLS = ["ArrDep", "CieOpe", "NumVol", "EscDep", "EscArr",
                "DateLocaleMvt", "NbPaxCNT", "NbPaxTOT"]
 
-SOURCES = {
-    "AF": {
-        "input_type": "excel",
-        "label": "AF — Prévisions d'activité",
-        "sheet": "Programme brut",
-        "mapping": {
-            "A/D": "ArrDep",
-            "Cie Ope": "CieOpe",
-            "Num Vol": "NumVol",
-            "Esc Dep": "EscDep",
-            "Esc Arr": "EscArr",
-            "Local Date": "DateLocaleMvt",
-            "Pax CNT TOT": "NbPaxCNT",
-            "PAX TOT": "NbPaxTOT",
-        },
-        "date_col": "DateLocaleMvt",
-        "filter_cie": "AF",
-        "exclude_zero_pax": True,
-    },
-    "LH_IN": {
-        "input_type": "excel",
-        "label": "LH — Arrivées (inbound)",
-        "custom": None,  # sera assigné après définition de la fonction
-    },
-    "LH_OUT": {
-        "input_type": "excel",
-        "label": "LH — Départs (outbound)",
-        "custom": None,  # sera assigné après définition de la fonction
-    },
-}
-
 
 # ---------------------------------------------------------------
-# FONCTIONS UTILITAIRES
+# UTILITAIRES COMMUNS
 # ---------------------------------------------------------------
-
 def normalize_columns(df):
-    """Normalise les noms de colonnes : espaces multiples, majuscules, accents."""
     df.columns = (
         df.columns.astype(str)
         .str.replace(r"\s+", " ", regex=True)
@@ -60,21 +26,40 @@ def normalize_columns(df):
 def parse_lh_date(serie):
     """Dates au format D.M.YY (ex '6.7.26') -> JJ/MM/AAAA."""
     d = pd.to_datetime(serie, format="%d.%m.%y", errors="coerce")
-    # secours si certaines cellules sont déjà des datetime Excel
     d = d.fillna(pd.to_datetime(serie, errors="coerce", dayfirst=True))
     return d.dt.strftime("%d/%m/%Y")
 
 
 def split_flight(serie):
-    """'SN3631' -> ('SN', '3631'). Compagnie = 2 premières lettres."""
+    """'SN3631' -> ('SN', '3631'). Compagnie = 2 premiers caractères."""
     s = serie.astype(str).str.replace(r"\s+", "", regex=True).str.upper()
     cie = s.str.extract(r"^([A-Z0-9]{2})")[0]
     num = s.str.extract(r"^[A-Z0-9]{2}(\d+)")[0]
     return cie, num
 
 
+def finalize_output(out):
+    """Nettoyage commun + exclusion 0 pax (même critère que AF)."""
+    out["NumVol"] = pd.to_numeric(out["NumVol"], errors="coerce").fillna(0).astype(int)
+    for c in ["ArrDep", "CieOpe", "EscDep", "EscArr"]:
+        out[c] = out[c].astype(str).str.strip()
+    out = out[out["NbPaxTOT"] != 0]                       # exclusion 0 pax
+    out = out[out["CieOpe"].notna() & (out["CieOpe"] != "")]
+    return out[OUTPUT_COLS]
+
+
+# ---------------------------------------------------------------
+# TRANSFORMATION AF (mapping générique)
+# ---------------------------------------------------------------
+def read_excel_source(file, conf):
+    return pd.read_excel(file, sheet_name=conf["sheet"])
+
+
+def read_paste_source(txt):
+    return pd.read_csv(io.StringIO(txt), sep=None, engine="python")
+
+
 def transform(df, conf, label=""):
-    """Transformation générique avec mapping (type AF)."""
     df = normalize_columns(df)
     mapping = conf["mapping"]
 
@@ -84,44 +69,47 @@ def transform(df, conf, label=""):
         st.write(f"[{label}] Colonnes trouvées :", list(df.columns))
         return None
 
-    out = df[list(mapping.keys())].copy()
-    out.columns = list(mapping.values())
+    out = pd.DataFrame()
+    for src_col, dst_col in mapping.items():
+        out[dst_col] = df[src_col]
 
-    # Conversion numériques
-    for col in ["NbPaxCNT", "NbPaxTOT"]:
-        out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0).astype(int)
+    # filtre compagnie
+    if conf.get("filter_cie"):
+        out = out[out["CieOpe"].astype(str).str.strip() == conf["filter_cie"]]
 
-    out["NumVol"] = pd.to_numeric(out["NumVol"], errors="coerce").fillna(0).astype(int)
+    # date au format JJ/MM/AAAA
+    dcol = conf.get("date_col")
+    if dcol and dcol in out.columns:
+        d = pd.to_datetime(out[dcol], errors="coerce", dayfirst=True)
+        out[dcol] = d.dt.strftime("%d/%m/%Y")
 
-    # Format date
-    date_col = conf.get("date_col", "DateLocaleMvt")
-    out["DateLocaleMvt"] = pd.to_datetime(out[date_col], errors="coerce").dt.strftime("%d/%m/%Y")
+    # pax numériques
+    for c in ["NbPaxCNT", "NbPaxTOT"]:
+        if c in out.columns:
+            out[c] = pd.to_numeric(out[c], errors="coerce").fillna(0).astype(int)
 
-    # Nettoyage colonnes texte
-    for c in ["ArrDep", "CieOpe", "EscDep", "EscArr"]:
-        out[c] = out[c].astype(str).str.strip()
-
-    # Filtre compagnie
-    filter_cie = conf.get("filter_cie")
-    if filter_cie:
-        out = out[out["CieOpe"] == filter_cie]
-
-    # Exclusion 0 pax
-    if conf.get("exclude_zero_pax", False):
+    # exclusion 0 pax
+    if conf.get("exclude_zero_pax"):
         out = out[out["NbPaxTOT"] != 0]
 
-    return out[OUTPUT_COLS] if not out.empty else None
+    # nettoyage num vol
+    out["NumVol"] = pd.to_numeric(out["NumVol"], errors="coerce").fillna(0).astype(int)
+    for c in ["ArrDep", "CieOpe", "EscDep", "EscArr"]:
+        if c in out.columns:
+            out[c] = out[c].astype(str).str.strip()
+
+    return out[OUTPUT_COLS]
 
 
+# ---------------------------------------------------------------
+# TRANSFORMATIONS LH (parseurs dédiés)
+# ---------------------------------------------------------------
 def transform_lh_inbound(file):
     """Arrivées LHG : Arr Date fusionnée (ffill), EscArr = CDG."""
-    df = pd.read_excel(file, sheet_name=0, header=0)
+    df = pd.read_excel(file, sheet_name="Sheet 1", header=0)
     df = normalize_columns(df)
 
-    # ffill sur la date fusionnée
     df["Arr Date"] = df["Arr Date"].ffill()
-
-    # ne garder que les lignes réelles (Flt Nbr renseigné)
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
 
     cie, num = split_flight(df["Flt Nbr"])
@@ -143,7 +131,6 @@ def transform_lh_outbound(file):
     df = pd.read_excel(file, sheet_name="Input", header=0)
     df = normalize_columns(df)
 
-    # lignes réelles uniquement
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
 
     cie, num = split_flight(df["Flt Nbr"])
@@ -160,132 +147,120 @@ def transform_lh_outbound(file):
     return out
 
 
-def finalize_output(out):
-    """Nettoyage commun + exclusion 0 pax."""
-    out["NumVol"] = pd.to_numeric(out["NumVol"], errors="coerce").fillna(0).astype(int)
-    for c in ["ArrDep", "CieOpe", "EscDep", "EscArr"]:
-        out[c] = out[c].astype(str).str.strip()
-    out = out[out["NbPaxTOT"] != 0]
-    out = out[out["CieOpe"].notna() & (out["CieOpe"] != "")]
-    return out[OUTPUT_COLS]
+# ---------------------------------------------------------------
+# DECLARATION DES SOURCES
+# ---------------------------------------------------------------
+SOURCES = {
+    "AF": {
+        "input_type": "excel",
+        "label": "AF — Programme brut (Excel)",
+        "sheet": "Programme brut",
+        "mapping": {
+            "A/D": "ArrDep",
+            "Cie Ope": "CieOpe",
+            "Num Vol": "NumVol",
+            "Esc Dep": "EscDep",
+            "Esc Arr": "EscArr",
+            "Local Date": "DateLocaleMvt",
+            "Pax CNT TOT": "NbPaxCNT",
+            "PAX TOT": "NbPaxTOT",
+        },
+        "date_col": "DateLocaleMvt",
+        "filter_cie": "AF",
+        "exclude_zero_pax": True,
+    },
+    "LH_IN": {
+        "input_type": "excel",
+        "label": "LH — Arrivées (inbound)",
+        "custom": transform_lh_inbound,
+    },
+    "LH_OUT": {
+        "input_type": "excel",
+        "label": "LH — Départs (outbound)",
+        "custom": transform_lh_outbound,
+    },
+}
 
 
-def read_excel_source(file, conf):
-    """Lecture fichier Excel selon config (sheet standard)."""
-    sheet = conf.get("sheet", 0)
-    return pd.read_excel(file, sheet_name=sheet, header=0)
+# ---------------------------------------------------------------
+# INTERFACE
+# ---------------------------------------------------------------
+st.title("✈️ Concaténateur de prévisions compagnies")
+st.markdown(
+    "Déposez les fichiers Excel et/ou collez les données, puis cliquez sur **GO**."
+)
 
+excel_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "excel"}
+paste_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "paste"}
 
-# ===============================================================
-# ASSIGNATION DES FONCTIONS CUSTOM
-# ===============================================================
-SOURCES["LH_IN"]["custom"] = transform_lh_inbound
-SOURCES["LH_OUT"]["custom"] = transform_lh_outbound
+uploaded = {}
+pasted = {}
 
+st.header("📁 Fichiers Excel")
+for name, conf in excel_sources.items():
+    label = conf.get("label", f"Fichier {name}")
+    uploaded[name] = st.file_uploader(label, type=["xlsx", "xls"], key=f"file_{name}")
 
-# ===============================================================
-# INTERFACE STREAMLIT
-# ===============================================================
+if paste_sources:
+    st.header("📋 Données à coller")
+    for name, conf in paste_sources.items():
+        label = conf.get("label", f"Données {name}")
+        pasted[name] = st.text_area(label, height=150, key=f"paste_{name}")
 
-st.title("📊 Concaténateur Prévisions Compagnies")
-st.write("Fusionnez les données de plusieurs sources (AF, LH, etc.) en un seul fichier CSV.")
+st.divider()
 
-with st.form("form_concatenate"):
-    st.subheader("📥 Chargement des données")
-
-    uploaded = {}
-    pasted = {}
-    excel_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "excel"}
-    paste_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "paste"}
-
-    # ===== SOURCES EXCEL =====
-    if excel_sources:
-        st.write("**Fichiers Excel :**")
-        cols = st.columns(len(excel_sources))
-        for i, (name, conf) in enumerate(excel_sources.items()):
-            with cols[i]:
-                label = conf.get("label", f"Fichier {name}")
-                uploaded[name] = st.file_uploader(label, type=["xlsx", "xls"], key=f"file_{name}")
-
-    # ===== SOURCES À COLLER =====
-    if paste_sources:
-        st.write("**Données à coller directement :**")
-        for name, conf in paste_sources.items():
-            label = conf.get("label", f"Données {name}")
-            pasted[name] = st.text_area(label, key=f"paste_{name}", height=150)
-
-    # ===== BOUTON GO =====
-    go_button = st.form_submit_button("🚀 GO — Générer le CSV", use_container_width=True)
-
-if go_button:
+# ---------------------------------------------------------------
+# TRAITEMENT
+# ---------------------------------------------------------------
+if st.button("🚀 GO", type="primary", use_container_width=True):
     frames = []
 
-    # ===== TRAITEMENT SOURCES EXCEL =====
+    # Sources Excel
     for name, conf in excel_sources.items():
         up = uploaded.get(name)
         if up is None:
             continue
         try:
-            if "custom" in conf and conf["custom"] is not None:
-                # sources LH (parsing custom)
+            if "custom" in conf:                       # sources LH
                 res = finalize_output(conf["custom"](up))
-            else:
-                # sources type AF (mapping)
+            else:                                       # sources type AF (mapping)
                 df_in = read_excel_source(up, conf)
                 res = transform(df_in, conf, label=name)
-
             if res is not None and not res.empty:
                 frames.append(res)
-                st.success(f"✅ [{name}] {len(res)} lignes chargées")
-            else:
-                st.warning(f"⚠️ [{name}] Aucune donnée valide après traitement")
-
+                st.success(f"[{name}] {len(res)} lignes intégrées.")
         except Exception as e:
-            st.error(f"❌ [{name}] Erreur de lecture : {e}")
+            st.error(f"[{name}] Erreur de lecture : {e}")
 
-    # ===== TRAITEMENT SOURCES À COLLER =====
+    # Sources à coller
     for name, conf in paste_sources.items():
         txt = pasted.get(name, "")
         if txt and txt.strip():
             try:
-                # À adapter selon le format du texte collé (CSV, TSV, etc.)
-                from io import StringIO
-                df_in = pd.read_csv(StringIO(txt), sep=None, engine="python")
+                df_in = read_paste_source(txt)
                 res = transform(df_in, conf, label=name)
-
                 if res is not None and not res.empty:
                     frames.append(res)
-                    st.success(f"✅ [{name}] {len(res)} lignes chargées")
-                else:
-                    st.warning(f"⚠️ [{name}] Aucune donnée valide après traitement")
-
+                    st.success(f"[{name}] {len(res)} lignes intégrées.")
             except Exception as e:
-                st.error(f"❌ [{name}] Erreur de lecture : {e}")
+                st.error(f"[{name}] Erreur de lecture : {e}")
 
-    # ===== CONCATÉNATION ET SORTIE =====
+    # Résultat final
     if not frames:
-        st.warning("⚠️ Aucune donnée valide fournie.")
+        st.warning("Aucune donnée valide fournie.")
     else:
         final = pd.concat(frames, ignore_index=True)
-        final = final.sort_values(by=["DateLocaleMvt", "CieOpe", "NumVol"]).reset_index(drop=True)
 
         st.subheader(f"📦 Fichier final ({len(final)} lignes)")
-        st.dataframe(final.head(100), use_container_width=True)
+        st.dataframe(final.head(100))
 
-        # ===== TÉLÉCHARGEMENT CSV =====
         header = ";".join(OUTPUT_COLS)
-        body = final.to_csv(sep=";", index=False, header=False, lineterminator="\n", encoding="utf-8")
+        body = final.to_csv(sep=";", index=False, header=False, lineterminator="\n")
         csv_out = header + "\n" + body
-
-        timestamp = datetime.now().strftime("%d_%m_%Y")
-        filename = f"Previs_cies_{timestamp}.csv"
 
         st.download_button(
             "💾 Télécharger le CSV",
             data=csv_out.encode("utf-8"),
-            file_name=filename,
+            file_name="Previs_cies.csv",
             mime="text/csv",
-            use_container_width=True,
         )
-
-        st.info(f"💡 Fichier : `{filename}` | Encodage : UTF-8 | Séparateur : `;`")
