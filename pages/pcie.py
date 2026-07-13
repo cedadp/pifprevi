@@ -108,14 +108,18 @@ def transform_ez(file):
 # ---------------------------------------------------------------
 def transform_nh(file, direction):
     """
-    Parse NH PDF (All Nippon Airways)
-    direction: 'inbound' (NH215: HND→CDG) ou 'outbound' (NH216: CDG→HND)
+    Parse NH PDF (All Nippon Airways) — texte brut, PAS de table alignée.
+    Le PDF a 2 sections : ///NH215/// (arrivées) et ///NH216/// (départs).
+    Les dates et les lignes pax sont dans des blocs séparés, à réapparier dans l'ordre.
+    Ligne pax type : "48 16 115 179 100%76%79% 83%" -> TOTAL = dernier entier avant le 1er %.
     """
+    import re
+
     if direction == 'inbound':
-        flight_num = 'NH215'
+        section = 'NH215'
         cie_ope, esc_dep, esc_arr, arr_dep = 'NH', 'HND', 'CDG', 'A'
     else:  # outbound
-        flight_num = 'NH216'
+        section = 'NH216'
         cie_ope, esc_dep, esc_arr, arr_dep = 'NH', 'CDG', 'HND', 'D'
 
     month_map = {
@@ -124,86 +128,89 @@ def transform_nh(file, direction):
         'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
     }
 
-    rows = []
-
+    # 1) Texte brut
+    text = ""
     with pdfplumber.open(file) as pdf:
         for page in pdf.pages:
-            tables = page.extract_tables()
-            if not tables:
-                continue
+            t = page.extract_text() or ""
+            text += t + "\n"
 
-            for table in tables:
-                # Chercher la ligne d'en-tête contenant "DATE"
-                header_idx = None
-                for i, row in enumerate(table):
-                    if row and row[0] and 'DATE' in str(row[0]).upper():
-                        header_idx = i
-                        break
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
 
-                if header_idx is None:
-                    continue
+    date_re = re.compile(
+        r"\((?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\)-(\d{2})-([A-Za-z]{3})-(\d{2})"
+    )
+    # ligne pax : au moins un pourcentage présent -> on prend le dernier entier AVANT le 1er %
+    pct_re = re.compile(r"\d+\s*%")
+    int_re = re.compile(r"\d+")
 
-                for row in table[header_idx + 1:]:
-                    if not row or not row[0]:
-                        continue
+    dates = []
+    totals = []
 
-                    date_str = str(row[0]).strip()
+    for ln in lines:
+        # a) dates (une ligne peut contenir 1 date)
+        m = date_re.search(ln)
+        if m:
+            day, mon, yy = m.group(1), m.group(2).upper(), m.group(3)
+            mm = month_map.get(mon)
+            if mm:
+                dates.append(f"{day}/{mm}/20{yy}")
+            # une ligne peut mélanger date + pax : on continue quand même pour capter le total
 
-                    # Format "(Sun)-21-Jun-26" -> "21/06/2026"
-                    try:
-                        if '-' in date_str:
-                            parts = date_str.split('-')
-                            if len(parts) >= 4:
-                                day = parts[1]
-                                month = parts[2].upper()
-                                year = '20' + parts[3] if len(parts[3]) == 2 else parts[3]
-                                month_num = month_map.get(month, '')
-                                if not month_num:
-                                    continue
-                                date_formatted = f"{day}/{month_num}/{year}"
-                            else:
-                                continue
-                        else:
-                            continue
-                    except (IndexError, ValueError):
-                        continue
+        # b) lignes pax : contiennent un %
+        pm = pct_re.search(ln)
+        if pm:
+            pax_part = ln[:pm.start()]          # tout ce qui précède le 1er %
+            ints = int_re.findall(pax_part)
+            if ints:
+                total = int(ints[-1])           # dernier entier avant le % = TOTAL
+                totals.append(total)
 
-                    # Dernier nombre valide (hors pourcentages) = TOTAL
-                    try:
-                        pax_total = None
-                        for col in reversed(row[1:]):
-                            if col is None or col == '':
-                                continue
-                            col_str = str(col).strip()
-                            if '%' in col_str:
-                                continue
-                            try:
-                                pax_total = int(col_str)
-                                break
-                            except ValueError:
-                                continue
-                        if pax_total is None:
-                            continue
-                    except (ValueError, IndexError):
-                        continue
+    # 3) Restreindre à la section demandée : le PDF liste NH215 puis NH216 (ou l'inverse).
+    #    On repère l'ordre des marqueurs pour découper dates/totals par section.
+    order = [s for s in re.findall(r"NH21[56]", text)]
+    # fallback simple : les deux sections ont le même nombre de mouvements (32/32).
+    n = len(totals)
+    half = n // 2 if n else 0
 
-                    if pax_total == 0:
-                        continue
+    # Détermine quelle moitié correspond à la section voulue selon l'ordre d'apparition
+    first_section = None
+    for s in order:
+        first_section = s
+        break
 
-                    rows.append({
-                        'ArrDep': arr_dep,
-                        'CieOpe': cie_ope,
-                        'NumVol': flight_num,
-                        'EscDep': esc_dep,
-                        'EscArr': esc_arr,
-                        'DateLocaleMvt': date_formatted,   # <-- corrigé
-                        'NbPaxCNT': 0,
-                        'NbPaxTOT': pax_total
-                    })
+    if half and first_section:
+        if section == first_section:
+            sel_totals = totals[:half]
+        else:
+            sel_totals = totals[half:]
+    else:
+        sel_totals = totals
+
+    # dates : mêmes dates pour les 2 sections -> on prend une moitié équivalente
+    if len(dates) >= 2 * half and half:
+        sel_dates = dates[:half]
+    else:
+        sel_dates = dates[:len(sel_totals)]
+
+    # 4) Appariement
+    rows = []
+    for d, tot in zip(sel_dates, sel_totals):
+        if tot == 0:
+            continue
+        rows.append({
+            'ArrDep': arr_dep,
+            'CieOpe': cie_ope,
+            'NumVol': section,
+            'EscDep': esc_dep,
+            'EscArr': esc_arr,
+            'DateLocaleMvt': d,
+            'NbPaxCNT': 0,
+            'NbPaxTOT': tot,
+        })
 
     df = pd.DataFrame(rows)
     return df if not df.empty else None
-
 
 # ---------------------------------------------------------------
 # LH
