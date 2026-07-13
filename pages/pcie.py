@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import pdfplumber
 import io
 
 st.set_page_config(page_title="Concaténateur Prévisions Cies", layout="wide")
