@@ -422,13 +422,35 @@ def render_tcd(df):
     tcd2["Nombre de mvts"] = tcd2["Nombre de mvts"].astype(int).map(lambda x: f"{x:,}".replace(",", " "))
 
     # Affichage resserré, côte à côte
-    col1, col2 = st.columns([1, 1], gap="medium")
+        col1, col2 = st.columns([1, 1], gap="medium")
     with col1:
         st.markdown("**📊 Pax**")
-        st.dataframe(tcd1, use_container_width=False, hide_index=True, width=380)
+        st.dataframe(
+            tcd1, 
+            use_container_width=False, 
+            hide_index=True, 
+            width=520,
+            column_config={
+                "Cies": st.column_config.TextColumn("Cies", width="small"),
+                "Nombre de Mvts": st.column_config.TextColumn("Nb Mvts", width="medium"),
+                "Somme de NbPaxTOT": st.column_config.TextColumn("NbPaxTOT", width="medium"),
+                "Somme de NbPaxCNT": st.column_config.TextColumn("NbPaxCNT", width="small"),
+            }
+        )
     with col2:
         st.markdown("**📅 Périodes**")
-        st.dataframe(tcd2, use_container_width=False, hide_index=True, width=380)
+        st.dataframe(
+            tcd2, 
+            use_container_width=False, 
+            hide_index=True, 
+            width=500,
+            column_config={
+                "Cies": st.column_config.TextColumn("Cies", width="small"),
+                "Nombre de mvts": st.column_config.TextColumn("Nb mvts", width="small"),
+                "Date début période": st.column_config.TextColumn("Début", width="medium"),
+                "Date fin période": st.column_config.TextColumn("Fin", width="medium"),
+            }
+        )
 
 
 # Affichage automatique de l'aperçu dès qu'au moins un fichier est présent
