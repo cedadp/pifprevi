@@ -112,12 +112,21 @@ def transform_ez(file):
 # NH
 # ---------------------------------------------------------------
 
+def transform_nh_inbound(file):
+    """Parse NH215 PDF (HND→CDG arrivées)"""
+    return transform_nh(file, direction='inbound')
+
+def transform_nh_outbound(file):
+    """Parse NH216 PDF (CDG→HND départs)"""
+    return transform_nh(file, direction='outbound')
+
 def transform_nh(file, direction):
     """
     Parse NH PDF (All Nippon Airways)
     direction: 'inbound' (NH215: HND→CDG) ou 'outbound' (NH216: CDG→HND)
     """
     import pdfplumber
+    from datetime import datetime
     
     if direction == 'inbound':
         flight_num = 'NH215'
@@ -132,6 +141,12 @@ def transform_nh(file, direction):
         esc_arr = 'HND'
         arr_dep = 'D'
     
+    month_map = {
+        'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
+        'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
+        'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
+    }
+    
     rows = []
     
     with pdfplumber.open(file) as pdf:
@@ -144,7 +159,7 @@ def transform_nh(file, direction):
                 # Chercher la ligne avec "DATE" dans les en-têtes
                 header_idx = None
                 for i, row in enumerate(table):
-                    if row and 'DATE' in str(row[0]).upper():
+                    if row and row[0] and 'DATE' in str(row[0]).upper():
                         header_idx = i
                         break
                 
@@ -159,34 +174,49 @@ def transform_nh(file, direction):
                     date_str = str(row[0]).strip()
                     
                     # Format: "(Day)-DD-Mon-YY" → extraire DD-Mon-YY
-                    # Ex: "(Sun)-21-Jun-26" → "21-Jun-26"
-                    if '-' in date_str:
-                        parts = date_str.split('-')
-                        if len(parts) >= 3:
-                            day = parts[1]
-                            month = parts[2]
-                            year = parts[3] if len(parts) > 3 else '26'
-                            date_formatted = f"{day}/{MONTH_MAP.get(month.upper(), month)}/{year}"
+                    # Ex: "(Sun)-21-Jun-26" → "21/06/2026"
+                    try:
+                        if '-' in date_str:
+                            parts = date_str.split('-')
+                            if len(parts) >= 4:
+                                day = parts[1]
+                                month = parts[2].upper()
+                                year = '20' + parts[3] if len(parts[3]) == 2 else parts[3]
+                                month_num = month_map.get(month, '')
+                                if not month_num:
+                                    continue
+                                date_formatted = f"{day}/{month_num}/{year}"
+                            else:
+                                continue
                         else:
                             continue
-                    else:
+                    except (IndexError, ValueError):
                         continue
                     
-                    # TOTAL est généralement en dernière position de chaque groupe C/E/Y
-                    # Structure: EQP, CFG, (TTL), C, E, Y, TOTAL, C, E, Y, TOTAL...
-                    # On prend le DERNIER TOTAL (colonne -1 ou -2)
+                    # TOTAL est généralement en dernière position
+                    # Chercher le dernier nombre valide (qui n'est pas un pourcentage)
                     try:
-                        # Chercher les colonnes avec des nombres
-                        pax_values = [col for col in row[1:] if col and str(col).replace('%', '').strip().isdigit()]
-                        if pax_values:
-                            nb_pax_tot = int(pax_values[-1])  # Dernier TOTAL
-                        else:
+                        pax_total = None
+                        for col in reversed(row[1:]):
+                            if col is None or col == '':
+                                continue
+                            col_str = str(col).strip()
+                            # Ignorer les pourcentages et les textes
+                            if '%' in col_str:
+                                continue
+                            try:
+                                pax_total = int(col_str)
+                                break
+                            except ValueError:
+                                continue
+                        
+                        if pax_total is None:
                             continue
                     except (ValueError, IndexError):
                         continue
                     
                     # Exclure 0 pax
-                    if nb_pax_tot == 0:
+                    if pax_total == 0:
                         continue
                     
                     rows.append({
@@ -197,19 +227,11 @@ def transform_nh(file, direction):
                         'EscArr': esc_arr,
                         'Date': date_formatted,
                         'NbPaxCNT': 0,
-                        'NbPaxTOT': nb_pax_tot
+                        'NbPaxTOT': pax_total
                     })
     
     df = pd.DataFrame(rows)
     return df if not df.empty else None
-
-# Mapping mois
-MONTH_MAP = {
-    'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
-    'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
-    'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
-}
-
 
 
 # ---------------------------------------------------------------
