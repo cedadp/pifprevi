@@ -70,30 +70,24 @@ def transform_af(file, conf, label="AF"):
     return out
 
 
-
 # ---------------------------------------------------------------
 # EZ  (easyJet : .xls, ArrDep déduit via CDG, EJU/EZY)
 # ---------------------------------------------------------------
 def transform_ez(file):
-    """easyJet : fichier .xls unique contenant arrivées ET départs.
-    En-têtes en ligne 5, données à partir de la ligne 7, footer à exclure.
-    ArrDep déduit par la position de CDG.
-    Vol 'EJU####' -> CieOpe=EJU ; vol '####' sans préfixe -> CieOpe=EZY."""
+    """easyJet : fichier .xls unique contenant arrivées ET départs."""
     raw = pd.read_excel(file, sheet_name="Sheet", header=5, engine="xlrd")
     raw = normalize_columns(raw)
 
-    # ne garder que les vraies lignes de vol
     raw = raw[raw["FLT"].notna()]
     raw["DEP"] = raw["DEP"].astype(str).str.strip().str.upper()
     raw["ARR"] = raw["ARR"].astype(str).str.strip().str.upper()
-    raw = raw[(raw["DEP"] != "") & (raw["ARR"] != "")]           # exclut footer + lignes vides
+    raw = raw[(raw["DEP"] != "") & (raw["ARR"] != "")]
     raw = raw[raw["DEP"].isin(["CDG"]) | raw["ARR"].isin(["CDG"])]
 
-    # --- Décomposition du numéro de vol ---
     flt = raw["FLT"].astype(str).str.replace(r"\s+", "", regex=True).str.upper()
     has_eju = flt.str.match(r"^EJU\d+")
     cie = has_eju.map({True: "EJU", False: "EZY"})
-    num = flt.str.extract(r"(\d+)$")[0]      # le nombre final dans tous les cas
+    num = flt.str.extract(r"(\d+)$")[0]
 
     out = pd.DataFrame({
         "ArrDep": ["A" if a == "CDG" else "D" for a in raw["ARR"]],
@@ -110,72 +104,52 @@ def transform_ez(file):
 
 
 # ---------------------------------------------------------------
-# NH
+# NH  (PDF unique -> inbound NH215 + outbound NH216)
 # ---------------------------------------------------------------
-
-def transform_nh_inbound(file):
-    """Parse NH215 PDF (HND→CDG arrivées)"""
-    return transform_nh(file, direction='inbound')
-
-def transform_nh_outbound(file):
-    """Parse NH216 PDF (CDG→HND départs)"""
-    return transform_nh(file, direction='outbound')
-
 def transform_nh(file, direction):
     """
     Parse NH PDF (All Nippon Airways)
     direction: 'inbound' (NH215: HND→CDG) ou 'outbound' (NH216: CDG→HND)
     """
-    import pdfplumber
-    from datetime import datetime
-    
     if direction == 'inbound':
         flight_num = 'NH215'
-        cie_ope = 'NH'
-        esc_dep = 'HND'
-        esc_arr = 'CDG'
-        arr_dep = 'A'
+        cie_ope, esc_dep, esc_arr, arr_dep = 'NH', 'HND', 'CDG', 'A'
     else:  # outbound
         flight_num = 'NH216'
-        cie_ope = 'NH'
-        esc_dep = 'CDG'
-        esc_arr = 'HND'
-        arr_dep = 'D'
-    
+        cie_ope, esc_dep, esc_arr, arr_dep = 'NH', 'CDG', 'HND', 'D'
+
     month_map = {
         'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
         'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
         'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
     }
-    
+
     rows = []
-    
+
     with pdfplumber.open(file) as pdf:
         for page in pdf.pages:
             tables = page.extract_tables()
             if not tables:
                 continue
-                
+
             for table in tables:
-                # Chercher la ligne avec "DATE" dans les en-têtes
+                # Chercher la ligne d'en-tête contenant "DATE"
                 header_idx = None
                 for i, row in enumerate(table):
                     if row and row[0] and 'DATE' in str(row[0]).upper():
                         header_idx = i
                         break
-                
+
                 if header_idx is None:
                     continue
-                
-                # Parser les données à partir de la ligne après l'en-tête
+
                 for row in table[header_idx + 1:]:
                     if not row or not row[0]:
                         continue
-                    
+
                     date_str = str(row[0]).strip()
-                    
-                    # Format: "(Day)-DD-Mon-YY" → extraire DD-Mon-YY
-                    # Ex: "(Sun)-21-Jun-26" → "21/06/2026"
+
+                    # Format "(Sun)-21-Jun-26" -> "21/06/2026"
                     try:
                         if '-' in date_str:
                             parts = date_str.split('-')
@@ -193,16 +167,14 @@ def transform_nh(file, direction):
                             continue
                     except (IndexError, ValueError):
                         continue
-                    
-                    # TOTAL est généralement en dernière position
-                    # Chercher le dernier nombre valide (qui n'est pas un pourcentage)
+
+                    # Dernier nombre valide (hors pourcentages) = TOTAL
                     try:
                         pax_total = None
                         for col in reversed(row[1:]):
                             if col is None or col == '':
                                 continue
                             col_str = str(col).strip()
-                            # Ignorer les pourcentages et les textes
                             if '%' in col_str:
                                 continue
                             try:
@@ -210,27 +182,25 @@ def transform_nh(file, direction):
                                 break
                             except ValueError:
                                 continue
-                        
                         if pax_total is None:
                             continue
                     except (ValueError, IndexError):
                         continue
-                    
-                    # Exclure 0 pax
+
                     if pax_total == 0:
                         continue
-                    
+
                     rows.append({
                         'ArrDep': arr_dep,
                         'CieOpe': cie_ope,
                         'NumVol': flight_num,
                         'EscDep': esc_dep,
                         'EscArr': esc_arr,
-                        'Date': date_formatted,
+                        'DateLocaleMvt': date_formatted,   # <-- corrigé
                         'NbPaxCNT': 0,
                         'NbPaxTOT': pax_total
                     })
-    
+
     df = pd.DataFrame(rows)
     return df if not df.empty else None
 
@@ -239,7 +209,7 @@ def transform_nh(file, direction):
 # LH
 # ---------------------------------------------------------------
 def transform_lh_inbound(file):
-    df = pd.read_excel(file,  header=0)
+    df = pd.read_excel(file, header=0)
     df = normalize_columns(df)
     df["Arr Date"] = df["Arr Date"].ffill()
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
@@ -272,7 +242,7 @@ def transform_lh_outbound(file):
     })
 
 # ---------------------------------------------------------------
-# AI / EI  (format cible, mapping PAR NOM normalisé)
+# AI / EI
 # ---------------------------------------------------------------
 def _target_format(file, sheet_name, cie_fixe=None, cnt_present=True):
     df = pd.read_excel(file, sheet_name=sheet_name, header=0)
@@ -295,11 +265,9 @@ def _target_format(file, sheet_name, cie_fixe=None, cnt_present=True):
     return out
 
 def transform_ai(file):
-    # AI a des colonnes Business/Premium/Economy : le mapping par NOM les ignore
     return _target_format(file, "Masque Prévisions CDG", cie_fixe=None, cnt_present=True)
 
 def transform_ei(file):
-    # EI (Aer Lingus) : pas de colonne NbPaxCNT
     return _target_format(file, "Masque Prévisions CDG", cie_fixe="EI", cnt_present=False)
 
 # ---------------------------------------------------------------
@@ -328,11 +296,10 @@ SOURCES = {
     "LH_OUT": {"input_type": "excel", "label": "LH — Départs (outbound)", "custom": transform_lh_outbound},
     "AI":     {"input_type": "excel", "label": "AI — Air India (Masque Prévisions CDG)", "custom": transform_ai},
     "EI":     {"input_type": "excel", "label": "EI — Aer Lingus (Masque Prévisions CDG)", "custom": transform_ei},
-    "EZ": {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez}, 
-    "EZ": {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez},
-    "NH": {"input_type": "pdf", "label": "NH — All Nippon (PDF unique HND↔CDG)", "custom": None}
-
+    "EZ":     {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez},
+    "NH":     {"input_type": "pdf",   "label": "NH — All Nippon (PDF unique HND↔CDG)", "custom": None},
 }
+
 # ---------------------------------------------------------------
 # INTERFACE
 # ---------------------------------------------------------------
@@ -357,8 +324,9 @@ st.divider()
 
 if st.button("🚀 GO", type="primary", use_container_width=True):
     frames = []
-    # On parcourt TOUTES les sources (excel + pdf)
-    for name, conf in SOURCES.items():
+
+    # --- Sources Excel ---
+    for name, conf in excel_sources.items():
         up = uploaded.get(name)
         if up is None:
             continue
@@ -375,6 +343,31 @@ if st.button("🚀 GO", type="primary", use_container_width=True):
                 st.success(f"[{name}] {len(res)} lignes intégrées.")
             else:
                 st.warning(f"[{name}] 0 ligne après filtrage.")
+        except Exception as e:
+            st.error(f"[{name}] Erreur : {e}")
+
+    # --- Sources PDF (NH : 1 fichier -> inbound + outbound) ---
+    for name, conf in pdf_sources.items():
+        up = uploaded.get(name)
+        if up is None:
+            continue
+        try:
+            if name == "NH":
+                pdf_bytes = up.read()
+                res_in  = transform_nh(io.BytesIO(pdf_bytes), direction="inbound")
+                res_out = transform_nh(io.BytesIO(pdf_bytes), direction="outbound")
+                total = 0
+                for res in (res_in, res_out):
+                    if res is None:
+                        continue
+                    res = finalize_output(res)
+                    if not res.empty:
+                        frames.append(res)
+                        total += len(res)
+                if total > 0:
+                    st.success(f"[NH] {total} lignes intégrées.")
+                else:
+                    st.warning("[NH] 0 ligne après filtrage.")
         except Exception as e:
             st.error(f"[{name}] Erreur : {e}")
 
