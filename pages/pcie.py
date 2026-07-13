@@ -422,7 +422,7 @@ def render_tcd(df):
     tcd2["Nombre de mvts"] = tcd2["Nombre de mvts"].astype(int).map(lambda x: f"{x:,}".replace(",", " "))
 
     # Affichage resserré, côte à côte
-        col1, col2 = st.columns([1, 1], gap="medium")
+    col1, col2 = st.columns([1, 1], gap="medium")
     with col1:
         st.markdown("**📊 Pax**")
         st.dataframe(
