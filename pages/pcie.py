@@ -305,7 +305,10 @@ SOURCES = {
     "LH_OUT": {"input_type": "excel", "label": "LH — Départs (outbound)", "custom": transform_lh_outbound},
     "AI":     {"input_type": "excel", "label": "AI — Air India (Masque Prévisions CDG)", "custom": transform_ai},
     "EI":     {"input_type": "excel", "label": "EI — Aer Lingus (Masque Prévisions CDG)", "custom": transform_ei},
-    "EZ": {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez}
+    "EZ": {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez}, 
+
+      "NH_IN":  {"input_type": "pdf", "label": "NH — Arrivées (HND→CDG)", "custom": transform_nh_inbound},
+    "NH_OUT": {"input_type": "pdf", "label": "NH — Départs (CDG→HND)", "custom": transform_nh_outbound}
 }
 # ---------------------------------------------------------------
 # INTERFACE
