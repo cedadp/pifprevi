@@ -239,7 +239,7 @@ def transform_nh(file, direction):
 # LH
 # ---------------------------------------------------------------
 def transform_lh_inbound(file):
-    df = pd.read_excel(file, sheet_name="Sheet 1", header=0)
+    df = pd.read_excel(file,  header=0)
     df = normalize_columns(df)
     df["Arr Date"] = df["Arr Date"].ffill()
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
