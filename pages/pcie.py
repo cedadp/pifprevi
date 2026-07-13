@@ -74,8 +74,14 @@ def transform_af(file, conf, label="AF"):
 # EZ  (easyJet : .xls, ArrDep déduit via CDG, EJU/EZY)
 # ---------------------------------------------------------------
 def transform_ez(file):
-    df = pd.read_excel(file, header=0)   # xlrd pour .xls
+    df = pd.read_excel(file, header=0)
     df = normalize_columns(df)
+
+    # --- DIAGNOSTIC TEMPORAIRE ---
+    st.write("[EZ] Colonnes trouvées :", list(df.columns))
+    st.dataframe(df.head(5))
+    # -----------------------------
+  
 
     # ArrDep déduit : si EscDep == CDG -> Départ, sinon Arrivée
     dep_col = "EscDep" if "EscDep" in df.columns else df.columns[3]
