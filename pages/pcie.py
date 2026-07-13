@@ -416,11 +416,19 @@ def render_tcd(df):
     for c in ["Date début période", "Date fin période"]:
         tcd2[c] = pd.to_datetime(tcd2[c]).dt.strftime("%d/%m/%Y")
 
-    col1, col2 = st.columns(2)
+    # Formatage : séparateur de milliers (espace)
+    for c in ["Nombre de Mvts", "Somme de NbPaxTOT", "Somme de NbPaxCNT"]:
+        tcd1[c] = tcd1[c].astype(int).map(lambda x: f"{x:,}".replace(",", " "))
+    tcd2["Nombre de mvts"] = tcd2["Nombre de mvts"].astype(int).map(lambda x: f"{x:,}".replace(",", " "))
+
+    # Affichage resserré, côte à côte
+    col1, col2 = st.columns([1, 1], gap="medium")
     with col1:
-        st.dataframe(tcd1, use_container_width=True, hide_index=True)
+        st.markdown("**📊 Pax**")
+        st.dataframe(tcd1, use_container_width=False, hide_index=True, width=380)
     with col2:
-        st.dataframe(tcd2, use_container_width=True, hide_index=True)
+        st.markdown("**📅 Périodes**")
+        st.dataframe(tcd2, use_container_width=False, hide_index=True, width=380)
 
 
 # Affichage automatique de l'aperçu dès qu'au moins un fichier est présent
