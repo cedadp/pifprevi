@@ -329,6 +329,113 @@ for name, conf in pdf_sources.items():
 
 st.divider()
 
+
+
+
+
+# ---------------------------------------------------------------
+# APERÇU TCD (avant GO) — construit dès qu'un fichier est déposé
+# ---------------------------------------------------------------
+def build_preview_frames():
+    """Rejoue les transformations sur les fichiers déjà déposés, sans bloquer sur erreur."""
+    frames = []
+    # Excel
+    for name, conf in excel_sources.items():
+        up = uploaded.get(name)
+        if up is None:
+            continue
+        try:
+            if conf.get("af"):
+                res = transform_af(up, conf, label=name)
+            else:
+                res = conf["custom"](up)
+            if res is not None:
+                res = finalize_output(res)
+                if not res.empty:
+                    frames.append(res)
+        except Exception:
+            pass
+    # PDF (NH : inbound + outbound)
+    for name, conf in pdf_sources.items():
+        up = uploaded.get(name)
+        if up is None:
+            continue
+        try:
+            if name == "NH":
+                pdf_bytes = up.read()
+                up.seek(0)  # remet le curseur pour le GO ensuite
+                for d in ("inbound", "outbound"):
+                    res = transform_nh(io.BytesIO(pdf_bytes), direction=d)
+                    if res is not None:
+                        res = finalize_output(res)
+                        if not res.empty:
+                            frames.append(res)
+        except Exception:
+            pass
+    return frames
+
+
+def render_tcd(df):
+    """Affiche les 2 TCD par CieOpe (comme la capture)."""
+    d = df.copy()
+    d["_date"] = pd.to_datetime(d["DateLocaleMvt"], format="%d/%m/%Y", errors="coerce")
+
+    # --- TCD 1 : Mvts / NbPaxTOT / NbPaxCNT ---
+    tcd1 = d.groupby("CieOpe").agg(
+        **{
+            "Nombre de Mvts": ("CieOpe", "size"),
+            "Somme de NbPaxTOT": ("NbPaxTOT", "sum"),
+            "Somme de NbPaxCNT": ("NbPaxCNT", "sum"),
+        }
+    ).reset_index().rename(columns={"CieOpe": "Cies"})
+    tcd1 = tcd1.sort_values("Cies").reset_index(drop=True)
+    tot1 = pd.DataFrame([{
+        "Cies": "Total général",
+        "Nombre de Mvts": tcd1["Nombre de Mvts"].sum(),
+        "Somme de NbPaxTOT": tcd1["Somme de NbPaxTOT"].sum(),
+        "Somme de NbPaxCNT": tcd1["Somme de NbPaxCNT"].sum(),
+    }])
+    tcd1 = pd.concat([tcd1, tot1], ignore_index=True)
+
+    # --- TCD 2 : Mvts / Date début / Date fin ---
+    tcd2 = d.groupby("CieOpe").agg(
+        **{
+            "Nombre de mvts": ("CieOpe", "size"),
+            "Date début période": ("_date", "min"),
+            "Date fin période": ("_date", "max"),
+        }
+    ).reset_index().rename(columns={"CieOpe": "Cies"})
+    tcd2 = tcd2.sort_values("Cies").reset_index(drop=True)
+    tot2 = pd.DataFrame([{
+        "Cies": "Total général",
+        "Nombre de mvts": tcd2["Nombre de mvts"].sum(),
+        "Date début période": d["_date"].min(),
+        "Date fin période": d["_date"].max(),
+    }])
+    tcd2 = pd.concat([tcd2, tot2], ignore_index=True)
+    for c in ["Date début période", "Date fin période"]:
+        tcd2[c] = pd.to_datetime(tcd2[c]).dt.strftime("%d/%m/%Y")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.dataframe(tcd1, use_container_width=True, hide_index=True)
+    with col2:
+        st.dataframe(tcd2, use_container_width=True, hide_index=True)
+
+
+# Affichage automatique de l'aperçu dès qu'au moins un fichier est présent
+if any(v is not None for v in uploaded.values()):
+    st.subheader("👁️ Aperçu des TCD (avant intégration)")
+    preview = build_preview_frames()
+    if preview:
+        render_tcd(pd.concat(preview, ignore_index=True))
+    else:
+        st.info("Fichiers détectés mais aucune donnée exploitable pour l'instant.")
+
+st.divider()
+
+
+
 if st.button("🚀 GO", type="primary", use_container_width=True):
     frames = []
 
