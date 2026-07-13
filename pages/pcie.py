@@ -1,266 +1,416 @@
+# ============================================================
+# app.py  —  Consolidation multi-sources CDG vers CSV unifié
+# ============================================================
+# Dépendances : streamlit  pandas  openpyxl  xlrd
+# Lancer     : streamlit run app.py
+
 import streamlit as st
 import pandas as pd
-import io
+import re
+from datetime import datetime
 
-st.set_page_config(page_title="Concaténateur Prévisions Cies", layout="wide")
+# ── Constantes ─────────────────────────────────────────────────────────────
+OUTPUT_COLS = [
+    "ArrDep", "CieOpe", "NumVol", "EscDep", "EscArr",
+    "DateLocaleMvt", "NbPaxCNT", "NbPaxTOT",
+]
 
-# ---------------------------------------------------------------
-# CONFIGURATION
-# ---------------------------------------------------------------
-OUTPUT_COLS = ["ArrDep", "CieOpe", "NumVol", "EscDep", "EscArr",
-               "DateLocaleMvt", "NbPaxCNT", "NbPaxTOT"]
+# ── Helpers partagés ────────────────────────────────────────────────────────
 
-
-# ---------------------------------------------------------------
-# UTILITAIRES COMMUNS
-# ---------------------------------------------------------------
-def normalize_columns(df):
-    df.columns = (
-        df.columns.astype(str)
-        .str.replace(r"\s+", " ", regex=True)
-        .str.strip()
-    )
+def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    df.columns = [
+        c.strip().lower() if isinstance(c, str) else str(c)
+        for c in df.columns
+    ]
     return df
 
 
-def parse_lh_date(serie):
-    """Dates au format D.M.YY (ex '6.7.26') -> JJ/MM/AAAA."""
-    d = pd.to_datetime(serie, format="%d.%m.%y", errors="coerce")
-    d = d.fillna(pd.to_datetime(serie, errors="coerce", dayfirst=True))
-    return d.dt.strftime("%d/%m/%Y")
+def parse_date(val):
+    if isinstance(val, datetime):
+        return val.strftime("%d/%m/%Y")
+    s = str(val).strip()
+    for fmt in ("%d/%m/%Y", "%d/%m/%y", "%d.%m.%y", "%d.%m.%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(s, fmt).strftime("%d/%m/%Y")
+        except ValueError:
+            pass
+    return s
 
 
-def split_flight(serie):
-    """'SN3631' -> ('SN', '3631'). Compagnie = 2 premiers caractères."""
-    s = serie.astype(str).str.replace(r"\s+", "", regex=True).str.upper()
-    cie = s.str.extract(r"^([A-Z0-9]{2})")[0]
-    num = s.str.extract(r"^[A-Z0-9]{2}(\d+)")[0]
-    return cie, num
+def finalize_output(dfs: list) -> pd.DataFrame:
+    if not dfs:
+        return pd.DataFrame(columns=OUTPUT_COLS)
+    out = pd.concat(dfs, ignore_index=True)
+    out = out[OUTPUT_COLS]
+    out = out[out["NbPaxTOT"] != 0].reset_index(drop=True)
+    return out
 
 
-def finalize_output(out):
-    """Nettoyage commun + exclusion 0 pax (même critère que AF)."""
-    out["NumVol"] = pd.to_numeric(out["NumVol"], errors="coerce").fillna(0).astype(int)
-    for c in ["ArrDep", "CieOpe", "EscDep", "EscArr"]:
-        out[c] = out[c].astype(str).str.strip()
-    out = out[out["NbPaxTOT"] != 0]                       # exclusion 0 pax
-    out = out[out["CieOpe"].notna() & (out["CieOpe"] != "")]
-    return out[OUTPUT_COLS]
+# ── Transformations par source ───────────────────────────────────────────────
 
+def transform_af(uploaded) -> pd.DataFrame:
+    """
+    Air France — Programme brut (onglets multiples).
+    Cherche l'en-tête "cieope" automatiquement dans les lignes,
+    filtre CieOpe == "AF", NumVol entier.
+    """
+    xl = pd.ExcelFile(uploaded)
+    for sheet in xl.sheet_names:
+        df_raw = pd.read_excel(xl, sheet_name=sheet, header=None)
+        for i, row in df_raw.iterrows():
+            if any(str(v).strip().lower() == "cieope" for v in row):
+                header_row = i
+                df = pd.read_excel(xl, sheet_name=sheet, header=header_row)
+                break
+        else:
+            continue
+        break
 
-# ---------------------------------------------------------------
-# TRANSFORMATION AF (mapping générique)
-# ---------------------------------------------------------------
-def read_excel_source(file, conf):
-    return pd.read_excel(file, sheet_name=conf["sheet"])
-
-
-def read_paste_source(txt):
-    return pd.read_csv(io.StringIO(txt), sep=None, engine="python")
-
-
-def transform(df, conf, label=""):
     df = normalize_columns(df)
-    mapping = conf["mapping"]
+    col_map = {}
+    for col in df.columns:
+        cl = col.strip().lower() if isinstance(col, str) else str(col)
+        if cl == "cieope":
+            col_map[col] = "cieope"
+        elif cl in ("numvol", "flight number", "fltnbr"):
+            col_map[col] = "numvol"
+        elif cl in ("pax tot", "ttl"):
+            col_map[col] = "nbpax_tot"
+        elif cl == "arrdep":
+            col_map[col] = "arrdep"
+        elif cl == "escd ep":
+            col_map[col] = "escd ep"
+        elif cl == "escar r":
+            col_map[col] = "escar r"
+        elif cl == "datelocalemvt":
+            col_map[col] = "datelocalemvt"
+    df = df.rename(columns=col_map)
 
-    missing = [c for c in mapping if c not in df.columns]
-    if missing:
-        st.error(f"[{label}] Colonnes manquantes : {missing}")
-        st.write(f"[{label}] Colonnes trouvées :", list(df.columns))
-        return None
+    df = df[df["cieope"].astype(str).str.strip() == "AF"].copy()
+    df["numvol"] = pd.to_numeric(df["numvol"], errors="coerce").fillna(0).astype(int)
+    df["datelocalemvt"] = df["datelocalemvt"].apply(parse_date)
+    df["nbpax_tot"] = pd.to_numeric(df["nbpax_tot"], errors="coerce").fillna(0).astype(int)
 
-    out = pd.DataFrame()
-    for src_col, dst_col in mapping.items():
-        out[dst_col] = df[src_col]
-
-    # filtre compagnie
-    if conf.get("filter_cie"):
-        out = out[out["CieOpe"].astype(str).str.strip() == conf["filter_cie"]]
-
-    # date au format JJ/MM/AAAA
-    dcol = conf.get("date_col")
-    if dcol and dcol in out.columns:
-        d = pd.to_datetime(out[dcol], errors="coerce", dayfirst=True)
-        out[dcol] = d.dt.strftime("%d/%m/%Y")
-
-    # pax numériques
-    for c in ["NbPaxCNT", "NbPaxTOT"]:
-        if c in out.columns:
-            out[c] = pd.to_numeric(out[c], errors="coerce").fillna(0).astype(int)
-
-    # exclusion 0 pax
-    if conf.get("exclude_zero_pax"):
-        out = out[out["NbPaxTOT"] != 0]
-
-    # nettoyage num vol
-    out["NumVol"] = pd.to_numeric(out["NumVol"], errors="coerce").fillna(0).astype(int)
-    for c in ["ArrDep", "CieOpe", "EscDep", "EscArr"]:
-        if c in out.columns:
-            out[c] = out[c].astype(str).str.strip()
-
-    return out[OUTPUT_COLS]
-
-
-# ---------------------------------------------------------------
-# TRANSFORMATIONS LH (parseurs dédiés)
-# ---------------------------------------------------------------
-def transform_lh_inbound(file):
-    """Arrivées LHG : Arr Date fusionnée (ffill), EscArr = CDG."""
-    df = pd.read_excel(file, sheet_name="Sheet 1", header=0)
-    df = normalize_columns(df)
-
-    df["Arr Date"] = df["Arr Date"].ffill()
-    df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
-
-    cie, num = split_flight(df["Flt Nbr"])
     out = pd.DataFrame({
-        "ArrDep": "A",
-        "CieOpe": cie.values,
-        "NumVol": num.values,
-        "EscDep": df["Origin"].astype(str).str.strip().values,
-        "EscArr": "CDG",
-        "DateLocaleMvt": parse_lh_date(df["Arr Date"]).values,
-        "NbPaxCNT": 0,
-        "NbPaxTOT": pd.to_numeric(df["Estimated PAX"], errors="coerce").fillna(0).astype(int).values,
+        "ArrDep":        df.get("arrdep",   "D"),
+        "CieOpe":        df["cieope"],
+        "NumVol":        df["numvol"].astype(int),
+        "EscDep":        df.get("escd ep", "CDG").astype(str).str.strip().str.upper(),
+        "EscArr":        df.get("escar r", "CDG").astype(str).str.strip().str.upper(),
+        "DateLocaleMvt": df["datelocalemvt"],
+        "NbPaxCNT":      0,
+        "NbPaxTOT":      df["nbpax_tot"].astype(int),
     })
     return out
 
 
-def transform_lh_outbound(file):
-    """Départs LHG : onglet 'Input', EscDep = CDG."""
-    df = pd.read_excel(file, sheet_name="Input", header=0)
+def transform_lh(inbound_uploaded, outbound_uploaded) -> pd.DataFrame:
+    """
+    LH — Lufthansa.  inbound + outbound, formats différents.
+    inbound  : "LHG inbound 90 days 06JUL.xlsx" — col A dates fusionnées, ffill.
+    outbound : "LHG outbound 90 jours 2.xlsx"   — en-tête row 0, Estimated PAX.
+    """
+    dfs_out = []
+
+    # ── inbound ────────────────────────────────────────────────────────────────
+    xl_in = pd.ExcelFile(inbound_uploaded)
+    df_in = pd.read_excel(xl_in, sheet_name=0, header=0)
+    df_in = normalize_columns(df_in)
+
+    pax_col = [c for c in df_in.columns if "estimated pax" in c][0]
+    dt_col  = [c for c in df_in.columns if c.strip().lower() in ("arr date", "date")][0]
+    org_col = [c for c in df_in.columns if c.strip().lower() == "origin"][0]
+    dst_col = [c for c in df_in.columns if c.strip().lower() == "dest"][0]
+    flt_col = [c for c in df_in.columns if "flt" in c][0]
+
+    df_in[pax_col] = pd.to_numeric(df_in[pax_col], errors="coerce").fillna(0)
+    df_in[dt_col]  = df_in[dt_col].ffill()
+    df_in["_date"] = df_in[dt_col].apply(parse_date)
+    df_in["_cie"]  = df_in[flt_col].astype(str).str.strip().str.upper().str[:2]
+    df_in["_nv"]   = pd.to_numeric(
+        df_in[flt_col].astype(str).str.strip().str.replace(r"^[A-Z]{2}", "", regex=True),
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    d_in = pd.DataFrame({
+        "ArrDep":        "A",
+        "CieOpe":        df_in["_cie"],
+        "NumVol":        df_in["_nv"],
+        "EscDep":        df_in[dst_col].astype(str).str.strip().str.upper(),
+        "EscArr":        df_in[org_col].astype(str).str.strip().str.upper(),
+        "DateLocaleMvt": df_in["_date"],
+        "NbPaxCNT":      0,
+        "NbPaxTOT":      df_in[pax_col].astype(int),
+    })
+    dfs_out.append(d_in)
+
+    # ── outbound ──────────────────────────────────────────────────────────────
+    xl_out = pd.ExcelFile(outbound_uploaded)
+    df_out = pd.read_excel(xl_out, sheet_name=0, header=0)
+    df_out = normalize_columns(df_out)
+
+    pax_col_o = [c for c in df_out.columns if "estimated pax" in c][0]
+    dt_col_o  = [c for c in df_out.columns if c.strip().lower() in ("dep date", "date")][0]
+    org_col_o = [c for c in df_out.columns if c.strip().lower() == "origin"][0]
+    dst_col_o = [c for c in df_out.columns if c.strip().lower() == "dest"][0]
+    flt_col_o = [c for c in df_out.columns if "flt" in c][0]
+
+    # Exclure lignes à 0 pax ( footer à zéros )
+    df_out = df_out[df_out[pax_col_o].apply(
+        lambda x: pd.notna(x) and str(x).strip() not in ("", "0")
+    )]
+    df_out[pax_col_o] = pd.to_numeric(df_out[pax_col_o], errors="coerce").fillna(0)
+    df_out["_date"]   = df_out[dt_col_o].apply(parse_date)
+    df_out["_cie"]    = df_out[flt_col_o].astype(str).str.strip().str.upper().str[:2]
+    df_out["_nv"]     = pd.to_numeric(
+        df_out[flt_col_o].astype(str).str.strip().str.replace(r"^[A-Z]{2}", "", regex=True),
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    d_out = pd.DataFrame({
+        "ArrDep":        "D",
+        "CieOpe":        df_out["_cie"],
+        "NumVol":        df_out["_nv"],
+        "EscDep":        df_out[org_col_o].astype(str).str.strip().str.upper(),
+        "EscArr":        df_out[dst_col_o].astype(str).str.strip().str.upper(),
+        "DateLocaleMvt": df_out["_date"],
+        "NbPaxCNT":      0,
+        "NbPaxTOT":      df_out[pax_col_o].astype(int),
+    })
+    dfs_out.append(d_out)
+
+    return pd.concat(dfs_out, ignore_index=True)
+
+
+def transform_ez(uploaded) -> pd.DataFrame:
+    """
+    EZ — easyJet (.xls via xlrd).
+    Lecture brute (header=None), en-tête détectée en row 5 :
+    [DATE, FLT, TYPE, nan, REG, AC, DEP, ARR, STD, STA, ETD, nan, EXP]
+    Données dès row 7.  Footer ("Total Record(s): ...") starts row 593+ —
+    détecté par FLT non-matching et expurity de EXP numérique.
+    """
+    df_raw = pd.read_excel(uploaded, sheet_name="Sheet", header=None, engine="xlrd")
+    # Nommer colonnes avec row 5
+    header = df_raw.iloc[5]
+    df = df_raw.iloc[7:].copy()
+    df.columns = header
+    df = df.dropna(how="all")
+
+    # Garder uniquement les lignes avec FLT non-vide et EXP numérique
+    def valid_row(r):
+        flt = r.get("FLT")
+        exp = r.get("EXP")
+        if pd.isna(flt):
+            return False
+        flt_s = str(flt).strip()
+        # Rejeter le footer : pas de flight number réel
+        if re.match(r"^[A-Z]{2}\d", flt_s.upper()) is None and not flt_s.isdigit():
+            return False
+        if pd.isna(exp):
+            return False
+        exp_s = str(exp).strip()
+        if not (exp_s.replace('.', '', 1).isdigit()):
+            return False
+        return True
+
+    df = df[df.apply(valid_row, axis=1)]
+
+    def eju_or_ezy(flt):
+        s = str(flt).strip().upper()
+        m = re.match(r"^(EJU)(\d+)$", s)
+        if m:
+            return ("EJU", int(m.group(2)))
+        num = re.sub(r"^[A-Z]{2,4}", "", s)
+        return ("EZY", int(num) if num.isdigit() else 0)
+
+    df[["CieOpe", "NumVol"]] = df["FLT"].apply(
+        lambda x: pd.Series(eju_or_ezy(x))
+    )
+    df["ArrDep"] = df.apply(
+        lambda r: "A" if str(r.get("ARR", "")).strip().upper() == "CDG"
+        else ("D" if str(r.get("DEP", "")).strip().upper() == "CDG" else ""),
+        axis=1,
+    )
+    df["EscDep"] = df["DEP"].astype(str).str.strip().str.upper()
+    df["EscArr"] = df["ARR"].astype(str).str.strip().str.upper()
+    df["DateLocaleMvt"] = df["DATE"].apply(parse_date)
+    df["NbPaxTOT"] = pd.to_numeric(df["EXP"], errors="coerce").fillna(0).astype(int)
+    df["NbPaxCNT"] = 0
+
+    return pd.DataFrame({
+        "ArrDep":        df["ArrDep"],
+        "CieOpe":        df["CieOpe"],
+        "NumVol":        df["NumVol"].astype(int),
+        "EscDep":        df["EscDep"],
+        "EscArr":        df["EscArr"],
+        "DateLocaleMvt": df["DateLocaleMvt"],
+        "NbPaxCNT":      df["NbPaxCNT"].astype(int),
+        "NbPaxTOT":      df["NbPaxTOT"].astype(int),
+    })
+
+
+def transform_ai(uploaded) -> pd.DataFrame:
+    """
+    AI — Air India.
+    Onglet "Masque Prévisions CDG".  Format déjà cible (11 colonnes).
+    Mapping direct des 8 colonnes OUTPUT_COLS.
+    """
+    df = pd.read_excel(uploaded, sheet_name="Masque Prévisions CDG")
     df = normalize_columns(df)
 
-    df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
-
-    cie, num = split_flight(df["Flt Nbr"])
     out = pd.DataFrame({
-        "ArrDep": "D",
-        "CieOpe": cie.values,
-        "NumVol": num.values,
-        "EscDep": "CDG",
-        "EscArr": df["Dest"].astype(str).str.strip().values,
-        "DateLocaleMvt": parse_lh_date(df["Dep Date"]).values,
-        "NbPaxCNT": 0,
-        "NbPaxTOT": pd.to_numeric(df["Estimated PAX"], errors="coerce").fillna(0).astype(int).values,
+        "ArrDep":        df["arrdep"].astype(str).str.strip().str.upper(),
+        "CieOpe":        df["cieope"].astype(str).str.strip().str.upper(),
+        "NumVol":        pd.to_numeric(df["numvol"], errors="coerce").fillna(0).astype(int),
+        "EscDep":        df["escd ep"].astype(str).str.strip().str.upper(),
+        "EscArr":        df["escar r"].astype(str).str.strip().str.upper(),
+        "DateLocaleMvt": df["datelocalemvt"].apply(parse_date),
+        "NbPaxCNT":      pd.to_numeric(df.get("nbpaxcnt", 0), errors="coerce").fillna(0).astype(int),
+        "NbPaxTOT":      pd.to_numeric(df["nbpax_tot"], errors="coerce").fillna(0).astype(int),
     })
     return out
 
 
-# ---------------------------------------------------------------
-# DECLARATION DES SOURCES
-# ---------------------------------------------------------------
-SOURCES = {
-    "AF": {
-        "input_type": "excel",
-        "label": "AF — Programme brut (Excel)",
-        "sheet": "Programme brut",
-        "mapping": {
-            "A/D": "ArrDep",
-            "Cie Ope": "CieOpe",
-            "Num Vol": "NumVol",
-            "Esc Dep": "EscDep",
-            "Esc Arr": "EscArr",
-            "Local Date": "DateLocaleMvt",
-            "Pax CNT TOT": "NbPaxCNT",
-            "PAX TOT": "NbPaxTOT",
-        },
-        "date_col": "DateLocaleMvt",
-        "filter_cie": "AF",
-        "exclude_zero_pax": True,
-    },
-    "LH_IN": {
-        "input_type": "excel",
-        "label": "LH — Arrivées (inbound)",
-        "custom": transform_lh_inbound,
-    },
-    "LH_OUT": {
-        "input_type": "excel",
-        "label": "LH — Départs (outbound)",
-        "custom": transform_lh_outbound,
-    },
-}
+def transform_ei(uploaded) -> pd.DataFrame:
+    """
+    EI — Aer Lingus (fichier 202678 Masque Prévisions CDG.xlsx).
+    Onglet "Masque Prévisions CDG".
+    Format quasi-cible : 7 colonnes (pas de NbPaxCNT → 0).
+    Colonnes : ArrDep, CieOpe(=EI), NumVol, EscDep, EscArr, DateLocaleMvt, NbPaxTOT.
+    """
+    df = pd.read_excel(uploaded, sheet_name="Masque Prévisions CDG")
+    df = normalize_columns(df)
+
+    out = pd.DataFrame({
+        "ArrDep":        df["arrdep"].astype(str).str.strip().str.upper(),
+        "CieOpe":        df["cieope"].astype(str).str.strip().str.upper(),
+        "NumVol":        pd.to_numeric(df["numvol"], errors="coerce").fillna(0).astype(int),
+        "EscDep":        df["escd ep"].astype(str).str.strip().str.upper(),
+        "EscArr":        df["escar r"].astype(str).str.strip().str.upper(),
+        "DateLocaleMvt": df["datelocalemvt"].apply(parse_date),
+        "NbPaxCNT":      0,
+        "NbPaxTOT":      pd.to_numeric(df["nbpax_tot"], errors="coerce").fillna(0).astype(int),
+    })
+    return out
 
 
-# ---------------------------------------------------------------
-# INTERFACE
-# ---------------------------------------------------------------
-st.title("✈️ Concaténateur de prévisions compagnies")
+# ── Interface Streamlit ──────────────────────────────────────────────────────
+
+st.set_page_config(page_title="CDG — Consolidateur multi-sources", layout="centered")
+st.title("✈  Consolidateur CDG")
+
 st.markdown(
-    "Déposez les fichiers Excel et/ou collez les données, puis cliquez sur **GO**."
+    "**Dépendances à installer :** `pip install streamlit pandas openpyxl xlrd`"
 )
 
-excel_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "excel"}
-paste_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "paste"}
-
 uploaded = {}
-pasted = {}
+with st.expander("📁 Charger les fichiers", expanded=True):
+    # ── AF ──────────────────────────────────────────────────────────────────
+    st.markdown("**AF — Air France**")
+    uploaded["AF"] = st.file_uploader(
+        "  Air France (Programme brut, .xlsx)", type=["xlsx"], key="file_af"
+    )
 
-st.header("📁 Fichiers Excel")
-for name, conf in excel_sources.items():
-    label = conf.get("label", f"Fichier {name}")
-    uploaded[name] = st.file_uploader(label, type=["xlsx", "xls"], key=f"file_{name}")
+    # ── LH ─────────────────────────────────────────────────────────────────
+    st.markdown("**LH — Lufthansa**")
+    uploaded["LH_inbound"]  = st.file_uploader(
+        "  inbound  (.xlsx)", type=["xlsx"], key="file_lh_inbound"
+    )
+    uploaded["LH_outbound"] = st.file_uploader(
+        "  outbound (.xlsx)", type=["xlsx"], key="file_lh_outbound"
+    )
 
-if paste_sources:
-    st.header("📋 Données à coller")
-    for name, conf in paste_sources.items():
-        label = conf.get("label", f"Données {name}")
-        pasted[name] = st.text_area(label, height=150, key=f"paste_{name}")
+    # ── EZ ─────────────────────────────────────────────────────────────────
+    st.markdown("**EZ — easyJet**")
+    uploaded["EZ"] = st.file_uploader(
+        "  easyJet (Job 80C, .xls)", type=["xls", "xlsx"], key="file_ez"
+    )
 
-st.divider()
+    # ── AI ─────────────────────────────────────────────────────────────────
+    st.markdown("**AI — Air India**")
+    uploaded["AI"] = st.file_uploader(
+        "  Air India (Masque Prévisions CDG, .xlsx)", type=["xlsx"], key="file_ai"
+    )
 
-# ---------------------------------------------------------------
-# TRAITEMENT
-# ---------------------------------------------------------------
-if st.button("🚀 GO", type="primary", use_container_width=True):
-    frames = []
+    # ── EI ─────────────────────────────────────────────────────────────────
+    st.markdown("**EI — Aer Lingus**")
+    uploaded["EI"] = st.file_uploader(
+        "  Aer Lingus (202678 Masque Prévisions CDG, .xlsx)", type=["xlsx"], key="file_ei"
+    )
 
-    # Sources Excel
-    for name, conf in excel_sources.items():
-        up = uploaded.get(name)
-        if up is None:
-            continue
+
+if st.button("▶  GO", type="primary"):
+    errors = []
+    dfs    = []
+
+    # AF
+    if uploaded.get("AF") is not None:
         try:
-            if "custom" in conf:                       # sources LH
-                res = finalize_output(conf["custom"](up))
-            else:                                       # sources type AF (mapping)
-                df_in = read_excel_source(up, conf)
-                res = transform(df_in, conf, label=name)
-            if res is not None and not res.empty:
-                frames.append(res)
-                st.success(f"[{name}] {len(res)} lignes intégrées.")
+            df = transform_af(uploaded["AF"])
+            dfs.append(df)
+            st.success(f"AF  : {len(df)} lignes")
         except Exception as e:
-            st.error(f"[{name}] Erreur de lecture : {e}")
+            errors.append(f"AF : {e}")
 
-    # Sources à coller
-    for name, conf in paste_sources.items():
-        txt = pasted.get(name, "")
-        if txt and txt.strip():
-            try:
-                df_in = read_paste_source(txt)
-                res = transform(df_in, conf, label=name)
-                if res is not None and not res.empty:
-                    frames.append(res)
-                    st.success(f"[{name}] {len(res)} lignes intégrées.")
-            except Exception as e:
-                st.error(f"[{name}] Erreur de lecture : {e}")
+    # LH
+    ib = uploaded.get("LH_inbound")
+    ob = uploaded.get("LH_outbound")
+    if ib is not None or ob is not None:
+        try:
+            df = transform_lh(ib, ob)
+            dfs.append(df)
+            st.success(f"LH  : {len(df)} lignes")
+        except Exception as e:
+            errors.append(f"LH : {e}")
 
-    # Résultat final
-    if not frames:
-        st.warning("Aucune donnée valide fournie.")
-    else:
-        final = pd.concat(frames, ignore_index=True)
+    # EZ
+    if uploaded.get("EZ") is not None:
+        try:
+            df = transform_ez(uploaded["EZ"])
+            dfs.append(df)
+            st.success(f"EZ  : {len(df)} lignes")
+        except Exception as e:
+            errors.append(f"EZ : {e}")
 
-        st.subheader(f"📦 Fichier final ({len(final)} lignes)")
-        st.dataframe(final.head(100))
+    # AI
+    if uploaded.get("AI") is not None:
+        try:
+            df = transform_ai(uploaded["AI"])
+            dfs.append(df)
+            st.success(f"AI  : {len(df)} lignes")
+        except Exception as e:
+            errors.append(f"AI : {e}")
 
-        header = ";".join(OUTPUT_COLS)
-        body = final.to_csv(sep=";", index=False, header=False, lineterminator="\n")
-        csv_out = header + "\n" + body
+    # EI
+    if uploaded.get("EI") is not None:
+        try:
+            df = transform_ei(uploaded["EI"])
+            dfs.append(df)
+            st.success(f"EI  : {len(df)} lignes")
+        except Exception as e:
+            errors.append(f"EI : {e}")
 
-        st.download_button(
-            "💾 Télécharger le CSV",
-            data=csv_out.encode("utf-8"),
-            file_name="Previs_cies.csv",
-            mime="text/csv",
-        )
+    if errors:
+        st.error("Erreurs : " + ";  ".join(errors))
+        st.stop()
+
+    if not dfs:
+        st.warning("Aucun fichier chargé.")
+        st.stop()
+
+    result = finalize_output(dfs)
+
+    st.dataframe(result.head(50), use_container_width=True)
+    st.caption(f"{len(result)} lignes consolidées")
+
+    csv_bytes = result.to_csv(
+        sep=";", encoding="utf-8", index=False, lineterminator="\n"
+    ).encode("utf-8")
+
+    st.download_button(
+        "⬇  Télécharger le CSV consolidé",
+        data=csv_bytes,
+        file_name="consolidation_cdg.csv",
+        mime="text/csv",
+    )
