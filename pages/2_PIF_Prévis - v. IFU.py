@@ -200,16 +200,16 @@ if uploaded_file is not None:
 
     hyp_rep = st.radio(
     "Choix matrice de répartition",
-    ["**actuelle**", "**nouvelle** :new:"],
+    ["**hiver**", "**été** :new:"],
     horizontal=True)
 
 
             
     def get_hyp_rep(pifs):
-        if hyp_rep == "**actuelle**":
-            return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
-        if hyp_rep == "**nouvelle** :new:":
-            return pd.read_excel("hyp_rep_27022026.xlsx", sheet_name=pifs) 
+        if hyp_rep == "**hiver**":
+            return pd.read_excel("hyp_rep_27022026.xlsx", sheet_name=pifs)
+        if hyp_rep == "**été** :new:":
+            return pd.read_excel("hyp_rep_16072026.xlsx", sheet_name=pifs) 
 
                 
         #return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
