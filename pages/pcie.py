@@ -481,6 +481,22 @@ def build_preview_frames():
                             frames.append(res)
         except Exception:
             pass
+    # Paste (WY)
+    for name, conf in paste_sources.items():
+        txt = uploaded.get(name)
+        if not txt or not txt.strip():
+            continue
+        try:
+            res = conf["custom"](txt)
+            if res is not None:
+                res = finalize_output(res)
+                if not res.empty:
+                    frames.append(res)
+                    # dans le GO uniquement :
+                    # st.success(f"[{name}] {len(res)} lignes intégrées.")
+        except Exception as e:
+            # preview : pass  |  GO : st.error(f"[{name}] Erreur : {e}")
+            pass
     return frames
 
 
