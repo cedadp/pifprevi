@@ -362,6 +362,8 @@ def transform_paste(text):
         return None
     df = pd.read_csv(StringIO(text), sep="\t", dtype=str)
     df = normalize_columns(df)   # "Arr Dep"->"ArrDep", "Num Vol"->"NumVol", etc.
+    st.write("WY colonnes:", list(df.columns))   # <-- debug
+    st.write(df.head())                            # <-- debug
 
     df["NbPaxTOT"] = pd.to_numeric(df["NbPaxTOT"], errors="coerce").fillna(0).astype(int)
     df["NbPaxCNT"] = pd.to_numeric(df["NbPaxCNT"], errors="coerce").fillna(0).astype(int)
