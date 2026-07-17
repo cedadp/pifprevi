@@ -352,8 +352,31 @@ def get_header_sheet(file, required_col):
     if target is None:
         raise ValueError(f"Aucun onglet visible avec la colonne '{required_col}'")
     return target
+# ---------------------------------------------------------------
+# WY
+# ---------------------------------------------------------------
 
+def transform_paste(text):
+    from io import StringIO
+    if not text or not text.strip():
+        return None
+    df = pd.read_csv(StringIO(text), sep="\t", dtype=str)
+    df = normalize_columns(df)   # "Arr Dep"->"ArrDep", "Num Vol"->"NumVol", etc.
 
+    df["NbPaxTOT"] = pd.to_numeric(df["NbPaxTOT"], errors="coerce").fillna(0).astype(int)
+    df["NbPaxCNT"] = pd.to_numeric(df["NbPaxCNT"], errors="coerce").fillna(0).astype(int)
+    df = df[df["NbPaxTOT"] > 0]
+
+    return pd.DataFrame({
+        "ArrDep":        df["ArrDep"].astype(str).str.strip().values,
+        "CieOpe":        df["CieOpe"].astype(str).str.strip().values,
+        "NumVol":        df["NumVol"].astype(str).str.strip().values,
+        "EscDep":        df["EscDep"].astype(str).str.strip().values,
+        "EscArr":        df["EscArr"].astype(str).str.strip().values,
+        "DateLocaleMvt": df["DateLocaleMvt"].astype(str).str.strip().values,
+        "NbPaxCNT":      df["NbPaxCNT"].values,
+        "NbPaxTOT":      df["NbPaxTOT"].values,
+    })
 
 # ---------------------------------------------------------------
 # DECLARATION DES SOURCES
@@ -384,6 +407,7 @@ SOURCES = {
     "EZ":     {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez},
     "NH":     {"input_type": "pdf",   "label": "NH — All Nippon (PDF unique HND↔CDG)", "custom": None},
     "MK":     {"input_type": "excel", "label": "MK — Air Madagascar (Masque Prévisions CDG)", "custom": transform_mk},
+    "WY": {"type": "paste", "func": transform_paste, "label": "Coller les prévisions WY"},
 }
 
 # ---------------------------------------------------------------
