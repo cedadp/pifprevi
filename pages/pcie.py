@@ -5,7 +5,7 @@ import io
 from openpyxl import load_workbook
 
 
-st.set_page_config(page_title="Concaténateur Prévisions Cies", layout="wide")
+st.set_page_config(page_title="Prévisions Cies", layout="wide")
 
 OUTPUT_COLS = ["ArrDep", "CieOpe", "NumVol", "EscDep", "EscArr",
                "DateLocaleMvt", "NbPaxCNT", "NbPaxTOT"]
