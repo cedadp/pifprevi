@@ -407,7 +407,7 @@ SOURCES = {
     "EZ":     {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez},
     "NH":     {"input_type": "pdf",   "label": "NH — All Nippon (PDF unique HND↔CDG)", "custom": None},
     "MK":     {"input_type": "excel", "label": "MK — Air Madagascar (Masque Prévisions CDG)", "custom": transform_mk},
-    "WY": {"type": "paste", "func": transform_paste, "label": "Coller les prévisions WY"},
+    "WY":     {"input_type": "paste", "label": "WY — Oman Air (coller depuis le mail Outlook)", "custom": transform_paste},
 }
 
 # ---------------------------------------------------------------
