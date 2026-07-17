@@ -361,24 +361,20 @@ def transform_paste(text):
     if not text or not text.strip():
         return None
     df = pd.read_csv(StringIO(text), sep="\t", dtype=str)
-    df = normalize_columns(df)   # "Arr Dep"->"ArrDep", "Num Vol"->"NumVol", etc.
-    st.write("WY colonnes:", list(df.columns))   # <-- debug
-    st.write(df.head())                            # <-- debug
+    df = normalize_columns(df)
+    df.columns = df.columns.str.strip()   # sécurité
 
-    df["NbPaxTOT"] = pd.to_numeric(df["NbPaxTOT"], errors="coerce").fillna(0).astype(int)
-    df["NbPaxCNT"] = pd.to_numeric(df["NbPaxCNT"], errors="coerce").fillna(0).astype(int)
-    df = df[df["NbPaxTOT"] > 0]
-
-    return pd.DataFrame({
-        "ArrDep":        df["ArrDep"].astype(str).str.strip().values,
-        "CieOpe":        df["CieOpe"].astype(str).str.strip().values,
-        "NumVol":        df["NumVol"].astype(str).str.strip().values,
-        "EscDep":        df["EscDep"].astype(str).str.strip().values,
-        "EscArr":        df["EscArr"].astype(str).str.strip().values,
-        "DateLocaleMvt": df["DateLocaleMvt"].astype(str).str.strip().values,
-        "NbPaxCNT":      df["NbPaxCNT"].values,
-        "NbPaxTOT":      df["NbPaxTOT"].values,
+    out = pd.DataFrame({
+        "ArrDep":         df["Arr Dep"].str.strip(),
+        "CieOpe":         df["Cie Ope"].str.strip(),
+        "NumVol":         df["Num Vol"].str.strip(),
+        "EscDep":         df["Esc Dep"].str.strip(),
+        "EscArr":         df["Esc Arr"].str.strip(),
+        "DateLocaleMvt":  pd.to_datetime(df["Date Locale MVT"], dayfirst=True, errors="coerce").dt.strftime("%d/%m/%Y"),
+        "NbPaxCNT":       pd.to_numeric(df["Nb Pax CNT"], errors="coerce"),
+        "NbPaxTOT":       pd.to_numeric(df["NB Pax TOT"], errors="coerce"),
     })
+    return out
 
 # ---------------------------------------------------------------
 # DECLARATION DES SOURCES
