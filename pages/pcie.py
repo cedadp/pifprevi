@@ -563,7 +563,7 @@ def render_tcd(df):
 
 
 # Affichage automatique de l'aperçu dès qu'au moins un fichier est présent
-if any(v is not None for v in uploaded.values()):
+if any((v is not None) and (not (isinstance(v, str) and v.strip() == "")) for v in uploaded.values()):
     st.subheader("👁️ Aperçu des TCD (avant intégration)")
     preview = build_preview_frames()
     if preview:
