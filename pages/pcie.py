@@ -418,6 +418,7 @@ st.markdown("Déposez les fichiers puis cliquez sur **GO**.")
 
 excel_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "excel"}
 pdf_sources   = {k: v for k, v in SOURCES.items() if v["input_type"] == "pdf"}
+paste_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "paste"}
 uploaded = {}
 
 st.header("📁 Fichiers Excel")
