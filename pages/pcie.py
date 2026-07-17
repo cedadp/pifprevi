@@ -305,6 +305,56 @@ def transform_ai(file):
 def transform_ei(file):
     return _target_format(file, "Masque Prévisions CDG", cie_fixe="EI", cnt_present=False)
 
+
+# ---------------------------------------------------------------
+# MK
+# ---------------------------------------------------------------
+
+def transform_mk(file):
+    sheet = get_header_sheet(file, required_col="ArrDep")   # 1er onglet visible contenant 'ArrDep'
+    df = pd.read_excel(file, sheet_name=sheet, header=0)
+    df = normalize_columns(df)
+
+    # NbPaxTOT obligatoire, NbPaxCNT vide -> 0
+    df["NbPaxTOT"] = pd.to_numeric(df["NbPaxTOT"], errors="coerce").fillna(0).astype(int)
+    df["NbPaxCNT"] = pd.to_numeric(df["NbPaxCNT"], errors="coerce").fillna(0).astype(int)
+
+    # Exclusion des lignes à 0 pax (même critère que AF/LH)
+    df = df[df["NbPaxTOT"] > 0]
+
+    return pd.DataFrame({
+        "ArrDep":        df["ArrDep"].astype(str).str.strip().values,
+        "CieOpe":        df["CieOpe"].astype(str).str.strip().values,
+        "NumVol":        df["NumVol"].values,
+        "EscDep":        df["EscDep"].astype(str).str.strip().values,
+        "EscArr":        df["EscArr"].astype(str).str.strip().values,
+        "DateLocaleMvt": pd.to_datetime(df["DateLocaleMvt"]).dt.strftime("%d/%m/%Y").values,
+        "NbPaxCNT":      df["NbPaxCNT"].values,
+        "NbPaxTOT":      df["NbPaxTOT"].values,
+    })
+
+
+def get_header_sheet(file, required_col):
+    """1er onglet visible dont la 1re ligne contient la colonne demandée."""
+    from openpyxl import load_workbook
+    file.seek(0)
+    wb = load_workbook(file, read_only=True)
+    target = None
+    for ws in wb.worksheets:
+        if ws.sheet_state != "visible":
+            continue
+        header = [str(c.value).strip() if c.value is not None else "" for c in next(ws.iter_rows(max_row=1))]
+        if required_col in header:
+            target = ws.title
+            break
+    wb.close()
+    file.seek(0)
+    if target is None:
+        raise ValueError(f"Aucun onglet visible avec la colonne '{required_col}'")
+    return target
+
+
+
 # ---------------------------------------------------------------
 # DECLARATION DES SOURCES
 # ---------------------------------------------------------------
