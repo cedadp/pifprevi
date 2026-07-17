@@ -411,7 +411,7 @@ SOURCES = {
 # ---------------------------------------------------------------
 # INTERFACE
 # ---------------------------------------------------------------
-st.title("✈️ Concaténateur de prévisions compagnies")
+st.title("✈️ Prévisions compagnies")
 st.markdown("Déposez les fichiers puis cliquez sur **GO**.")
 
 excel_sources = {k: v for k, v in SOURCES.items() if v["input_type"] == "excel"}
