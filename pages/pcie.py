@@ -640,6 +640,25 @@ if st.button("🚀 GO", type="primary", use_container_width=True):
         except Exception as e:
             st.error(f"[{name}] Erreur : {e}")
 
+
+    # Paste (WY)
+    for name, conf in paste_sources.items():
+        txt = uploaded.get(name)
+        if not txt or not txt.strip():
+            continue
+        try:
+            res = conf["custom"](txt)
+            if res is not None:
+                res = finalize_output(res)
+                if not res.empty:
+                    frames.append(res)
+                    # dans le GO uniquement :
+                    # st.success(f"[{name}] {len(res)} lignes intégrées.")
+        except Exception as e:
+            # preview : pass  |  GO : st.error(f"[{name}] Erreur : {e}")
+            pass
+
+  
     if not frames:
         st.warning("Aucune donnée valide fournie.")
     else:
