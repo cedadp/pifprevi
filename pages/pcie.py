@@ -430,6 +430,11 @@ for name, conf in pdf_sources.items():
     uploaded[name] = st.file_uploader(conf.get("label", name),
                                       type=["pdf"], key=f"file_{name}")
 
+
+st.header("📋 Données collées (depuis mail Outlook)")
+for name, conf in paste_sources.items():
+    uploaded[name] = st.text_area(conf.get("label", name), height=200, key=f"paste_{name}")
+
 st.divider()
 
 
