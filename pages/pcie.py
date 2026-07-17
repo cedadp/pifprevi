@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import pdfplumber
 import io
+from openpyxl import load_workbook
+
 
 st.set_page_config(page_title="Concaténateur Prévisions Cies", layout="wide")
 
@@ -238,8 +240,23 @@ def transform_lh_inbound(file):
         "NbPaxTOT": paxtot.values,
     })
 
+
+
+def get_visible_sheet(file):
+    """Retourne le nom du premier onglet visible du classeur."""
+    file.seek(0)
+    wb = load_workbook(file, read_only=True)
+    visible = [ws.title for ws in wb.worksheets if ws.sheet_state == "visible"]
+    wb.close()
+    file.seek(0)
+    if not visible:
+        raise ValueError("Aucun onglet visible trouvé")
+    return visible[0]
+
+
 def transform_lh_outbound(file):
-    df = pd.read_excel(file, sheet_name="Input", header=0)
+    sheet = get_visible_sheet(file)
+    df = pd.read_excel(file, sheet_name=sheet, header=0)
     df = normalize_columns(df)
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
     cie, num = split_flight(df["Flt Nbr"])
