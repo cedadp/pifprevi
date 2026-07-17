@@ -47,7 +47,6 @@ def finalize_output(out):
 def transform_af(file, conf, label="AF"):
     df = pd.read_excel(file, sheet_name=conf["sheet"])
     df = normalize_columns(df)
-    st.write("Colonnes LH détectées :", list(df.columns))
     mapping = conf["mapping"]
 
     missing = [c for c in mapping if c not in df.columns]
@@ -219,6 +218,7 @@ def transform_nh(file, direction):
 def transform_lh_inbound(file):
     df = pd.read_excel(file, header=0)
     df = normalize_columns(df)
+    st.write("Colonnes LH détectées :", list(df.columns))
     df["Arr Date"] = df["Arr Date"].ffill()
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
     cie, num = split_flight(df["Flt Nbr"])
