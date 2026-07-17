@@ -443,9 +443,6 @@ st.divider()
 # ---------------------------------------------------------------
 # APERÇU TCD (avant GO) — construit dès qu'un fichier est déposé
 # ---------------------------------------------------------------
-
-
-
 def build_preview_frames():
     """Rejoue les transformations sur les fichiers déjà déposés, sans bloquer sur erreur."""
     frames = []
@@ -592,6 +589,8 @@ st.divider()
 
 
 
+if st.button("🚀 GO", type="primary", use_container_width=True):
+    frames = []
 
     # --- Sources Excel ---
     for name, conf in excel_sources.items():
