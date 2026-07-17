@@ -443,6 +443,49 @@ st.divider()
 # ---------------------------------------------------------------
 # APERÇU TCD (avant GO) — construit dès qu'un fichier est déposé
 # ---------------------------------------------------------------
+
+has_data = any(
+    (v is not None) and (not (isinstance(v, str) and v.strip() == ""))
+    for v in uploaded.values()
+)
+
+col_prev, col_go = st.columns([1, 1], gap="medium")
+with col_prev:
+    preview_clicked = st.button(
+        "👁️ Générer l'aperçu des TCD",
+        use_container_width=True,
+        disabled=not has_data,
+    )
+with col_go:
+    go_clicked = st.button(
+        "🚀 GO",
+        type="primary",
+        use_container_width=True,
+        disabled=not has_data,
+    )
+
+# --- Calcul de l'aperçu UNIQUEMENT au clic ---
+if preview_clicked:
+    st.session_state["preview_frames"] = build_preview_frames()
+
+# --- Affichage persistant de l'aperçu (tant qu'on ne relance pas) ---
+if "preview_frames" in st.session_state:
+    st.subheader("👁️ Aperçu des TCD (avant intégration)")
+    preview = st.session_state["preview_frames"]
+    if preview:
+        render_tcd(pd.concat(preview, ignore_index=True))
+    else:
+        st.info("Fichiers détectés mais aucune donnée exploitable pour l'instant.")
+
+st.divider()
+
+
+
+
+
+
+
+
 def build_preview_frames():
     """Rejoue les transformations sur les fichiers déjà déposés, sans bloquer sur erreur."""
     frames = []
