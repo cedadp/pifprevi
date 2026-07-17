@@ -47,6 +47,7 @@ def finalize_output(out):
 def transform_af(file, conf, label="AF"):
     df = pd.read_excel(file, sheet_name=conf["sheet"])
     df = normalize_columns(df)
+    st.write("Colonnes LH détectées :", list(df.columns))
     mapping = conf["mapping"]
 
     missing = [c for c in mapping if c not in df.columns]
@@ -221,6 +222,11 @@ def transform_lh_inbound(file):
     df["Arr Date"] = df["Arr Date"].ffill()
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
     cie, num = split_flight(df["Flt Nbr"])
+
+    booked = pd.to_numeric(df.get("Booked PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
+    estim  = pd.to_numeric(df.get("Estimated PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
+    paxtot = booked.where(booked >= estim, estim).astype(int)
+
     return pd.DataFrame({
         "ArrDep": "A",
         "CieOpe": cie.values,
@@ -229,16 +235,7 @@ def transform_lh_inbound(file):
         "EscArr": "CDG",
         "DateLocaleMvt": parse_lh_date(df["Arr Date"]).values,
         "NbPaxCNT": 0,
-        "NbPaxTOT": (
-            pd.to_numeric(df.get("Booked PAX",   pd.Series(0, index=df.index)), errors="coerce").fillna(0)
-            .where(
-                pd.to_numeric(df.get("Booked PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
-                >= pd.to_numeric(df.get("Estimated PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0),
-                pd.to_numeric(df.get("Estimated PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
-            )
-            .astype(int)
-            .values
-        ),
+        "NbPaxTOT": paxtot.values,
     })
 
 def transform_lh_outbound(file):
@@ -246,6 +243,11 @@ def transform_lh_outbound(file):
     df = normalize_columns(df)
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
     cie, num = split_flight(df["Flt Nbr"])
+
+    booked = pd.to_numeric(df.get("Booked PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
+    estim  = pd.to_numeric(df.get("Estimated PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
+    paxtot = booked.where(booked >= estim, estim).astype(int)
+
     return pd.DataFrame({
         "ArrDep": "D",
         "CieOpe": cie.values,
@@ -254,16 +256,7 @@ def transform_lh_outbound(file):
         "EscArr": df["Dest"].astype(str).str.strip().values,
         "DateLocaleMvt": parse_lh_date(df["Dep Date"]).values,
         "NbPaxCNT": 0,
-        "NbPaxTOT": (
-            pd.to_numeric(df.get("Booked PAX",   pd.Series(0, index=df.index)), errors="coerce").fillna(0)
-            .where(
-                pd.to_numeric(df.get("Booked PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
-                >= pd.to_numeric(df.get("Estimated PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0),
-                pd.to_numeric(df.get("Estimated PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
-            )
-            .astype(int)
-            .values
-        ),
+        "NbPaxTOT": paxtot.values,
     })
 
 # ---------------------------------------------------------------
