@@ -220,7 +220,6 @@ def transform_nh(file, direction):
 def transform_lh_inbound(file):
     df = pd.read_excel(file, header=0)
     df = normalize_columns(df)
-    st.write("Colonnes LH détectées :", list(df.columns))
     df["Arr Date"] = df["Arr Date"].ffill()
     df = df[df["Flt Nbr"].notna() & (df["Flt Nbr"].astype(str).str.strip() != "")]
     cie, num = split_flight(df["Flt Nbr"])
