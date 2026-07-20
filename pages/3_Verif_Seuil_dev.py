@@ -18,6 +18,14 @@ from itertools import product
 import locale
 from datetime import datetime, timedelta
 
+@st.cache_data
+def charger_seuils(chemin="data/seuils.xlsx"):
+    df = pd.read_excel(chemin)
+    df["site"] = df["site"].astype(str).str.strip()
+    return dict(zip(df["site"], df["seuil"]))
+
+
+
 def main(): 
     st.set_page_config(page_title="Vérif Seuil", page_icon="📊", layout="centered", initial_sidebar_state="auto", menu_items=None)
     
