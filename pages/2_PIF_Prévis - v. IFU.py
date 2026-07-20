@@ -193,26 +193,44 @@ if uploaded_file is not None:
     df_pgrm = df_pgrm.merge(table_faisceau_iata,how='left', left_on='Prov Dest', right_on='Prov Dest')
     df_pgrm['Faisceau géographique'].fillna('Autre Afrique', inplace=True)
 
+
+
+    #######################
+    #Matrice de répartition et courbe de présentation 
+    #######################
+
+
+    
+
+    #hyp_rep = st.radio(
+    #"Choix matrice de répartition",
+    #["**hiver**", "**été** :new:"],
+    #horizontal=True)
+   
+    #def get_hyp_rep(pifs):
+        #if hyp_rep == "**hiver**":
+            #return pd.read_excel("hyp_rep_27022026.xlsx", sheet_name=pifs)
+        #if hyp_rep == "**été** :new:":
+            #return pd.read_excel("hyp_rep_16072026.xlsx", sheet_name=pifs) 
+
+                
+        ##return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
+
+
+    hyp_rep = st.radio( "Choix matrice de répartition", ["hiver", "été :new:"], horizontal=True)
+    fichiers = { "hiver": "hyp_rep_27022026.xlsx", "été :new:": "hyp_rep_16072026.xlsx", }
+    #Nom du fichier sélectionné ->
+    fichier_selectionne = fichiers[hyp_rep]
+    #Affichage du nom du fichier ->
+    st.info(f"📄 Fichier sélectionné : {fichier_selectionne}")
+    def get_hyp_rep(pifs): return pd.read_excel(fichier_selectionne, sheet_name=pifs)
+
     saison_IATA = st.radio(
     "Choix de la saison IATA",
     ["**Winter** :snowflake:", "**Summer** :sun_with_face:"],
     horizontal=True)
 
-    hyp_rep = st.radio(
-    "Choix matrice de répartition",
-    ["**hiver**", "**été** :new:"],
-    horizontal=True)
 
-
-            
-    def get_hyp_rep(pifs):
-        if hyp_rep == "**hiver**":
-            return pd.read_excel("hyp_rep_27022026.xlsx", sheet_name=pifs)
-        if hyp_rep == "**été** :new:":
-            return pd.read_excel("hyp_rep_16072026.xlsx", sheet_name=pifs) 
-
-                
-        #return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
 
     def COURBE_PRES(t):
         if saison_IATA == "**Winter** :snowflake:":
