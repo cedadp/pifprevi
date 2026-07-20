@@ -217,7 +217,7 @@ if uploaded_file is not None:
         ##return pd.read_excel("hyp_rep_V2.xlsx", sheet_name=pifs)
 
 
-    hyp_rep = st.radio( "Choix matrice de répartition", ["hiver", "été :new:"], horizontal=True)
+    hyp_rep = st.radio( "Choix matrice de répartition", ["hiver", "été :new:"], index = 1, horizontal=True)
     fichiers = { "hiver": "hyp_rep_27022026.xlsx", "été :new:": "hyp_rep_16072026.xlsx", }
     #Nom du fichier sélectionné ->
     fichier_selectionne = fichiers[hyp_rep]
