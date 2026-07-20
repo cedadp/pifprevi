@@ -25,6 +25,17 @@ def charger_seuils(chemin="Seuils.xlsx"):
     return dict(zip(df["site"], df["seuil"]))
 
 fichier = st.sidebar.file_uploader("Charger un fichier de seuils (optionnel)", type=["xlsx"])
+if fichier is not None:
+    # Si l'utilisateur a téléversé un fichier -> on l'utilise
+    df = pd.read_excel(fichier)
+    SEUILS = dict(zip(df["site"].astype(str).str.strip(), df["seuil"]))
+    st.sidebar.success("Seuils personnalisés chargés ✅")
+else:
+    # Sinon -> on utilise le fichier par défaut du repo GitHub
+    SEUILS = charger_seuils()
+
+
+
 
 def main(): 
     st.set_page_config(page_title="Vérif Seuil", page_icon="📊", layout="centered", initial_sidebar_state="auto", menu_items=None)
