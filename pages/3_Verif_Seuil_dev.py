@@ -24,7 +24,7 @@ def charger_seuils(chemin="Seuils.xlsx"):
     df["site"] = df["site"].astype(str).str.strip()
     return dict(zip(df["site"], df["seuil"]))
 
-
+fichier = st.sidebar.file_uploader("Charger un fichier de seuils (optionnel)", type=["xlsx"])
 
 def main(): 
     st.set_page_config(page_title="Vérif Seuil", page_icon="📊", layout="centered", initial_sidebar_state="auto", menu_items=None)
