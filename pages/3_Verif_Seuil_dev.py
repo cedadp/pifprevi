@@ -19,7 +19,7 @@ import locale
 from datetime import datetime, timedelta
 
 @st.cache_data
-def charger_seuils(chemin="data/seuils.xlsx"):
+def charger_seuils(chemin="Seuils.xlsx"):
     df = pd.read_excel(chemin)
     df["site"] = df["site"].astype(str).str.strip()
     return dict(zip(df["site"], df["seuil"]))
