@@ -127,14 +127,14 @@ def main():
         
         
         def seuil(site):
-            seuils = {'K CTRCNT' : 0,'K CTR' : 1900,'K CNT' : 300 , 'L CTR' : 2240, 'L CNT' :  1520, 'M CTR' : 1960, 'Galerie EF' : 1820, 'C2F' : 2400, 'C2G' : 700, 'Liaison AC' : 1960,'Liaison BD' : 2460,
-            'T3': 1260, 'Terminal 1' : 2580, 'Terminal 1_5' : 390, 'Terminal 1_6' : 520, 
+            #seuils = {'K CTRCNT' : 0,'K CTR' : 1900,'K CNT' : 300 , 'L CTR' : 2240, 'L CNT' :  1520, 'M CTR' : 1960, 'Galerie EF' : 1820, 'C2F' : 2400, 'C2G' : 700, 'Liaison AC' : 1960,'Liaison BD' : 2460,
+            #'T3': 1260, 'Terminal 1' : 2580, 'Terminal 1_5' : 390, 'Terminal 1_6' : 520, 
 
-            '2E_Arr' :3164 , '2E_Dep' : 4251 ,'Galerie E > F' : 2272 , 'Galerie F > E' : 1314, 'F > S3' :  2422 , 'S3 > F': 892 ,  '2G_Emport' : 1314, 
+            #'2E_Arr' :3164 , '2E_Dep' : 4251 ,'Galerie E > F' : 2272 , 'Galerie F > E' : 1314, 'F > S3' :  2422 , 'S3 > F': 892 ,  '2G_Emport' : 1314, 
                      'AC_Dep' : 2848, 'AC_Arr' :  4152, 'C_Arr' :  1808, 'BD_Arr' : 1993, 'BD_Dep' : 1544, 'T1_Arr' : 2478, 'T1_Dep' : 2518,'T3_Arr' : 1140, 'T3_Dep' : 1374}
         
-            return seuils.get(site,0)
-
+            #return seuils.get(site,0)
+            return SEUILS.get(str(site).strip(), 0)
 
 
 
