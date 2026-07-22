@@ -47,22 +47,10 @@ else:
     st.sidebar.info("Seuils par défaut")
 
 ###############
-#Dictionnaire utilisé par la fonction seuil()
-###############
-#SEUILS = dict(zip(df_seuils["site"], df_seuils["seuil"]))
-
-###############
 #Affichage du tableau des seuils dans la barre latérale
 ###############
 st.sidebar.subheader("📋 Seuils (modifiables)")
 df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True)
-#st.sidebar.dataframe(df_seuils, use_container_width=True, hide_index=True)
-
-
-################
-#st.sidebar.subheader("📋 Seuils (modifiables)") 
-#df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True)
-#On reconstruit le dictionnaire avec les valeurs éventuellement modifiées
 SEUILS = dict(zip(df_edit["site"], df_edit["seuil"]))
 ###############
 
