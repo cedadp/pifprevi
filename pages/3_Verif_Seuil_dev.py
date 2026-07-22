@@ -62,7 +62,7 @@ def seuil(site):
 ################
 st.sidebar.subheader("📋 Seuils (modifiables)") 
 df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True)
-On reconstruit le dictionnaire avec les valeurs éventuellement modifiées
+#On reconstruit le dictionnaire avec les valeurs éventuellement modifiées
 SEUILS = dict(zip(df_edit["site"], df_edit["seuil"]))
 ###############
 
