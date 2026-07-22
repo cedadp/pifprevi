@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 #Chargement du fichier seuil par défaut
 ###############
 @st.cache_data
-def charger_seuils(chemin="Seuils.xlsx"):
+def charger_df_seuils(chemin="Seuils.xlsx"):
     df = pd.read_excel(chemin)
     df["site"] = df["site"].astype(str).str.strip()
     return df
