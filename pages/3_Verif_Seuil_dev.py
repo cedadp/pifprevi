@@ -18,21 +18,44 @@ from itertools import product
 import locale
 from datetime import datetime, timedelta
 
+###############
+#Chargement du fichier seuil par défaut
+###############
 @st.cache_data
 def charger_seuils(chemin="Seuils.xlsx"):
     df = pd.read_excel(chemin)
     df["site"] = df["site"].astype(str).str.strip()
-    return dict(zip(df["site"], df["seuil"]))
+    return df
+
+###############
+#Upload optionnel du fichier seuil
+###############
 
 fichier = st.sidebar.file_uploader("Charger un fichier de seuils (optionnel)", type=["xlsx"])
 if fichier is not None:
-    # Si l'utilisateur a téléversé un fichier -> on l'utilise
-    df = pd.read_excel(fichier)
-    SEUILS = dict(zip(df["site"].astype(str).str.strip(), df["seuil"]))
+    # Si fichier téléversé:
+    df_seuils = pd.read_excel(fichier)
+    df_seuils["site"] = df_seuils["site"].astype(str).str.strip() 
+    st.sidebar.success("Seuils personnalisés chargés ✅") 
     st.sidebar.success("Seuils personnalisés chargés ✅")
 else:
-    # Sinon -> on utilise le fichier par défaut du repo GitHub
-    SEUILS = charger_seuils()
+    # Sinon: fichier par défaut
+    df_seuils = charger_df_seuils() 
+    st.sidebar.info("Seuils par défaut (GitHub)")
+
+###############
+#Dictionnaire utilisé par la fonction seuil()
+###############
+SEUILS = dict(zip(df_seuils["site"], df_seuils["seuil"]))
+
+###############
+#Affichage du tableau des seuils dans la barre latérale
+###############
+st.sidebar.subheader("📋 Seuils en vigueur") 
+st.sidebar.dataframe(df_seuils, use_container_width=True, hide_index=True)
+
+def seuil(site): 
+    return SEUILS.get(str(site).strip(), 0)
 
 
 
