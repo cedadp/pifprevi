@@ -40,8 +40,7 @@ if fichier is not None:
     df_seuils = pd.read_excel(fichier)
     df_seuils = df_seuils[["site", "seuil"]]
     df_seuils["site"] = df_seuils["site"].astype(str).str.strip() 
-    st.sidebar.success("Seuils personnalisés chargés ✅") 
-    st.sidebar.success("Seuils personnalisés chargés ✅")
+    st.sidebar.success("Seuils personnalisés chargés ✅")  
 else:
     # Sinon: fichier par défaut
     df_seuils = charger_df_seuils() 
