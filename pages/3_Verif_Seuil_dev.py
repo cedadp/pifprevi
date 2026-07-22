@@ -59,8 +59,12 @@ st.sidebar.dataframe(df_seuils, use_container_width=True, hide_index=True)
 
 def seuil(site): 
     return SEUILS.get(str(site).strip(), 0)
-
-
+################
+st.sidebar.subheader("📋 Seuils (modifiables)") 
+df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True)
+On reconstruit le dictionnaire avec les valeurs éventuellement modifiées
+SEUILS = dict(zip(df_edit["site"], df_edit["seuil"]))
+###############
 
 
 def main(): 
