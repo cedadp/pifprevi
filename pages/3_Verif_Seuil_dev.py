@@ -44,7 +44,7 @@ if fichier is not None:
 else:
     # Sinon: fichier par défaut
     df_seuils = charger_df_seuils() 
-    st.sidebar.info("Seuils par défaut (GitHub)")
+    st.sidebar.info("Seuils par défaut")
 
 ###############
 #Dictionnaire utilisé par la fonction seuil()
