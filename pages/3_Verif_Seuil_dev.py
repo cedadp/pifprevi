@@ -18,12 +18,15 @@ from itertools import product
 import locale
 from datetime import datetime, timedelta
 
+COLONNES = ["site", "seuil"]
+
 ###############
 #Chargement du fichier seuil par défaut
 ###############
 @st.cache_data
 def charger_df_seuils(chemin="Seuils.xlsx"):
     df = pd.read_excel(chemin)
+    df = df[COLONNES]
     df["site"] = df["site"].astype(str).str.strip()
     return df
 
@@ -35,6 +38,7 @@ fichier = st.sidebar.file_uploader("Charger un fichier de seuils (optionnel)", t
 if fichier is not None:
     # Si fichier téléversé:
     df_seuils = pd.read_excel(fichier)
+    df_seuils = df_seuils[["site", "seuil"]]
     df_seuils["site"] = df_seuils["site"].astype(str).str.strip() 
     st.sidebar.success("Seuils personnalisés chargés ✅") 
     st.sidebar.success("Seuils personnalisés chargés ✅")
