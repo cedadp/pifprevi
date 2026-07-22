@@ -49,23 +49,25 @@ else:
 ###############
 #Dictionnaire utilisé par la fonction seuil()
 ###############
-SEUILS = dict(zip(df_seuils["site"], df_seuils["seuil"]))
+#SEUILS = dict(zip(df_seuils["site"], df_seuils["seuil"]))
 
 ###############
 #Affichage du tableau des seuils dans la barre latérale
 ###############
-st.sidebar.subheader("📋 Seuils en vigueur") 
-st.sidebar.dataframe(df_seuils, use_container_width=True, hide_index=True)
-
-def seuil(site): 
-    return SEUILS.get(str(site).strip(), 0)
-################
-st.sidebar.subheader("📋 Seuils (modifiables)") 
+st.sidebar.subheader("📋 Seuils (modifiables)")
 df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True)
+#st.sidebar.dataframe(df_seuils, use_container_width=True, hide_index=True)
+
+
+################
+#st.sidebar.subheader("📋 Seuils (modifiables)") 
+#df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True)
 #On reconstruit le dictionnaire avec les valeurs éventuellement modifiées
 SEUILS = dict(zip(df_edit["site"], df_edit["seuil"]))
 ###############
 
+def seuil(site): 
+    return SEUILS.get(str(site).strip(), 0)
 
 def main(): 
     st.set_page_config(page_title="Vérif Seuil", page_icon="📊", layout="centered", initial_sidebar_state="auto", menu_items=None)
