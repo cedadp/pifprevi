@@ -49,8 +49,16 @@ else:
 ###############
 #Affichage du tableau des seuils dans la barre latérale
 ###############
-st.sidebar.subheader("📋 Seuils (modifiables)")
+#st.sidebar.subheader("📋 Seuils (modifiables)")
+placeholder_titre = st.sidebar.empty()
 df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True)
+
+if not df_edit.equals(df_seuils):
+    placeholder_titre.subheader("✏️ Seuils (modifiés !)")
+else: 
+    placeholder_titre.subheader("📋 Seuils (modifiables)")
+
+    
 SEUILS = dict(zip(df_edit["site"], df_edit["seuil"]))
 ###############
 
