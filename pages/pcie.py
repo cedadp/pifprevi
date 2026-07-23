@@ -267,7 +267,7 @@ def transform_lh_outbound(file):
     estim  = pd.to_numeric(df.get("Estimated PAX", pd.Series(0, index=df.index)), errors="coerce").fillna(0)
     paxtot = booked.where(booked >= estim, estim).astype(int)
 
-    return pd.DataFrame({
+    out =  pd.DataFrame({
         "ArrDep": "D",
         "CieOpe": cie.values,
         "NumVol": num.values,
@@ -277,6 +277,11 @@ def transform_lh_outbound(file):
         "NbPaxCNT": 0,
         "NbPaxTOT": paxtot.values,
     })
+    
+    out = out[pd.to_datetime(out["DateLocaleMvt"], dayfirst = True).between( pd.Timestamp.today().normalize(), pd.Timestamp.today().normalize() + pd.DateOffset(months = 2) ) ]
+    return out
+
+
 
 # ---------------------------------------------------------------
 # AI / EI
