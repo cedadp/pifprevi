@@ -40,18 +40,20 @@ if fichier is not None:
     df_seuils = pd.read_excel(fichier)
     df_seuils = df_seuils[["site", "seuil"]]
     df_seuils["site"] = df_seuils["site"].astype(str).str.strip() 
-    st.sidebar.success("Seuils personnalisés chargés ✅")  
+    st.sidebar.success("Seuils personnalisés chargés ✅") 
+    editor_key = f"editor_{fichier.name}_{fichier.size}" #clé basée sur le nom+taille du fichier -> unique par fichier
 else:
     # Sinon: fichier par défaut
     df_seuils = charger_df_seuils() 
     st.sidebar.info("Seuils par défaut")
+    editor_key = "editor_defaut" # clé fixe pour le fichier du répertoire
 
 ###############
 #Affichage du tableau des seuils dans la barre latérale
 ###############
 #st.sidebar.subheader("📋 Seuils (modifiables)")
 placeholder_titre = st.sidebar.empty()
-df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True)
+df_edit = st.sidebar.data_editor(df_seuils, hide_index=True, use_container_width=True, key = editor_key)
 
 if not df_edit.equals(df_seuils):
     placeholder_titre.subheader("✏️ Seuils (modifiés !)")
