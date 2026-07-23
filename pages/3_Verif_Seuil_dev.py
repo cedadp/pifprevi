@@ -29,7 +29,7 @@ def lister_onglets(chemin)
     return pd.ExcelFile(chemin).sheet_names
 
 def charger_onglet(nom_onglet, chemin):
-    df = pd.read_excel(chemin, sheet_name=nom_onglet)
+    df = pd.read_excel(chemin, sheet_name = nom_onglet)
     df = df[COLONNES]
     df["site"] = df["site"].astype(str).str.strip()
     return df
@@ -48,9 +48,11 @@ if fichier is not None:
     editor_key = f"editor_{fichier.name}_{fichier.size}" #clé basée sur le nom+taille du fichier -> unique par fichier
 else:
     # Sinon: fichier par défaut
-    df_seuils = charger_df_seuils() 
-    st.sidebar.info("Seuils par défaut")
-    editor_key = "editor_defaut" # clé fixe pour le fichier du répertoire
+    onglets = lister_onglets 
+    onglets = st.sidebar.selectbox("Choisir la saison", onglets)
+    df_seuils = charger_onglet(onglet_choisi)
+    st.sidebar.info(f"Seuils par défaut - onglet : **{onglet_choisi}**")
+    editor_key = f"editor_defaut_{onglet_choisi}" # clé unique par onglet
 
 ###############
 #Affichage du tableau des seuils dans la barre latérale
