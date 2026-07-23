@@ -50,7 +50,7 @@ else:
     # Sinon: fichier par défaut
     onglets = lister_onglets(chemin) 
     onglet_choisi = st.sidebar.selectbox("Choisir la saison", onglets)
-    df_seuils = charger_onglet(onglet_choisi)
+    df_seuils = charger_onglet(onglet_choisi, chemin)
     st.sidebar.info(f"Seuils par défaut - onglet : **{onglet_choisi}**")
     editor_key = f"editor_defaut_{onglet_choisi}" # clé unique par onglet
 
