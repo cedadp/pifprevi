@@ -25,7 +25,7 @@ chemin="Seuils.xlsx"
 #Chargement du fichier seuil par défaut
 ###############
 @st.cache_data
-def lister_onglets (chemin) 
+def lister_onglets(chemin) 
     return pd.ExcelFile(chemin).sheet_names
 
 def charger_onglet(nom_onglet, chemin):
