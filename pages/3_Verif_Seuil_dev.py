@@ -48,7 +48,7 @@ if fichier is not None:
     editor_key = f"editor_{fichier.name}_{fichier.size}" #clé basée sur le nom+taille du fichier -> unique par fichier
 else:
     # Sinon: fichier par défaut
-    onglets = lister_onglets() 
+    onglets = lister_onglets(chemin) 
     onglet_choisi = st.sidebar.selectbox("Choisir la saison", onglets)
     df_seuils = charger_onglet(onglet_choisi)
     st.sidebar.info(f"Seuils par défaut - onglet : **{onglet_choisi}**")
