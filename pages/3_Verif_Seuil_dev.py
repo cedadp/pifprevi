@@ -19,7 +19,7 @@ import locale
 from datetime import datetime, timedelta
 
 COLONNES = ["site", "seuil"]
-chemin="Seuils.xlsx"
+chemin="Seuils_2.xlsx"
 
 ###############
 #Chargement du fichier seuil par défaut
