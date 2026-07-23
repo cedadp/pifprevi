@@ -19,13 +19,17 @@ import locale
 from datetime import datetime, timedelta
 
 COLONNES = ["site", "seuil"]
+chemin="Seuils.xlsx"
 
 ###############
 #Chargement du fichier seuil par défaut
 ###############
 @st.cache_data
-def charger_df_seuils(chemin="Seuils.xlsx"):
-    df = pd.read_excel(chemin)
+def lister_onglets (chemin) 
+    return pd.ExcelFile(chemin).sheet_names
+
+def charger_onglet(nom_onglet, chemin):
+    df = pd.read_excel(chemin, sheet_name=nom_onglet)
     df = df[COLONNES]
     df["site"] = df["site"].astype(str).str.strip()
     return df
