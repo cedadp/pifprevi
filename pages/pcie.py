@@ -239,7 +239,7 @@ def transform_lh_inbound(file):
         "NbPaxTOT": paxtot.values,
     })
 
-    out = out[pd.to_datetime(out["DateLocaleMvt"], dayfirst = True).between( pd.Timestamp.today().normalize(), pd.Timestamp.today().normalize(),  + pd.DateOffset(months = 2) ) ]
+    out = out[pd.to_datetime(out["DateLocaleMvt"], dayfirst = True).between( pd.Timestamp.today().normalize(), pd.Timestamp.today().normalize() + pd.DateOffset(months = 2) ) ]
     return out
 
 
