@@ -25,9 +25,9 @@ chemin="Seuils.xlsx"
 #Chargement du fichier seuil par défaut
 ###############
 @st.cache_data
-def lister_onglets(chemin) 
+def lister_onglets(chemin) : 
     return pd.ExcelFile(chemin).sheet_names
-
+@st.cache_data
 def charger_onglet(nom_onglet, chemin):
     df = pd.read_excel(chemin, sheet_name = nom_onglet)
     df = df[COLONNES]
@@ -48,8 +48,8 @@ if fichier is not None:
     editor_key = f"editor_{fichier.name}_{fichier.size}" #clé basée sur le nom+taille du fichier -> unique par fichier
 else:
     # Sinon: fichier par défaut
-    onglets = lister_onglets 
-    onglets = st.sidebar.selectbox("Choisir la saison", onglets)
+    onglets = lister_onglets() 
+    onglet_choisi = st.sidebar.selectbox("Choisir la saison", onglets)
     df_seuils = charger_onglet(onglet_choisi)
     st.sidebar.info(f"Seuils par défaut - onglet : **{onglet_choisi}**")
     editor_key = f"editor_defaut_{onglet_choisi}" # clé unique par onglet
