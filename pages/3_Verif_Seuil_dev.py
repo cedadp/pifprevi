@@ -139,7 +139,7 @@ def main():
     # retourne le dataframe dans un format "long"
     
         df_depivote = pd.melt(new_df, id_vars=['site', 'jour'], var_name='heure', value_name='charge')
-        st.download_button( label="⬇️ Télécharger les données cumul glissant horaire", data=to_excel_bytes(new_df, sheet_name="Data"), file_name="data.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", )
+        st.download_button( label="⬇️ Télécharger les données cumul glissant horaire", data=to_excel_bytes(df_depivote, sheet_name="Data"), file_name="data.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", )
          
                                   
 #new_df.to_excel("C:/Users/demanet/Downloads/test_cumul.xlsx", index= False)         
