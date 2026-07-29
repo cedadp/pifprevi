@@ -254,7 +254,7 @@ def main():
                     
         
 
-st.download_button ( "", 
+                    st.download_button ( "", 
                     data = df_depivote.to_csv(index=False).encode"utf-8-sig"), file_name = "data.csv", mime = "text/csv" )
        
 if __name__=="__main__":
