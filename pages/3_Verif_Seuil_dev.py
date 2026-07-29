@@ -17,6 +17,7 @@ import altair as alt
 from itertools import product
 import locale
 from datetime import datetime, timedelta
+import io
 
 COLONNES = ["site", "seuil"]
 chemin="Seuils_4.xlsx"
