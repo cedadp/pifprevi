@@ -177,7 +177,7 @@ def main():
 
 
 ####### filtre le df sur la semaine suivante entière
-        on = st.toggle("Mode auto (désactiver pour sélectionner une semaine à tracer)",value=True)   
+        on = st.toggle("Mode auto J-7 (désactiver pour sélectionner une semaine à tracer)",value=True)   
          
         if on : 
                 jour_deb = df['jour'].min().weekday()
