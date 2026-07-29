@@ -20,7 +20,8 @@ from datetime import datetime, timedelta
 
 COLONNES = ["site", "seuil"]
 chemin="Seuils_4.xlsx"
-
+def to_excel_bytes(df, sheet_name="Data"):
+    buffer = io.BytesIO() with pd.ExcelWriter(buffer, engine="openpyxl") as writer: df.to_excel(writer, index=False, sheet_name=sheet_name) return buffer.getvalue()
 ###############
 #Chargement du fichier seuil par défaut
 ###############
