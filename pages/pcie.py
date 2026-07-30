@@ -73,10 +73,10 @@ def transform_af(file, conf, label="AF"):
 
 
 # ---------------------------------------------------------------
-# EZ  (easyJet : .xls, ArrDep déduit via CDG, EJU/EZY)
+# EZ  (ArrDep déduit via CDG, EJU/EZY)
 # ---------------------------------------------------------------
 def transform_ez(file):
-    """easyJet : fichier .xls unique contenant arrivées ET départs."""
+    
     raw = pd.read_excel(file, sheet_name="Sheet", header=5, engine="xlrd")
     raw = normalize_columns(raw)
 
@@ -106,12 +106,12 @@ def transform_ez(file):
 
 
 # ---------------------------------------------------------------
-# NH  (PDF unique -> inbound NH215 + outbound NH216)
+# NH  (PDF unique -> Arr NH215 + dep NH216)
 # ---------------------------------------------------------------
 def transform_nh(file, direction):
     """
-    Parse NH PDF (All Nippon Airways) — texte brut, PAS de table alignée.
-    Le PDF a 2 sections : ///NH215/// (arrivées) et ///NH216/// (départs).
+    Parse NH PDF  — texte brut, PAS de table alignée.
+    2 sections : ///NH215/// (arrivées) et ///NH216/// (départs).
     Les dates et les lignes pax sont dans des blocs séparés, à réapparier dans l'ordre.
     Ligne pax type : "48 16 115 179 100%76%79% 83%" -> TOTAL = dernier entier avant le 1er %.
     """
@@ -168,8 +168,8 @@ def transform_nh(file, direction):
                 total = int(ints[-1])           # dernier entier avant le % = TOTAL
                 totals.append(total)
 
-    # 3) Restreindre à la section demandée : le PDF liste NH215 puis NH216 (ou l'inverse).
-    #    On repère l'ordre des marqueurs pour découper dates/totals par section.
+    # 3) le PDF liste NH215 puis NH216 (ou l'inverse).
+    #    repèrer l'ordre des marqueurs pour découper dates/totals par section.
     order = [s for s in re.findall(r"NH21[56]", text)]
     # fallback simple : les deux sections ont le même nombre de mouvements (32/32).
     n = len(totals)
@@ -437,7 +437,7 @@ for name, conf in pdf_sources.items():
                                       type=["pdf"], key=f"file_{name}")
 
 
-st.header("📋 Données collées (depuis mail Outlook)")
+st.header("📋 Données à coller (depuis mail)")
 for name, conf in paste_sources.items():
     uploaded[name] = st.text_area(conf.get("label", name), height=200, key=f"paste_{name}")
 
@@ -506,7 +506,7 @@ def build_preview_frames():
 
 
 def render_tcd(df):
-    """Affiche les 2 TCD par CieOpe (comme la capture)."""
+    """Affiche les 2 TCD par CieOpe."""
     d = df.copy()
     d["_date"] = pd.to_datetime(d["DateLocaleMvt"], format="%d/%m/%Y", errors="coerce")
 
@@ -551,7 +551,7 @@ def render_tcd(df):
         tcd1[c] = tcd1[c].astype(int).map(lambda x: f"{x:,}".replace(",", " "))
     tcd2["Nombre de mvts"] = tcd2["Nombre de mvts"].astype(int).map(lambda x: f"{x:,}".replace(",", " "))
 
-    # Affichage resserré, côte à côte
+    # Affichage 
     col1, col2 = st.columns([1, 1], gap="medium")
     with col1:
         st.markdown("**📊 Pax**")
