@@ -407,12 +407,12 @@ SOURCES = {
     },
     "LH_IN":  {"input_type": "excel", "label": "LH — Arrivées (inbound)", "custom": transform_lh_inbound},
     "LH_OUT": {"input_type": "excel", "label": "LH — Départs (outbound)", "custom": transform_lh_outbound},
-    "AI":     {"input_type": "excel", "label": "AI — Air India (Masque Prévisions CDG)", "custom": transform_ai},
-    "EI":     {"input_type": "excel", "label": "EI — Aer Lingus (Masque Prévisions CDG)", "custom": transform_ei},
+    "AI":     {"input_type": "excel", "label": "AI — Air India ", "custom": transform_ai},
+    "EI":     {"input_type": "excel", "label": "EI — Aer Lingus ", "custom": transform_ei},
     "EZ":     {"input_type": "excel", "label": "EZ — easyJet (EJU/EZY)", "custom": transform_ez},
-    "NH":     {"input_type": "pdf",   "label": "NH — All Nippon (PDF unique HND↔CDG)", "custom": None},
-    "MK":     {"input_type": "excel", "label": "MK — Air Madagascar (Masque Prévisions CDG)", "custom": transform_mk},
-    "WY":     {"input_type": "paste", "label": "WY — Oman Air (coller depuis le mail Outlook)", "custom": transform_paste},
+    "NH":     {"input_type": "pdf",   "label": "NH —  (PDF)", "custom": None},
+    "MK":     {"input_type": "excel", "label": "MK — Air Mauritius ", "custom": transform_mk},
+    "WY":     {"input_type": "paste", "label": "WY — Oman Air (coller depuis le mail)", "custom": transform_paste},
 }
 
 # ---------------------------------------------------------------
