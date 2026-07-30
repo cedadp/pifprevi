@@ -28,7 +28,7 @@ COLONNES = ["site", "seuil"]
 #Chargement du fichier seuil par défaut
 ###############
 @st.cache_data
-def charger_df_seuils(chemin="Seuils.xlsx"):
+def charger_df_seuils(chemin="Seuils_4.xlsx"):
     df = pd.read_excel(chemin)
     df = df[COLONNES]
     df["site"] = df["site"].astype(str).str.strip()
