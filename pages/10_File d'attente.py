@@ -27,12 +27,44 @@ COLONNES = ["site", "seuil"]
 ###############
 #Chargement du fichier seuil par défaut
 ###############
+#@st.cache_data
+#def charger_df_seuils(chemin="Seuils_4.xlsx"):
+#    df = pd.read_excel(chemin)
+#    df = df[COLONNES]
+#   df["site"] = df["site"].astype(str).str.strip()
+#    return df
+
 @st.cache_data
-def charger_df_seuils(chemin="Seuils_4.xlsx"):
-    df = pd.read_excel(chemin)
+def lister_onglets(chemin) : 
+    return pd.ExcelFile(chemin).sheet_names
+@st.cache_data
+def charger_onglet(nom_onglet, chemin):
+    df = pd.read_excel(chemin, sheet_name = nom_onglet)
     df = df[COLONNES]
     df["site"] = df["site"].astype(str).str.strip()
     return df
+
+###############
+#Upload optionnel du fichier seuil
+###############
+
+fichier = st.sidebar.file_uploader("Charger un fichier de seuils (optionnel)", type=["xlsx"])
+if fichier is not None:
+    # Si fichier téléversé:
+    df_seuils = pd.read_excel(fichier)
+    df_seuils = df_seuils[["site", "seuil"]]
+    df_seuils["site"] = df_seuils["site"].astype(str).str.strip() 
+    st.sidebar.success("Seuils personnalisés chargés ✅") 
+    editor_key = f"editor_{fichier.name}_{fichier.size}" #clé basée sur le nom+taille du fichier -> unique par fichier
+else:
+    # Sinon: fichier par défaut
+    onglets = lister_onglets(chemin) 
+    onglet_choisi = st.sidebar.selectbox("Choisir la saison", onglets)
+    df_seuils = charger_onglet(onglet_choisi, chemin)
+    st.sidebar.info(f"Seuils par défaut - onglet : **{onglet_choisi}**")
+    editor_key = f"editor_defaut_{onglet_choisi}" # clé unique par onglet
+
+
 
 
 # --- CHARGEMENT DES DONNÉES ---
