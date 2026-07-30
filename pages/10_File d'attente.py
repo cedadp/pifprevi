@@ -109,7 +109,7 @@ st.sidebar.markdown("---")
 st.sidebar.header("⚙️ Paramètres de simulation")
 
 
-df_seuils = charger_df_seuils() 
+#df_seuils = charger_df_seuils() 
 DEFAULT_DEBITS = dict(zip(df_seuils["site"], df_seuils["seuil"]))
 #--# Débits par défaut par site (en pax/h)
 #DEFAULT_DEBITS = {'K CTRCNT' : 0,'K CTR' : 1660,'K CNT' : 300 , 'L CTR' : 2080, 'L CNT' :  1520, 'M CTR' : 1960, 'Galerie EF' : 1820, 'C2F' : 1960, 'C2G' : 910, 'Liaison AC' : 1960,'Liaison BD' : 2320,
