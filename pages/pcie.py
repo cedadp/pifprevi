@@ -585,12 +585,12 @@ def render_tcd(df):
 
 # Affichage automatique de l'aperçu dès qu'au moins un fichier est présent
 if any((v is not None) and (not (isinstance(v, str) and v.strip() == "")) for v in uploaded.values()):
-    st.subheader("👁️ Aperçu des TCD (avant intégration)")
+    st.subheader("Aperçu des TCD")
     preview = build_preview_frames()
     if preview:
         render_tcd(pd.concat(preview, ignore_index=True))
     else:
-        st.info("Fichiers détectés mais aucune donnée exploitable pour l'instant.")
+        st.info("Fichiers détectés mais aucune donnée exploitable.")
 
 st.divider()
 
