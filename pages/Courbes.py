@@ -152,13 +152,18 @@ def aggregate_profiles(profils_vol: pd.DataFrame, group_col: str | None = None) 
 
 
 def cumulative(df: pd.DataFrame, group_col: str | None = None) -> pd.DataFrame:
-    """Ajoute la proportion cumulée en remontant vers le départ."""
+    """Part des passagers DÉJÀ présentés à un instant donné.
+
+    Cumul du plus loin du départ (290-300 min) vers le plus proche (0-10 min) :
+    0 % à H-5h, 100 % à l'heure de départ.
+    """
     if df.empty:
         return df.assign(proportion_cumulee=[])
-    out = df.sort_values(([group_col] if group_col else []) + ["tranche_min"]).copy()
+    out = df.sort_values(([group_col] if group_col else []) + ["tranche_min"],
+                         ascending=[True] * bool(group_col) + [False]).copy()
     out["proportion_cumulee"] = (out.groupby(group_col)["proportion"].cumsum()
                                  if group_col else out["proportion"].cumsum())
-    return out
+    return out.sort_values(([group_col] if group_col else []) + ["tranche_min"]).reset_index(drop=True)
 
 
 def compute_all(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
@@ -265,13 +270,13 @@ def main() -> None:
             f1 = px.line(a, x="tranche", y="proportion", color=col, markers=True,
                          title="Courbe de présentation")
             f1.update_yaxes(tickformat=".0%", title="Part des passagers")
-            f1.update_xaxes(title="Minutes avant le départ")
+            f1.update_xaxes(title="Minutes avant le départ", autorange="reversed")
             st.plotly_chart(f1, use_container_width=True)
 
             f2 = px.line(cc, x="tranche", y="proportion_cumulee", color=col, markers=True,
                          title="Courbe cumulée")
             f2.update_yaxes(tickformat=".0%", title="Part cumulée")
-            f2.update_xaxes(title="Minutes avant le départ")
+            f2.update_xaxes(title="Minutes avant le départ", autorange="reversed")
             st.plotly_chart(f2, use_container_width=True)
             st.dataframe(a, use_container_width=True)
 
