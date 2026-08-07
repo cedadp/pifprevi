@@ -448,7 +448,7 @@ st.divider()
 
 
 # ---------------------------------------------------------------
-# APERÇU TCD (avant GO) — construit dès qu'un fichier est déposé
+# APERÇU TCD (avant ) — construit dès qu'un fichier est déposé
 # ---------------------------------------------------------------
 def build_preview_frames():
     """Rejoue les transformations sur les fichiers déjà déposés, sans bloquer sur erreur."""
@@ -477,7 +477,7 @@ def build_preview_frames():
         try:
             if name == "NH":
                 pdf_bytes = up.read()
-                up.seek(0)  # remet le curseur pour le GO ensuite
+                up.seek(0)  # remet le curseur pour le  ensuite
                 for d in ("inbound", "outbound"):
                     res = transform_nh(io.BytesIO(pdf_bytes), direction=d)
                     if res is not None:
@@ -497,10 +497,10 @@ def build_preview_frames():
                 res = finalize_output(res)
                 if not res.empty:
                     frames.append(res)
-                    # dans le GO uniquement :
+                    # dans le  uniquement :
                     # st.success(f"[{name}] {len(res)} lignes intégrées.")
         except Exception as e:
-            # preview : pass  |  GO : st.error(f"[{name}] Erreur : {e}")
+            # preview : pass  |   : st.error(f"[{name}] Erreur : {e}")
             pass
     return frames
 
@@ -596,7 +596,7 @@ st.divider()
 
 
 
-if st.button("🚀 GO", type="primary", use_container_width=True):
+if st.button("GO", type="primary", use_container_width=True):
     frames = []
 
     # --- Sources Excel ---
