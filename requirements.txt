@@ -9,4 +9,4 @@ xlrd
 plotly
 matplotlib
 pdfplumber
-
+streamlit==1.62
