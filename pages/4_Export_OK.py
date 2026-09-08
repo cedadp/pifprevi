@@ -17,7 +17,7 @@ import io
 from pyxlsb import open_workbook as open_xlsb
 import re
 from itertools import product
-locale.setlocale(locale.LC_ALL, "fr_FR")
+#locale.setlocale(locale.LC_ALL, "fr_FR")
 ########### Cette version corrige le problème des tranche dix minutes manquantes#######
 st.title("✅ Export")
 #add_logo("Logo_Groupe_ADP.png")
