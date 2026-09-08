@@ -210,26 +210,26 @@ if uploaded_file is not None:
 
 
     def clean(df, i):
-    g = str(i).replace(" ", "_")
-
-    df['Total'] = df.iloc[:, 1:145].sum(axis=1)
-    df['Numéro de Jour'] = df['jour'].dt.day
-    df['Date complète'] = df['jour'].dt.strftime('%d/%m/%Y')
-    df['Jour de la semaine'] = df['jour'].dt.weekday.map(lambda d: JOURS_FR[d])
-    df[g] = df['jour'].dt.month.map(lambda m: MOIS_FR[m - 1])
-    df["Jour férié ?"] = ""
-
-    df.insert(1, 'Jour férié ?', df.pop('Jour férié ?'))
-    df.insert(1, 'Numéro de Jour', df.pop('Numéro de Jour'))
-    df.insert(3, 'Date complète', df.pop('Date complète'))
-    df.insert(3, 'Jour de la semaine', df.pop('Jour de la semaine'))
-    df.insert(0, g, df.pop(g))
-    df.pop('jour')
-
-    df[g] = list(itertools.chain.from_iterable(
-        [key] + [float('nan')] * (len(list(val)) - 1)
-        for key, val in itertools.groupby(df[g].tolist())
-    ))
+        g = str(i).replace(" ", "_")
+    
+        df['Total'] = df.iloc[:, 1:145].sum(axis=1)
+        df['Numéro de Jour'] = df['jour'].dt.day
+        df['Date complète'] = df['jour'].dt.strftime('%d/%m/%Y')
+        df['Jour de la semaine'] = df['jour'].dt.weekday.map(lambda d: JOURS_FR[d])
+        df[g] = df['jour'].dt.month.map(lambda m: MOIS_FR[m - 1])
+        df["Jour férié ?"] = ""
+    
+        df.insert(1, 'Jour férié ?', df.pop('Jour férié ?'))
+        df.insert(1, 'Numéro de Jour', df.pop('Numéro de Jour'))
+        df.insert(3, 'Date complète', df.pop('Date complète'))
+        df.insert(3, 'Jour de la semaine', df.pop('Jour de la semaine'))
+        df.insert(0, g, df.pop(g))
+        df.pop('jour')
+    
+        df[g] = list(itertools.chain.from_iterable(
+            [key] + [float('nan')] * (len(list(val)) - 1)
+            for key, val in itertools.groupby(df[g].tolist())
+        ))
 
     
     def findDay(date):
