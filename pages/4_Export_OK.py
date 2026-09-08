@@ -23,6 +23,13 @@ st.title("✅ Export")
 #add_logo("Logo_Groupe_ADP.png")
 #st.write("Fichier Export final")
 
+
+JOURS_FR = ["lundi", "mardi", "mercredi", "jeudi",
+            "vendredi", "samedi", "dimanche"]
+
+MOIS_FR = ["janvier", "février", "mars", "avril", "mai", "juin",
+           "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
+
 def findDay(date):
     born = datetime.datetime.strptime(date, '%d %m %Y').weekday()
     return (calendar.day_name[born])   
