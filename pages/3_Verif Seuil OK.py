@@ -244,22 +244,22 @@ def main():
                 
                 for site in sites: 
                     
-                    st.subheader(f" {site}")
-                    
-                    st.write("seuil max: ", seuil(site))
-                    df_site = df_depivote.loc[df_depivote['site']==site]
-                    locale.setlocale(locale.LC_ALL, 'fr_FR')
-                    df_site['Date']= df_site['jour'].dt.strftime('%A %d %b')
-                   
-                    fig = px.line(df_site, x= 'heure', y= 'charge',  color = 'Date',
-                                    labels={'jour', 'date'})
-                    
-                    ligne_seuil = seuil(site)
-                    fig.add_hline(y=ligne_seuil, line_dash='dash', line_color="red")
-                    
-                    
-                    
-                    st.plotly_chart(fig)
+                  st.subheader(f" {site}")
+                      
+                  st.write("seuil max: ", seuil(site))
+                  df_site = df_depivote.loc[df_depivote['site']==site]
+                  df_site['Date'] = df_site['jour'].apply(
+                  lambda d: f"{JOURS_FR[d.weekday()]} {d.day:02d} {MOIS_FR_ABR[d.month - 1]}")
+                     
+                  fig = px.line(df_site, x= 'heure', y= 'charge',  color = 'Date',
+                                      labels={'jour', 'date'})
+                      
+                  ligne_seuil = seuil(site)
+                  fig.add_hline(y=ligne_seuil, line_dash='dash', line_color="red")
+                      
+                      
+                      
+                  st.plotly_chart(fig)
 
                     
         
