@@ -18,8 +18,11 @@ from itertools import product
 #import locale
 from datetime import datetime, timedelta
 import io
+JOURS_FR = ["lundi", "mardi", "mercredi", "jeudi",
+            "vendredi", "samedi", "dimanche"]
 
-
+MOIS_FR = ["janvier", "février", "mars", "avril", "mai", "juin",
+           "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
 MOIS_FR_ABR = ["janv.", "févr.", "mars", "avr.", "mai", "juin",
                "juil.", "août", "sept.", "oct.", "nov.", "déc."]
 COLONNES = ["site", "seuil"]
