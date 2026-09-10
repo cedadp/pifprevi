@@ -10,10 +10,10 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import io
-import locale
+#import locale
 
 # Définir la localisation en français
-locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+#locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 
 st.set_page_config(page_title="File d'attente", layout="wide")
