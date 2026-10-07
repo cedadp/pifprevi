@@ -262,19 +262,19 @@ if uploaded_file is not None and download is False:
            valeurs_invalides = (    modifications[TERMINAL].astype("string")    .fillna("")    .str.strip()    .eq(""))
 
            if valeurs_invalides.any():
-             st.error(          "Un nouveau libellé ne peut pas être vide. "        "Les changements n'ont pas été appliqués."    )
+               st.error(          "Un nouveau libellé ne peut pas être vide. "        "Les changements n'ont pas été appliqués."    )
            else:
-            if not modifications.empty:
+              if not modifications.empty:
         # Permet aussi de modifier une colonne initialement catégorielle.
-             resultat[TERMINAL] = resultat[TERMINAL].astype(object)
+                resultat[TERMINAL] = resultat[TERMINAL].astype(object)
 
-             for compagnie, terminal in modifications.itertuples( index=False, name=None  ):
+                for compagnie, terminal in modifications.itertuples( index=False, name=None  ):
                   resultat.loc[ resultat[CIE].eq(compagnie).fillna(False), TERMINAL, ] = terminal
 
-            if tout_exclure:
-              resultat = resultat.iloc[0:0].copy()
-            else:
-              resultat = resultat.loc[~resultat[CIE].isin(cies_exclues)].copy()
+              if tout_exclure:
+                 resultat = resultat.iloc[0:0].copy()
+              else:
+                 resultat = resultat.loc[~resultat[CIE].isin(cies_exclues)].copy()
 
         st.session_state["pgrm_resultat"] = resultat
         st.success("Modifications appliquées.")
