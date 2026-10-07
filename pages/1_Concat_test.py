@@ -240,37 +240,33 @@ if uploaded_file is not None and download is False:
              appliquer = st.form_submit_button("Appliquer les modifications")
 
 
-        if appliquer: resultat = source.copy(deep=True)
+        if appliquer: 
+           resultat = source.copy(deep=True)
         # Repérer uniquement les libellés réellement modifiés.
-        ancien = table_edition[TERMINAL].astype("string")
-        nouveau = edition[TERMINAL].astype("string")
+           ancien = table_edition[TERMINAL].astype("string")
+           nouveau = edition[TERMINAL].astype("string")
 
-        identiques = (    ancien.eq(nouveau).fillna(False)    | (ancien.isna() & nouveau.isna()))
+           identiques = (    ancien.eq(nouveau).fillna(False)    | (ancien.isna() & nouveau.isna()))
 
-        modifications = edition.loc[~identiques, [CIE, TERMINAL]].copy()
+           modifications = edition.loc[~identiques, [CIE, TERMINAL]].copy()
 
         # Refuser un nouveau libellé vide ->
-        valeurs_invalides = (    modifications[TERMINAL].astype("string")    .fillna("")    .str.strip()    .eq(""))
+           valeurs_invalides = (    modifications[TERMINAL].astype("string")    .fillna("")    .str.strip()    .eq(""))
 
-        if valeurs_invalides.any():
-          st.error(          "Un nouveau libellé ne peut pas être vide. "        "Les changements n'ont pas été appliqués."    )
-        else:
-         if not modifications.empty:
+           if valeurs_invalides.any():
+             st.error(          "Un nouveau libellé ne peut pas être vide. "        "Les changements n'ont pas été appliqués."    )
+           else:
+            if not modifications.empty:
         # Permet aussi de modifier une colonne initialement catégorielle.
-          resultat[TERMINAL] = resultat[TERMINAL].astype(object)
+             resultat[TERMINAL] = resultat[TERMINAL].astype(object)
 
-        for compagnie, terminal in modifications.itertuples(
-            index=False, name=None
-        ):
-            resultat.loc[
-                resultat[CIE].eq(compagnie).fillna(False),
-                TERMINAL,
-            ] = terminal
+              for compagnie, terminal in modifications.itertuples( index=False, name=None  ):
+                  resultat.loc[ resultat[CIE].eq(compagnie).fillna(False), TERMINAL, ] = terminal
 
-         if tout_exclure:
-           resultat = resultat.iloc[0:0].copy()
-         else:
-           resultat = resultat.loc[~resultat[CIE].isin(cies_exclues)].copy()
+            if tout_exclure:
+              resultat = resultat.iloc[0:0].copy()
+            else:
+              resultat = resultat.loc[~resultat[CIE].isin(cies_exclues)].copy()
 
         st.session_state["pgrm_resultat"] = resultat
         st.success("Modifications appliquées.")
