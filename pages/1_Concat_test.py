@@ -245,7 +245,7 @@ if uploaded_file is not None and download is False:
         with st.form("form_gestion_pgrm"): 
              st.markdown("Modifier les terminaux")
              st.caption( "Seules les compagnies ayant un unique terminal distinct " "dans les données d'origine apparaissent ici." )
-             edition = st.data_editor( table_edition,hide_index=True,disabled=[CIE],num_rows="fixed",column_config={ TERMINAL: st.column_config.SelectboxColumn( "Libellé terminal", options=options_terminaux, help="Choisir un terminal.", required=True, ) },  ) },key="pgrm_editeur_terminaux",)
+             edition = st.data_editor( table_edition,hide_index=True,disabled=[CIE],num_rows="fixed",column_config={ TERMINAL: st.column_config.SelectboxColumn( "Libellé terminal", options=options_terminaux, help="Choisir un terminal.", required=True, ) },  key="pgrm_editeur_terminaux",)
 
              st.markdown("**Exclure des compagnies**")
 
