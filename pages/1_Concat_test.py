@@ -267,18 +267,16 @@ if uploaded_file is not None and download is False:
                 TERMINAL,
             ] = terminal
 
-       if tout_exclure:
-        resultat = resultat.iloc[0:0].copy()
-       else:
-        resultat = resultat.loc[
-            ~resultat[CIE].isin(cies_exclues)
-        ].copy()
+         if tout_exclure:
+           resultat = resultat.iloc[0:0].copy()
+         else:
+           resultat = resultat.loc[~resultat[CIE].isin(cies_exclues)].copy()
 
-       st.session_state["pgrm_resultat"] = resultat
-       st.success("Modifications appliquées.")
+        st.session_state["pgrm_resultat"] = resultat
+        st.success("Modifications appliquées.")
 
-       df_pgrm_concat = st.session_state["pgrm_resultat"].copy(deep=True)
-       st.markdown("Dataset après application des modifications") st.write(f"{len(df_pgrm_concat):,} lignes conservées.") st.dataframe(df_pgrm_concat.head(100), hide_index=True)
+        df_pgrm_concat = st.session_state["pgrm_resultat"].copy(deep=True)
+        st.markdown("Dataset après application des modifications") st.write(f"{len(df_pgrm_concat):,} lignes conservées.") st.dataframe(df_pgrm_concat.head(100), hide_index=True)
 
 
 
