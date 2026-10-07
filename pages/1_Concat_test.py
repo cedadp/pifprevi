@@ -255,9 +255,9 @@ if uploaded_file is not None and download is False:
         if valeurs_invalides.any():
           st.error(          "Un nouveau libellé ne peut pas être vide. "        "Les changements n'ont pas été appliqués."    )
         else:
-        if not modifications.empty:
+         if not modifications.empty:
         # Permet aussi de modifier une colonne initialement catégorielle.
-        resultat[TERMINAL] = resultat[TERMINAL].astype(object)
+          resultat[TERMINAL] = resultat[TERMINAL].astype(object)
 
         for compagnie, terminal in modifications.itertuples(
             index=False, name=None
