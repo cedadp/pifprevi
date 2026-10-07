@@ -208,7 +208,7 @@ if uploaded_file is not None and download is False:
         
                # Initialisation : une seule fois par session ->
         if "pgrm_source" not in st.session_state: st.session_state["pgrm_source"] = df_pgrm_concat.copy(deep=True)
-        if "pgrm_resultat" not in       st.session_state["pgrm_resultat"] = df_pgrm_concat.copy(deep=True) 
+        if "pgrm_resultat" not in st.session_state: st.session_state["pgrm_resultat"] = df_pgrm_concat.copy(deep=True) 
         source = st.session_state["pgrm_source"]
         st.subheader("Modificaiton des affectations")
         
