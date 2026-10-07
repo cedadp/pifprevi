@@ -203,7 +203,7 @@ if uploaded_file is not None and download is False:
         placeholder.success("Concaténation des prévisions réussie !")
                
         df_pgrm_concat["Cie Ope"] = df_pgrm_concat["Cie Ope"].astype("string") 
-        numvol = df_pgrm_concat["NumVol"].astype("string")
+        numvol = df_pgrm_concat["Num Vol"].astype("string")
         cie_vide = ( df_pgrm_concat["Cie Ope"].isna() | df_pgrm_concat["Cie Ope"].str.strip().eq("").fillna(False) )
         cie_extraite = numvol.str.extract(r"^\s*([A-Za-z]+)", expand=False)
         a_remplir = cie_vide & cie_extraite.notna()
