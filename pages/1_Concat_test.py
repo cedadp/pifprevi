@@ -213,7 +213,7 @@ if uploaded_file is not None and download is False:
 
         #Liste les terminaux disponibles ->
 
-        options_terminaux = ( source[TERMINAL] .dropna() .astype(str) .drop_duplicates() .tolist() )
+        options_terminaux = ( df_pgrm_concat[Libellé terminal] .dropna() .astype(str) .drop_duplicates() .tolist() )
 
 
 
