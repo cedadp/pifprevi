@@ -272,7 +272,8 @@ if uploaded_file is not None and download is False:
         st.success("Modifications appliquées.")
 
         df_pgrm_concat = st.session_state["pgrm_resultat"].copy(deep=True)
-        st.markdown("Dataset après application des modifications") st.write(f"{len(df_pgrm_concat):,} lignes conservées.") st.dataframe(df_pgrm_concat.head(100), hide_index=True)
+        st.markdown("Dataset après application des modifications") 
+        st.write(f"{len(df_pgrm_concat):,} lignes conservées.") st.dataframe(df_pgrm_concat.head(100), hide_index=True)
 
 
 
