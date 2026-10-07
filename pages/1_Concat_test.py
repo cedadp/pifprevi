@@ -260,7 +260,7 @@ if uploaded_file is not None and download is False:
         # Permet aussi de modifier une colonne initialement catégorielle.
              resultat[TERMINAL] = resultat[TERMINAL].astype(object)
 
-              for compagnie, terminal in modifications.itertuples( index=False, name=None  ):
+             for compagnie, terminal in modifications.itertuples( index=False, name=None  ):
                   resultat.loc[ resultat[CIE].eq(compagnie).fillna(False), TERMINAL, ] = terminal
 
             if tout_exclure:
