@@ -202,7 +202,8 @@ if uploaded_file is not None and download is False:
         # à ajouter : df_pgrm_concat.dropna(inplace=True)
         placeholder.success("Concaténation des prévisions réussie !")
 
-        CIE = "Cie Ope" TERMINAL = "Libellé terminal"   
+        CIE = "Cie Ope"
+        TERMINAL = "Libellé terminal"   
 
         
                # Initialisation : une seule fois par session ->
