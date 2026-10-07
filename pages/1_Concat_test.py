@@ -241,7 +241,7 @@ if uploaded_file is not None and download is False:
 
              st.markdown("**Exclure des compagnies**")
 
-             tout_exclure = st.checkbox("Tout exclure — le dataset résultant sera vide",key="pgrm_tout_exclure",)
+             #tout_exclure = st.checkbox("Tout exclure — le dataset résultant sera vide",key="pgrm_tout_exclure",)
 
              cies_exclues = st.multiselect(    "Compagnies à exclure",    options=compagnies,    help="Cette sélection est ignorée si « Tout exclure » est coché.",    key="pgrm_cies_exclues",)
 
