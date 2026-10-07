@@ -201,13 +201,21 @@ if uploaded_file is not None and download is False:
         
         # à ajouter : df_pgrm_concat.dropna(inplace=True)
         placeholder.success("Concaténation des prévisions réussie !")
-               
+
+
+        # Remplir le code IATA vide par le préfixe du Num Vol ->       
         df_pgrm_concat["Cie Ope"] = df_pgrm_concat["Cie Ope"].astype("string") 
         numvol = df_pgrm_concat["Num Vol"].astype("string")
         cie_vide = ( df_pgrm_concat["Cie Ope"].isna() | df_pgrm_concat["Cie Ope"].str.strip().eq("").fillna(False) )
         cie_extraite = numvol.str.extract(r"^\s*([A-Za-z]+)", expand=False)
         a_remplir = cie_vide & cie_extraite.notna()
         df_pgrm_concat.loc[a_remplir, "Cie Ope"] = cie_extraite.loc[a_remplir]
+
+        #Liste les terminaux disponibles ->
+
+        options_terminaux = ( source[TERMINAL] .dropna() .astype(str) .drop_duplicates() .tolist() )
+
+
 
                
         CIE = "Cie Ope"
@@ -237,7 +245,7 @@ if uploaded_file is not None and download is False:
         with st.form("form_gestion_pgrm"): 
              st.markdown("Modifier les terminaux")
              st.caption( "Seules les compagnies ayant un unique terminal distinct " "dans les données d'origine apparaissent ici." )
-             edition = st.data_editor( table_edition,hide_index=True,disabled=[CIE],num_rows="fixed",column_config={TERMINAL: st.column_config.TextColumn( "Libellé terminal", help="Saisissez le nouveau libellé du terminal.",  ) },key="pgrm_editeur_terminaux",)
+             edition = st.data_editor( table_edition,hide_index=True,disabled=[CIE],num_rows="fixed",column_config={ TERMINAL: st.column_config.SelectboxColumn( "Libellé terminal", options=options_terminaux, help="Choisir un terminal.", required=True, ) },  ) },key="pgrm_editeur_terminaux",)
 
              st.markdown("**Exclure des compagnies**")
 
