@@ -226,16 +226,18 @@ if uploaded_file is not None and download is False:
         compagnies = source[CIE].dropna().drop_duplicates().tolist()
 
 
-        with st.form("form_gestion_pgrm"): st.markdown("Modifier les terminaux") st.caption( "Seules les compagnies ayant un unique terminal distinct " "dans les données d'origine apparaissent ici." )
-        edition = st.data_editor( table_edition,hide_index=True,disabled=[CIE],num_rows="fixed",column_config={TERMINAL: st.column_config.TextColumn( "Libellé terminal", help="Saisissez le nouveau libellé du terminal.",  ) },key="pgrm_editeur_terminaux",)
+        with st.form("form_gestion_pgrm"): 
+             st.markdown("Modifier les terminaux")
+             st.caption( "Seules les compagnies ayant un unique terminal distinct " "dans les données d'origine apparaissent ici." )
+             edition = st.data_editor( table_edition,hide_index=True,disabled=[CIE],num_rows="fixed",column_config={TERMINAL: st.column_config.TextColumn( "Libellé terminal", help="Saisissez le nouveau libellé du terminal.",  ) },key="pgrm_editeur_terminaux",)
 
-        st.markdown("**Exclure des compagnies**")
+             st.markdown("**Exclure des compagnies**")
 
-        tout_exclure = st.checkbox("Tout exclure — le dataset résultant sera vide",key="pgrm_tout_exclure",)
+             tout_exclure = st.checkbox("Tout exclure — le dataset résultant sera vide",key="pgrm_tout_exclure",)
 
-        cies_exclues = st.multiselect(    "Compagnies à exclure",    options=compagnies,    help="Cette sélection est ignorée si « Tout exclure » est coché.",    key="pgrm_cies_exclues",)
+             cies_exclues = st.multiselect(    "Compagnies à exclure",    options=compagnies,    help="Cette sélection est ignorée si « Tout exclure » est coché.",    key="pgrm_cies_exclues",)
 
-        appliquer = st.form_submit_button("Appliquer les modifications")
+             appliquer = st.form_submit_button("Appliquer les modifications")
 
 
         if appliquer: resultat = source.copy(deep=True)
