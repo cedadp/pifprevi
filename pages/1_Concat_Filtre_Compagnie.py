@@ -227,11 +227,11 @@ if uploaded_file is not None and download is False:
         if "pgrm_source" not in st.session_state: st.session_state["pgrm_source"] = df_pgrm_concat.copy(deep=True)
         if "pgrm_resultat" not in st.session_state: st.session_state["pgrm_resultat"] = df_pgrm_concat.copy(deep=True) 
         source = st.session_state["pgrm_source"]
-        st.subheader("Modificaiton des affectations")
+        st.subheader("Modification des affectations")
         
                #Récapitulatif des combinaisons d'affectation ->
         recap = ( source.groupby( [CIE, TERMINAL], dropna=False, observed=True, sort=False, ) .size() .reset_index(name="Nombre de lignes") )
-        st.markdown("Combinaisons présentes dans les données d’origine") 
+         
         st.dataframe(recap, hide_index=True)
         
                
@@ -245,12 +245,12 @@ if uploaded_file is not None and download is False:
 
         with st.form("form_gestion_pgrm"): 
              st.markdown("Modifier les terminaux")
-             st.caption( "Seules les compagnies ayant un unique terminal distinct " "dans les données d'origine apparaissent ici." )
+             st.caption( "Seules les compagnies ayant un terminal unique apparaissent ici." )
              edition = st.data_editor( table_edition,hide_index=True,disabled=[CIE],num_rows="fixed",column_config={ TERMINAL: st.column_config.SelectboxColumn( "Libellé terminal", options=options_terminaux, help="Choisir un terminal.", required=True, ) },  key="pgrm_editeur_terminaux",)
 
              st.markdown("**Exclure des compagnies**")
 
-             tout_exclure = st.checkbox("Tout exclure — le dataset résultant sera vide",key="pgrm_tout_exclure",)
+             tout_exclure = st.checkbox("Tout exclure",key="pgrm_tout_exclure",)
 
              cies_exclues = st.multiselect(    "Compagnies à exclure",    options=compagnies,    help="Cette sélection est ignorée si « Tout exclure » est coché.",    key="pgrm_cies_exclues",)
 
@@ -289,7 +289,7 @@ if uploaded_file is not None and download is False:
                  st.success("Modifications appliquées.")
 
         df_pgrm_concat = st.session_state["pgrm_resultat"].copy(deep=True)
-        st.markdown("Dataset après application des modifications") 
+        st.markdown("Dataset après modifications") 
         st.write(f"{len(df_pgrm_concat):,} lignes conservées.") 
         st.dataframe(df_pgrm_concat.head(100), hide_index=True)
 
