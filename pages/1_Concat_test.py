@@ -211,15 +211,16 @@ if uploaded_file is not None and download is False:
         a_remplir = cie_vide & cie_extraite.notna()
         df_pgrm_concat.loc[a_remplir, "Cie Ope"] = cie_extraite.loc[a_remplir]
 
-        #Liste les terminaux disponibles ->
-
-        options_terminaux = ( df_pgrm_concat[Libellé terminal] .dropna() .astype(str) .drop_duplicates() .tolist() )
 
 
 
-               
         CIE = "Cie Ope"
         TERMINAL = "Libellé terminal"   
+               
+        #Liste les terminaux disponibles ->
+
+        options_terminaux = ( df_pgrm_concat[TERMINAL] .dropna() .astype(str) .drop_duplicates() .tolist() )
+
 
         
                # Initialisation : une seule fois par session ->
