@@ -202,6 +202,92 @@ if uploaded_file is not None and download is False:
         # à ajouter : df_pgrm_concat.dropna(inplace=True)
         placeholder.success("Concaténation des prévisions réussie !")
 
+        CIE = "Cie Ope" TERMINAL = "Libellé terminal"   
+
+        
+               # Initialisation : une seule fois par session ->
+        if "pgrm_source" not in st.session_state: st.session_state["pgrm_source"] = df_pgrm_concat.copy(deep=True) st.session_state["pgrm_resultat"] = df_pgrm_concat.copy(deep=True) 
+        source = st.session_state["pgrm_source"]
+        st.subheader("Modificaiton des affectations")
+        
+               #Récapitulatif des combinaisons d'affectation ->
+        recap = ( source.groupby( [CIE, TERMINAL], dropna=False, observed=True, sort=False, ) .size() .reset_index(name="Nombre de lignes") )
+        st.markdown("Combinaisons présentes dans les données d’origine") st.dataframe(recap, hide_index=True)
+        
+               
+        nb_terminaux = ( source.loc[source[CIE].notna()] .groupby(CIE, observed=True, sort=False)[TERMINAL] .nunique(dropna=False) )
+        cies_modifiables = nb_terminaux[nb_terminaux == 1].index
+        table_edition = ( source.loc[ source[CIE].isin(cies_modifiables), [CIE, TERMINAL], ] .drop_duplicates(subset=[CIE]) .reset_index(drop=True) )
+
+        table_edition[TERMINAL] = table_edition[TERMINAL].astype("string")
+        compagnies = source[CIE].dropna().drop_duplicates().tolist()
+
+
+        with st.form("form_gestion_pgrm"): st.markdown("Modifier les terminaux") st.caption( "Seules les compagnies ayant un unique terminal distinct " "dans les données d'origine apparaissent ici." )
+        edition = st.data_editor( table_edition,hide_index=True,disabled=[CIE],num_rows="fixed",column_config={TERMINAL: st.column_config.TextColumn( "Libellé terminal", help="Saisissez le nouveau libellé du terminal.",  ) },key="pgrm_editeur_terminaux",)
+
+        st.markdown("**Exclure des compagnies**")
+
+        tout_exclure = st.checkbox("Tout exclure — le dataset résultant sera vide",key="pgrm_tout_exclure",)
+
+        cies_exclues = st.multiselect(    "Compagnies à exclure",    options=compagnies,    help="Cette sélection est ignorée si « Tout exclure » est coché.",    key="pgrm_cies_exclues",)
+
+        appliquer = st.form_submit_button("Appliquer les modifications")
+
+
+        if appliquer: resultat = source.copy(deep=True)
+        # Repérer uniquement les libellés réellement modifiés.
+        ancien = table_edition[TERMINAL].astype("string")
+        nouveau = edition[TERMINAL].astype("string")
+
+        identiques = (    ancien.eq(nouveau).fillna(False)    | (ancien.isna() & nouveau.isna()))
+
+        modifications = edition.loc[~identiques, [CIE, TERMINAL]].copy()
+
+        # Refuser un nouveau libellé vide ->
+        valeurs_invalides = (    modifications[TERMINAL].astype("string")    .fillna("")    .str.strip()    .eq(""))
+
+        if valeurs_invalides.any():
+          st.error(          "Un nouveau libellé ne peut pas être vide. "        "Les changements n'ont pas été appliqués."    )
+        else:
+        if not modifications.empty:
+        # Permet aussi de modifier une colonne initialement catégorielle.
+        resultat[TERMINAL] = resultat[TERMINAL].astype(object)
+
+        for compagnie, terminal in modifications.itertuples(
+            index=False, name=None
+        ):
+            resultat.loc[
+                resultat[CIE].eq(compagnie).fillna(False),
+                TERMINAL,
+            ] = terminal
+
+       if tout_exclure:
+        resultat = resultat.iloc[0:0].copy()
+       else:
+        resultat = resultat.loc[
+            ~resultat[CIE].isin(cies_exclues)
+        ].copy()
+
+       st.session_state["pgrm_resultat"] = resultat
+       st.success("Modifications appliquées.")
+
+       df_pgrm_concat = st.session_state["pgrm_resultat"].copy(deep=True)
+       st.markdown("Dataset après application des modifications") st.write(f"{len(df_pgrm_concat):,} lignes conservées.") st.dataframe(df_pgrm_concat.head(100), hide_index=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+               
         ######### Export PGRM CONCAT ########      
         from datetime import datetime
         placeholder.info("Préparation à l'export du programme complet ...")
