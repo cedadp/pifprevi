@@ -214,7 +214,8 @@ if uploaded_file is not None and download is False:
         
                #Récapitulatif des combinaisons d'affectation ->
         recap = ( source.groupby( [CIE, TERMINAL], dropna=False, observed=True, sort=False, ) .size() .reset_index(name="Nombre de lignes") )
-        st.markdown("Combinaisons présentes dans les données d’origine") st.dataframe(recap, hide_index=True)
+        st.markdown("Combinaisons présentes dans les données d’origine") 
+        st.dataframe(recap, hide_index=True)
         
                
         nb_terminaux = ( source.loc[source[CIE].notna()] .groupby(CIE, observed=True, sort=False)[TERMINAL] .nunique(dropna=False) )
