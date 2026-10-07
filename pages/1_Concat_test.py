@@ -276,8 +276,8 @@ if uploaded_file is not None and download is False:
               else:
                  resultat = resultat.loc[~resultat[CIE].isin(cies_exclues)].copy()
 
-        st.session_state["pgrm_resultat"] = resultat
-        st.success("Modifications appliquées.")
+                 st.session_state["pgrm_resultat"] = resultat
+                 st.success("Modifications appliquées.")
 
         df_pgrm_concat = st.session_state["pgrm_resultat"].copy(deep=True)
         st.markdown("Dataset après application des modifications") 
